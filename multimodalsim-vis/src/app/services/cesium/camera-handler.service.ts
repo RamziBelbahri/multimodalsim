@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Camera, Cartesian3, Viewer } from 'cesium';
+import { Camera } from 'cesium';
 
 @Injectable({
 	providedIn: 'root',
@@ -18,7 +18,7 @@ export class CameraHandlerService {
 
 	setCameraPosition(longitude: number, latitude: number, height: number = this.BASE_HEIGHT): void {
 		this.camera?.setView({
-			destination : Cesium.Cartesian3.fromDegrees(longitude, latitude, height)
+			destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
 		});
 	}
 }
