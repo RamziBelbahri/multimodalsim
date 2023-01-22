@@ -1,4 +1,5 @@
 import { Component, ElementRef } from '@angular/core';
+import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -6,7 +7,10 @@ import { Component, ElementRef } from '@angular/core';
 	styleUrls: ['./cesium-container.component.css'],
 })
 export class CesiumContainerComponent {
-	constructor(private element: ElementRef) {}
+	constructor(
+		private element: ElementRef,
+		private cameraHandler: CameraHandlerService
+	) {}
 
 	ngOnInit() {
 		const viewer = new Cesium.Viewer(this.element.nativeElement);
@@ -14,5 +18,7 @@ export class CesiumContainerComponent {
 		viewer.imageryLayers.addImageryProvider(
 			new Cesium.IonImageryProvider({ assetId: 4 })
 		);
+
+		this.cameraHandler.initCameraData(viewer.camera);
 	}
 }
