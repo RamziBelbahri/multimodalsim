@@ -12,7 +12,14 @@ export class CesiumContainerComponent {
 	viewer: Viewer = new Cesium.Viewer(this.element.nativeElement);
 	entity: Entity | undefined;
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityPositionHandler: EntityPositionHandlerService) {}
+	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityPositionHandler: EntityPositionHandlerService) {
+		// remplacer ça par un algo qui va déterminer la position à prendre
+		document.addEventListener('keydown', (event) => {
+			if (event.key == 'q') {
+				this.entityPositionHandler.updateEntityPos([new Cesium.Cartesian3(100, 0, 0), new Cesium.Cartesian3(100, 0, 0), new Cesium.Cartesian3(100, 0, 0), new Cesium.Cartesian3(100, 0, 0)]);
+			}
+		});
+	}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
@@ -22,16 +29,18 @@ export class CesiumContainerComponent {
 
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-		this.testEntitySpawn();
+		for (let i = 0; i < 1; i++) {
+			this.testEntitySpawn();
+		}
+
+		this.entityPositionHandler.startComputation(this.entity);
 	}
 
 	// remove eventually
 	testEntitySpawn(): void {
 		this.entity = this.viewer.entities.add({
 			polygon: {
-				hierarchy: new Cesium.CallbackProperty(() => {
-					return new Cesium.PolygonHierarchy(new Cesium.Cartesian3.fromDegreesArray([-73.751564, 45.576321, -73.754564, 45.576321, -73.754564, 45.579321, -73.751564, 45.579321]));
-				}, false),
+				hierarchy: new Cesium.PolygonHierarchy(this.entityPositionHandler.points),
 				height: 0,
 				material: Cesium.Color.BLUE,
 				outline: true,
