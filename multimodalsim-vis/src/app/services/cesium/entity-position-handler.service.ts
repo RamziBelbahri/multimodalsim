@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3, Entity } from 'cesium';
 
+import { CesiumClass } from 'src/app/shared/cesium-class';
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -10,12 +12,16 @@ export class EntityPositionHandlerService {
 	isChanged = false;
 
 	constructor() {
-		this.points = [
-			new Cesium.Cartesian3.fromDegrees(-73.751564, 45.576321),
-			new Cesium.Cartesian3.fromDegrees(-73.754564, 45.576321),
-			new Cesium.Cartesian3.fromDegrees(-73.754564, 45.579321),
-			new Cesium.Cartesian3.fromDegrees(-73.751564, 45.579321),
-		];
+		if (typeof Cesium !== 'undefined') {
+			this.points = [
+				CesiumClass.cartesianDegrees(-73.751564, 45.576321),
+				CesiumClass.cartesianDegrees(-73.754564, 45.576321),
+				CesiumClass.cartesianDegrees(-73.754564, 45.579321),
+				CesiumClass.cartesianDegrees(-73.751564, 45.579321),
+			];
+		} else {
+			this.points = [];
+		}
 	}
 
 	startComputation(entity: Entity | undefined): void {
