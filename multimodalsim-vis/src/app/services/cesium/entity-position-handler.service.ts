@@ -37,9 +37,11 @@ export class EntityPositionHandlerService {
 		}, 100);
 	}
 
-	updateEntityPos(increments: Array<Cartesian3>): void {
-		for (let i = 0; i < increments.length; i++) {
-			this.points[i].x += increments[i].x;
+	updateEntityPos(newPos: Array<Cartesian3>): void {
+		for (let i = 0; i < newPos.length; i++) {
+			this.points[i].x = newPos[i].x;
+			this.points[i].y = newPos[i].y;
+			this.points[i].z = newPos[i].z;
 		}
 
 		this.isChanged = true;
