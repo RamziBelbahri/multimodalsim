@@ -55,7 +55,7 @@ export class EntityPositionHandlerService {
 		this.isChanged = true;
 	}
 
-	updateEntityPos(): void {
+	private updateEntityPos(): void {
 		for (let i = 0; i < this.points.length; i++) {
 			this.points[i] = CesiumClass.addCartesian(this.points[i], this.tickValue[i]);
 		}
