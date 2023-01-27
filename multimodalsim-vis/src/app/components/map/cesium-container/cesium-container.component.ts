@@ -45,7 +45,7 @@ export class CesiumContainerComponent {
 	}
 
 	// remove eventually
-	testEntitySpawn(): void {
+	private testEntitySpawn(): void {
 		this.entity = this.viewer.entities.add({
 			polygon: {
 				hierarchy: CesiumClass.polygonHierarchy(this.entityPositionHandler.points),
