@@ -7,9 +7,15 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 	providedIn: 'root',
 })
 export class EntityPositionHandlerService {
+	readonly INTERVAL = 100;
+	readonly NUMBER_OF_VERTEX = 4;
+
 	entity: Entity | undefined;
-	points: Array<Cartesian3>;
 	isChanged = false;
+
+	points: Array<Cartesian3>;
+	tickValue: Array<Cartesian3> = new Array<Cartesian3>(this.NUMBER_OF_VERTEX);
+	tickNumber = 0;
 
 	constructor() {
 		if (typeof Cesium !== 'undefined') {
@@ -30,20 +36,35 @@ export class EntityPositionHandlerService {
 		setInterval(() => {
 			if (this.entity?.polygon?.hierarchy) {
 				if (this.isChanged) {
+					this.updateEntityPos();
 					this.entity.polygon.hierarchy = new Cesium.PolygonHierarchy(this.points);
-					this.isChanged = false;
 				}
 			}
-		}, 100);
+		}, this.INTERVAL);
 	}
 
-	updateEntityPos(newPos: Array<Cartesian3>): void {
-		for (let i = 0; i < newPos.length; i++) {
-			this.points[i].x = newPos[i].x;
-			this.points[i].y = newPos[i].y;
-			this.points[i].z = newPos[i].z;
+	setTargetPosition(targetPos: Array<Cartesian3>, duration: number): void {
+		this.tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
+
+		for (let i = 0; i < targetPos.length; i++) {
+			const distance = CesiumClass.cartesianDistance(this.points[i], targetPos[i]) as Cartesian3;
+
+			this.tickValue[i] = CesiumClass.cartesianScalarDiv(distance, this.tickNumber);
 		}
 
 		this.isChanged = true;
+	}
+
+	updateEntityPos(): void {
+		for (let i = 0; i < this.points.length; i++) {
+			this.points[i] = CesiumClass.addCartesian(this.points[i], this.tickValue[i]);
+		}
+
+		this.tickNumber--;
+
+		if (this.tickNumber < 0) {
+			this.tickNumber = 0;
+			this.isChanged = false;
+		}
 	}
 }
