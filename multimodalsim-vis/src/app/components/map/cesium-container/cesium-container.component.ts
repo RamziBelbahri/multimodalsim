@@ -18,13 +18,13 @@ export class CesiumContainerComponent {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
-				const increment = [
-					CesiumClass.cartesianDegrees(-74.751564, 45.576321),
-					CesiumClass.cartesianDegrees(-74.754564, 45.576321),
-					CesiumClass.cartesianDegrees(-74.754564, 45.579321),
-					CesiumClass.cartesianDegrees(-74.751564, 45.579321),
+				const pos = [
+					CesiumClass.cartesianDegrees(-73.781564, 45.576321),
+					CesiumClass.cartesianDegrees(-73.784564, 45.576321),
+					CesiumClass.cartesianDegrees(-73.784564, 45.579321),
+					CesiumClass.cartesianDegrees(-73.781564, 45.579321),
 				];
-				this.entityPositionHandler.updateEntityPos(increment);
+				this.entityPositionHandler.setTargetPosition(pos, 10);
 			}
 		});
 	}
