@@ -1,0 +1,17 @@
+#container {
+    height: 40em;
+    width: 100%;
+    display: flex;
+    justify-content:space-around;
+    border-radius: 6px;
+}
+
+#dashboard {
+    height: 100%;
+    width: 30%;
+}
+
+#visualization {
+    height: 100%;
+    width: 68%;
+}
