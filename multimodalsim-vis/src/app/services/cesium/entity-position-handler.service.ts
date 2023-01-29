@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Entity } from 'cesium';
+import { Cartesian3, Entity, Viewer } from 'cesium';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
+import * as _ from 'lodash';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityPositionHandlerService {
-	readonly INTERVAL = 100;
+	readonly INTERVAL = 1000;
 	readonly NUMBER_OF_VERTEX = 4;
 
 	entity: Entity | undefined;
@@ -30,20 +31,8 @@ export class EntityPositionHandlerService {
 		}
 	}
 
-	startComputation(entity: Entity | undefined): void {
-		this.entity = entity;
-
-		setInterval(() => {
-			if (this.entity?.polygon?.hierarchy) {
-				if (this.isChanged) {
-					this.updateEntityPos();
-					this.entity.polygon.hierarchy = new Cesium.PolygonHierarchy(this.points);
-				}
-			}
-		}, this.INTERVAL);
-	}
-
 	setTargetPosition(targetPos: Array<Cartesian3>, duration: number): void {
+		console.log(true);
 		this.tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
 
 		for (let i = 0; i < targetPos.length; i++) {
@@ -55,16 +44,35 @@ export class EntityPositionHandlerService {
 		this.isChanged = true;
 	}
 
-	private updateEntityPos(): void {
-		for (let i = 0; i < this.points.length; i++) {
-			this.points[i] = CesiumClass.addCartesian(this.points[i], this.tickValue[i]);
-		}
+	testEntitySpawn(viewer: Viewer): void {
+		const func = () => {
+			console.log(this.isChanged);
 
-		this.tickNumber--;
+			this.points;
+			if (this.isChanged) {
+				for (let i = 0; i < this.points.length; i++) {
+					this.points[i] = CesiumClass.addCartesian(this.points[i], this.tickValue[i]);
+				}
 
-		if (this.tickNumber < 0) {
-			this.tickNumber = 0;
-			this.isChanged = false;
-		}
+				this.tickNumber--;
+
+				if (this.tickNumber < 0) {
+					this.tickNumber = 0;
+					this.isChanged = false;
+				}
+			}
+
+			return CesiumClass.polygonHierarchy(this.points);
+		};
+
+		this.entity = viewer.entities.add({
+			polygon: {
+				hierarchy: CesiumClass.callback(_.throttle(func, this.INTERVAL), false),
+				height: 0,
+				material: Cesium.Color.BLUE,
+				outline: false,
+				outlineColor: Cesium.Color.BLACK,
+			},
+		});
 	}
 }

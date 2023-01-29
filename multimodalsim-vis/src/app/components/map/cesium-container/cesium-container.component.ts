@@ -24,7 +24,7 @@ export class CesiumContainerComponent {
 					CesiumClass.cartesianDegrees(-73.784564, 45.579321),
 					CesiumClass.cartesianDegrees(-73.781564, 45.579321),
 				];
-				this.entityPositionHandler.setTargetPosition(pos, 10);
+				this.entityPositionHandler.setTargetPosition(pos, 2000);
 			}
 		});
 	}
@@ -37,23 +37,11 @@ export class CesiumContainerComponent {
 
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-		for (let i = 0; i < 1; i++) {
-			this.testEntitySpawn();
+		//Note pour le futur, attendre que la carte load avant de générer les entités
+		for (let i = 0; i < 500; i++) {
+			this.entityPositionHandler.testEntitySpawn(this.viewer);
 		}
 
-		this.entityPositionHandler.startComputation(this.entity);
-	}
-
-	// remove eventually
-	private testEntitySpawn(): void {
-		this.entity = this.viewer.entities.add({
-			polygon: {
-				hierarchy: CesiumClass.polygonHierarchy(this.entityPositionHandler.points),
-				height: 0,
-				material: Cesium.Color.BLUE,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
-			},
-		});
+		this.entityPositionHandler.entity = this.entity;
 	}
 }
