@@ -1,4 +1,4 @@
-import { Cartesian3, IonImageryProvider, PolygonHierarchy, Viewer } from 'cesium';
+import { CallbackProperty, Cartesian3, IonImageryProvider, PolygonHierarchy, Viewer } from 'cesium';
 
 export class CesiumClass {
 	static viewer(element: Element): Viewer {
@@ -43,5 +43,9 @@ export class CesiumClass {
 
 	static imagery(property: IonImageryProvider.ConstructorOptions): IonImageryProvider {
 		return new Cesium.IonImageryProvider(property);
+	}
+
+	static callback(func: CallbackProperty.Callback, isConstant: boolean): CallbackProperty {
+		return new Cesium.CallbackProperty(func, isConstant);
 	}
 }

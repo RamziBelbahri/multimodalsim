@@ -16,7 +16,8 @@ export class CameraHandlerService {
 		this.setCameraPosition(this.LAVAL_LONGITUDE, this.LAVAL_LATITUDE);
 	}
 
-	setCameraPosition(longitude: number, latitude: number, height: number = this.BASE_HEIGHT): void {
+	// Changer de private vers public si nécessaire dans le futur (pas pour l'instant)
+	private setCameraPosition(longitude: number, latitude: number, height: number = this.BASE_HEIGHT): void {
 		this.camera?.setView({
 			destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
 		});
