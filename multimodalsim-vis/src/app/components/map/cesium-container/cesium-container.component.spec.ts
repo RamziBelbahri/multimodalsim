@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { CesiumContainerComponent } from './cesium-container.component';
 
 describe('CesiumContainerComponent', () => {
@@ -10,7 +9,9 @@ describe('CesiumContainerComponent', () => {
 		await TestBed.configureTestingModule({
 			declarations: [CesiumContainerComponent],
 		}).compileComponents();
+	});
 
+	beforeEach(() => {
 		fixture = TestBed.createComponent(CesiumContainerComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();

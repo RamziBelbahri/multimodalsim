@@ -1,6 +1,9 @@
 import { Component, ElementRef } from '@angular/core';
-import { Viewer } from 'cesium';
+import { Entity, Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
+import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
+
+import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -8,28 +11,44 @@ import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.ser
 	styleUrls: ['./cesium-container.component.css'],
 })
 export class CesiumContainerComponent {
-	viewer: Viewer = new Cesium.Viewer(this.element.nativeElement);
+	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
+	entity: Entity | undefined;
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService) {}
+	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityPositionHandler: EntityPositionHandlerService) {
+		// remplacer ça par un algo qui va déterminer la position à prendre
+		document.addEventListener('keydown', (event) => {
+			if (event.key == 'q') {
+				const increment = [
+					CesiumClass.cartesianDegrees(-74.751564, 45.576321),
+					CesiumClass.cartesianDegrees(-74.754564, 45.576321),
+					CesiumClass.cartesianDegrees(-74.754564, 45.579321),
+					CesiumClass.cartesianDegrees(-74.751564, 45.579321),
+				];
+				this.entityPositionHandler.updateEntityPos(increment);
+			}
+		});
+	}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
 			//assetId 4 est la carte 2D et 1 est la carte 3D par défaut
-			new Cesium.IonImageryProvider({ assetId: 4 })
+			CesiumClass.imagery({ assetId: 4 })
 		);
 
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-		const max = 1;
-		for (let i = 0; i < max; i++) {
+		for (let i = 0; i < 1; i++) {
 			this.testEntitySpawn();
 		}
+
+		this.entityPositionHandler.startComputation(this.entity);
 	}
 
-	testEntitySpawn() {
-		this.viewer.entities.add({
+	// remove eventually
+	testEntitySpawn(): void {
+		this.entity = this.viewer.entities.add({
 			polygon: {
-				hierarchy: Cesium.Cartesian3.fromDegreesArray([-73.751564, 45.576321, -73.754564, 45.576321, -73.754564, 45.579321, -73.751564, 45.579321]),
+				hierarchy: CesiumClass.polygonHierarchy(this.entityPositionHandler.points),
 				height: 0,
 				material: Cesium.Color.BLUE,
 				outline: true,
