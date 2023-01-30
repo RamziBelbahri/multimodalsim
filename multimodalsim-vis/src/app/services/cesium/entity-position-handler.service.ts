@@ -11,65 +11,71 @@ export class EntityPositionHandlerService {
 	readonly INTERVAL = 100;
 	readonly NUMBER_OF_VERTEX = 4;
 
-	entity: Entity | undefined;
+	entityList: Array<Entity | undefined> = new Array<Entity | undefined>(0);
 	isChanged = false;
 
-	points: Array<Cartesian3>;
-	tickValue: Array<Cartesian3> = new Array<Cartesian3>(this.NUMBER_OF_VERTEX);
-	tickNumber = 0;
+	pointList: Array<Array<Cartesian3>>;
+	tickValueList: Array<Array<Cartesian3>> = new Array<Array<Cartesian3>>(0);
+	tickNumberList: Array<number> = new Array<number>(0);
 
 	constructor() {
 		if (typeof Cesium !== 'undefined') {
-			this.points = [
-				CesiumClass.cartesianDegrees(-73.751564, 45.576321),
-				CesiumClass.cartesianDegrees(-73.754564, 45.576321),
-				CesiumClass.cartesianDegrees(-73.754564, 45.579321),
-				CesiumClass.cartesianDegrees(-73.751564, 45.579321),
+			this.pointList = [
+				[
+					CesiumClass.cartesianDegrees(-73.751564, 45.576321),
+					CesiumClass.cartesianDegrees(-73.754564, 45.576321),
+					CesiumClass.cartesianDegrees(-73.754564, 45.579321),
+					CesiumClass.cartesianDegrees(-73.751564, 45.579321),
+				],
 			];
 		} else {
-			this.points = [];
+			this.pointList = [];
 		}
 	}
 
 	setTargetPosition(targetPos: Array<Cartesian3>, duration: number): void {
-		this.tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
+		this.tickNumberList.push(Math.max(this.INTERVAL, duration) / this.INTERVAL);
+		const tickValue = new Array<Cartesian3>(targetPos.length);
 
 		for (let i = 0; i < targetPos.length; i++) {
-			const distance = CesiumClass.cartesianDistance(this.points[i], targetPos[i]) as Cartesian3;
+			const distance = CesiumClass.cartesianDistance(this.pointList[0][i], targetPos[i]) as Cartesian3;
 
-			this.tickValue[i] = CesiumClass.cartesianScalarDiv(distance, this.tickNumber);
+			tickValue[i] = CesiumClass.cartesianScalarDiv(distance, this.tickNumberList[0]);
 		}
 
+		this.tickValueList.push(tickValue);
 		this.isChanged = true;
 	}
 
 	testEntitySpawn(viewer: Viewer): void {
 		const func = () => {
-			this.points;
+			this.pointList;
 			if (this.isChanged) {
-				for (let i = 0; i < this.points.length; i++) {
-					this.points[i] = CesiumClass.addCartesian(this.points[i], this.tickValue[i]);
+				for (let i = 0; i < this.pointList[0].length; i++) {
+					this.pointList[0][i] = CesiumClass.addCartesian(this.pointList[0][i], this.tickValueList[0][i]);
 				}
 
-				this.tickNumber--;
+				this.tickNumberList[0]--;
 
-				if (this.tickNumber < 0) {
-					this.tickNumber = 0;
+				if (this.tickNumberList[0] < 0) {
+					this.tickNumberList[0] = 0;
 					this.isChanged = false;
 				}
 			}
 
-			return CesiumClass.polygonHierarchy(this.points);
+			return CesiumClass.polygonHierarchy(this.pointList[0]);
 		};
 
-		this.entity = viewer.entities.add({
-			polygon: {
-				hierarchy: CesiumClass.callback(_.throttle(func, this.INTERVAL), false),
-				height: 0,
-				material: Cesium.Color.BLUE,
-				outline: false,
-				outlineColor: Cesium.Color.BLACK,
-			},
-		});
+		this.entityList.push(
+			viewer.entities.add({
+				polygon: {
+					hierarchy: CesiumClass.callback(_.throttle(func, this.INTERVAL), false),
+					height: 0,
+					material: Cesium.Color.BLUE,
+					outline: false,
+					outlineColor: Cesium.Color.BLACK,
+				},
+			})
+		);
 	}
 }

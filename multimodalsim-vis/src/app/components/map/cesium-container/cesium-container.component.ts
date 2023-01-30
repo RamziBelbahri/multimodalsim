@@ -19,7 +19,7 @@ export class CesiumContainerComponent {
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
 				const pos = [
-					CesiumClass.cartesianDegrees(-73.781564, 45.576321),
+					CesiumClass.cartesianDegrees(-73.781564, 45.506321),
 					CesiumClass.cartesianDegrees(-73.784564, 45.576321),
 					CesiumClass.cartesianDegrees(-73.784564, 45.579321),
 					CesiumClass.cartesianDegrees(-73.781564, 45.579321),
@@ -41,7 +41,5 @@ export class CesiumContainerComponent {
 		for (let i = 0; i < 1; i++) {
 			this.entityPositionHandler.testEntitySpawn(this.viewer);
 		}
-
-		this.entityPositionHandler.entity = this.entity;
 	}
 }
