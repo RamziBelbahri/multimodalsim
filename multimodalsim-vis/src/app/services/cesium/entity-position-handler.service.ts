@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 	providedIn: 'root',
 })
 export class EntityPositionHandlerService {
-	readonly INTERVAL = 1000;
+	readonly INTERVAL = 100;
 	readonly NUMBER_OF_VERTEX = 4;
 
 	entity: Entity | undefined;
@@ -32,7 +32,6 @@ export class EntityPositionHandlerService {
 	}
 
 	setTargetPosition(targetPos: Array<Cartesian3>, duration: number): void {
-		console.log(true);
 		this.tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
 
 		for (let i = 0; i < targetPos.length; i++) {
@@ -46,8 +45,6 @@ export class EntityPositionHandlerService {
 
 	testEntitySpawn(viewer: Viewer): void {
 		const func = () => {
-			console.log(this.isChanged);
-
 			this.points;
 			if (this.isChanged) {
 				for (let i = 0; i < this.points.length; i++) {

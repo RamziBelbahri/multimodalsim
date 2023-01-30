@@ -37,8 +37,8 @@ export class CesiumContainerComponent {
 
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-		//Note pour le futur, attendre que la carte load avant de générer les entités
-		for (let i = 0; i < 500; i++) {
+		//Note pour le futur, attendre que la carte load avant de générer les entités?
+		for (let i = 0; i < 1; i++) {
 			this.entityPositionHandler.testEntitySpawn(this.viewer);
 		}
 
