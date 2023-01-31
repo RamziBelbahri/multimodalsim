@@ -7,7 +7,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 
 @NgModule({
 	declarations: [AppComponent, CesiumContainerComponent, DashboardComponent],
-	imports: [BrowserModule],
+	imports: [BrowserModule], 
 	providers: [],
 	bootstrap: [AppComponent],
 })
