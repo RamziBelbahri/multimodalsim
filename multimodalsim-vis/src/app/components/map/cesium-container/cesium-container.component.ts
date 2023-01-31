@@ -18,13 +18,61 @@ export class CesiumContainerComponent {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
+				const times = [20000, 20000, 18000, 4000, 3000, 15000, 18000, 10000];
 				const pos = [
-					CesiumClass.cartesianDegrees(-73.781564, 45.506321),
-					CesiumClass.cartesianDegrees(-73.784564, 45.576321),
-					CesiumClass.cartesianDegrees(-73.784564, 45.579321),
-					CesiumClass.cartesianDegrees(-73.781564, 45.579321),
+					[
+						CesiumClass.cartesianDegrees(-73.725083, 45.543264),
+						CesiumClass.cartesianDegrees(-73.724983, 45.543264),
+						CesiumClass.cartesianDegrees(-73.724983, 45.543214),
+						CesiumClass.cartesianDegrees(-73.725083, 45.543214),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.721837, 45.539785),
+						CesiumClass.cartesianDegrees(-73.721737, 45.539785),
+						CesiumClass.cartesianDegrees(-73.721737, 45.539735),
+						CesiumClass.cartesianDegrees(-73.721837, 45.539735),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.717448, 45.547023),
+						CesiumClass.cartesianDegrees(-73.717348, 45.547023),
+						CesiumClass.cartesianDegrees(-73.717348, 45.546973),
+						CesiumClass.cartesianDegrees(-73.717448, 45.546973),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.711883, 45.544088),
+						CesiumClass.cartesianDegrees(-73.711783, 45.544088),
+						CesiumClass.cartesianDegrees(-73.711783, 45.544038),
+						CesiumClass.cartesianDegrees(-73.711883, 45.544038),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.685055, 45.560508),
+						CesiumClass.cartesianDegrees(-73.684955, 45.560508),
+						CesiumClass.cartesianDegrees(-73.684955, 45.560458),
+						CesiumClass.cartesianDegrees(-73.685055, 45.560458),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.727921, 45.547709),
+						CesiumClass.cartesianDegrees(-73.727821, 45.547709),
+						CesiumClass.cartesianDegrees(-73.727821, 45.547659),
+						CesiumClass.cartesianDegrees(-73.727921, 45.547659),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.692183, 45.570249),
+						CesiumClass.cartesianDegrees(-73.692083, 45.570249),
+						CesiumClass.cartesianDegrees(-73.692083, 45.570199),
+						CesiumClass.cartesianDegrees(-73.692183, 45.570199),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.739446, 45.544661),
+						CesiumClass.cartesianDegrees(-73.739346, 45.544661),
+						CesiumClass.cartesianDegrees(-73.739346, 45.544611),
+						CesiumClass.cartesianDegrees(-73.739446, 45.544611),
+					],
 				];
-				this.entityPositionHandler.setTargetPosition(pos, 2000);
+
+				for (let i = 0; i < this.entityPositionHandler.getEntityNumber(); i++) {
+					this.entityPositionHandler.setTargetPosition(pos[i], times[i], i);
+				}
 			}
 		});
 	}
@@ -38,8 +86,8 @@ export class CesiumContainerComponent {
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
 		//Note pour le futur, attendre que la carte load avant de générer les entités?
-		for (let i = 0; i < 1; i++) {
-			this.entityPositionHandler.testEntitySpawn(this.viewer);
+		for (let i = 0; i < this.entityPositionHandler.getEntityNumber(); i++) {
+			this.entityPositionHandler.testEntitySpawn(this.viewer, i);
 		}
 	}
 }
