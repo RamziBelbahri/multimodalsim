@@ -70,6 +70,12 @@ export class EntityPositionHandlerService {
 					CesiumClass.cartesianDegrees(-73.730979, 45.535982),
 					CesiumClass.cartesianDegrees(-73.731079, 45.535982),
 				],
+				[
+					CesiumClass.cartesianDegrees(-73.739703, 45.544665),
+					CesiumClass.cartesianDegrees(-73.739603, 45.544665),
+					CesiumClass.cartesianDegrees(-73.739603, 45.544615),
+					CesiumClass.cartesianDegrees(-73.739703, 45.544615),
+				],
 			];
 		} else {
 			this.pointList = [];
