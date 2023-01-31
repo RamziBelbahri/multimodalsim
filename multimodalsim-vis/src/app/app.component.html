@@ -1,4 +1,37 @@
-<div id="container">
-    <app-cesium-container id="visualization"> </app-cesium-container>
-    <app-dashboard id="dashboard"> </app-dashboard>
+<div id="page">
+    <div id="ng-sidebar-container">
+    <!--<ng-sidebar [opened] = "opened">
+        <h1 color="blue"> tableau de bord </h1>
+        <button (click)="sidebar.close()">
+            Fermer
+        </button>
+        <h2 class="visualization"> Visualisation </h2>
+        <button> nombre de passagers </button> <br><br>
+        <button> nombre de véhicules </button> <br><br>
+        <button> nombre d'arrêts </button> <br><br>
+        <button> nombre de zones de service </button> <br><br>
+        <button> depart </button> <br><br>
+        <button> arrivée </button> <br><br>
+
+    </ng-sidebar> -->
+    <h1 color="blue"> tableau de bord </h1>
+    <button (click)="sidebar.close()">
+        Fermer
+    </button>
+    <h2 class="visualization"> Visualisation </h2>
+    <button> nombre de passagers </button> <br><br>
+    <button> nombre de véhicules </button> <br><br>
+    <button> nombre d'arrêts </button> <br><br>
+    <button> nombre de zones de service </button> <br><br>
+    <button> depart </button> <br><br>
+    <button> arrivée </button> <br><br>
+
+    <div ng-sidebar-content>
+        <button (click)="sidebar.open()">
+            Ouvrir
+        </button>
+    </div>
+
+</div>
+<app-cesium-container id="cesium"> </app-cesium-container>
 </div>
