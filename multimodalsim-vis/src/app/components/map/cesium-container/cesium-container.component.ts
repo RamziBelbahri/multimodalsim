@@ -18,7 +18,7 @@ export class CesiumContainerComponent {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
-				const times = [20000, 20000, 18000, 4000, 3000, 15000, 18000, 10000];
+				const times = [20000, 20000, 18000, 4000, 3000, 15000, 18000, 10000, 8000];
 				const pos = [
 					[
 						CesiumClass.cartesianDegrees(-73.725083, 45.543264),
@@ -67,6 +67,12 @@ export class CesiumContainerComponent {
 						CesiumClass.cartesianDegrees(-73.739346, 45.544661),
 						CesiumClass.cartesianDegrees(-73.739346, 45.544611),
 						CesiumClass.cartesianDegrees(-73.739446, 45.544611),
+					],
+					[
+						CesiumClass.cartesianDegrees(-73.734228, 45.539135),
+						CesiumClass.cartesianDegrees(-73.734128, 45.539135),
+						CesiumClass.cartesianDegrees(-73.734128, 45.539085),
+						CesiumClass.cartesianDegrees(-73.734228, 45.539085),
 					],
 				];
 
