@@ -16,7 +16,7 @@ export class CameraHandlerService {
 		this.setCameraPosition(this.LAVAL_LONGITUDE, this.LAVAL_LATITUDE);
 	}
 
-	// Changer de private vers public si nécessaire dans le futur (pas pour l'instant)
+	// Déplace la caméra vers une position particulière en utilisant les coordonnées GPS.
 	private setCameraPosition(longitude: number, latitude: number, height: number = this.BASE_HEIGHT): void {
 		this.camera?.setView({
 			destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),

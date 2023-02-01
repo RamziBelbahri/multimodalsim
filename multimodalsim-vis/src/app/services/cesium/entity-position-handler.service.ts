@@ -28,54 +28,6 @@ export class EntityPositionHandlerService {
 					CesiumClass.cartesianDegrees(-73.714945, 45.548176),
 					CesiumClass.cartesianDegrees(-73.715045, 45.548176),
 				],
-				[
-					CesiumClass.cartesianDegrees(-73.729953, 45.548255),
-					CesiumClass.cartesianDegrees(-73.730053, 45.548255),
-					CesiumClass.cartesianDegrees(-73.730053, 45.548205),
-					CesiumClass.cartesianDegrees(-73.729953, 45.548205),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.732978, 45.539341),
-					CesiumClass.cartesianDegrees(-73.732878, 45.539341),
-					CesiumClass.cartesianDegrees(-73.732878, 45.539291),
-					CesiumClass.cartesianDegrees(-73.732978, 45.539291),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.714237, 45.541924),
-					CesiumClass.cartesianDegrees(-73.714137, 45.541924),
-					CesiumClass.cartesianDegrees(-73.714137, 45.541874),
-					CesiumClass.cartesianDegrees(-73.714237, 45.541874),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.682529, 45.56162),
-					CesiumClass.cartesianDegrees(-73.682429, 45.56162),
-					CesiumClass.cartesianDegrees(-73.682429, 45.56157),
-					CesiumClass.cartesianDegrees(-73.682529, 45.56157),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.720566, 45.54004),
-					CesiumClass.cartesianDegrees(-73.720466, 45.54004),
-					CesiumClass.cartesianDegrees(-73.720466, 45.53999),
-					CesiumClass.cartesianDegrees(-73.720566, 45.53999),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.721552, 45.554739),
-					CesiumClass.cartesianDegrees(-73.721452, 45.554739),
-					CesiumClass.cartesianDegrees(-73.721452, 45.554689),
-					CesiumClass.cartesianDegrees(-73.721552, 45.554689),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.731079, 45.536032),
-					CesiumClass.cartesianDegrees(-73.730979, 45.536032),
-					CesiumClass.cartesianDegrees(-73.730979, 45.535982),
-					CesiumClass.cartesianDegrees(-73.731079, 45.535982),
-				],
-				[
-					CesiumClass.cartesianDegrees(-73.739703, 45.544665),
-					CesiumClass.cartesianDegrees(-73.739603, 45.544665),
-					CesiumClass.cartesianDegrees(-73.739603, 45.544615),
-					CesiumClass.cartesianDegrees(-73.739703, 45.544615),
-				],
 			];
 		} else {
 			this.pointList = [];
@@ -86,6 +38,7 @@ export class EntityPositionHandlerService {
 		return this.pointList.length;
 	}
 
+	// Donne un trajet à parcourir pour une entité sur une certaine durée.
 	setTargetPosition(targetPos: Array<Cartesian3>, duration: number, entityIndex: number): void {
 		this.tickNumberList.push(Math.max(this.INTERVAL, duration) / this.INTERVAL);
 		const tickValue = new Array<Cartesian3>(targetPos.length);
@@ -100,7 +53,9 @@ export class EntityPositionHandlerService {
 		this.isChanged.push(true);
 	}
 
-	testEntitySpawn(viewer: Viewer, entityIndex: number): void {
+	// Génère une entité
+	spawnEntity(viewer: Viewer, entityIndex: number): void {
+		// Fonction callback utilisée pour mettre à jours les points d'une entité
 		const func = () => {
 			if (this.isChanged[entityIndex]) {
 				for (let i = 0; i < this.pointList[entityIndex].length; i++) {
