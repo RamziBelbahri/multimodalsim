@@ -11,14 +11,20 @@ export class EntityPositionHandlerService {
 	readonly INTERVAL = 10;
 	readonly NUMBER_OF_VERTEX = 4;
 
-	entityList: Array<Entity | undefined> = new Array<Entity | undefined>(0);
-	private isChanged: Array<boolean> = new Array<boolean>(0);
+	entityList: Array<Entity | undefined>;
+	private isChanged: Array<boolean>;
 
 	private pointList: Array<Array<Cartesian3>>;
-	private tickValueList: Array<Array<Cartesian3>> = new Array<Array<Cartesian3>>(0);
-	private tickNumberList: Array<number> = new Array<number>(0);
+	private tickValueList: Array<Array<Cartesian3>>;
+	private tickNumberList: Array<number>;
 
 	constructor() {
+		this.entityList = new Array<Entity | undefined>(0);
+		this.isChanged = new Array<boolean>(0);
+
+		this.tickValueList = new Array<Array<Cartesian3>>(0);
+		this.tickNumberList = new Array<number>(0);
+
 		if (typeof Cesium !== 'undefined') {
 			// à enlever quand on va avoir les vrais données de la simulation
 			this.pointList = [
