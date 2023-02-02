@@ -18,13 +18,19 @@ export class CesiumContainerComponent {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
-				const increment = [
-					CesiumClass.cartesianDegrees(-74.751564, 45.576321),
-					CesiumClass.cartesianDegrees(-74.754564, 45.576321),
-					CesiumClass.cartesianDegrees(-74.754564, 45.579321),
-					CesiumClass.cartesianDegrees(-74.751564, 45.579321),
+				const times = [20000];
+				const pos = [
+					[
+						CesiumClass.cartesianDegrees(-73.725083, 45.543264),
+						CesiumClass.cartesianDegrees(-73.724983, 45.543264),
+						CesiumClass.cartesianDegrees(-73.724983, 45.543214),
+						CesiumClass.cartesianDegrees(-73.725083, 45.543214),
+					],
 				];
-				this.entityPositionHandler.updateEntityPos(increment);
+
+				for (let i = 0; i < this.entityPositionHandler.getEntityNumber(); i++) {
+					this.entityPositionHandler.setTargetPosition(pos[i], times[i], i);
+				}
 			}
 		});
 	}
@@ -37,23 +43,8 @@ export class CesiumContainerComponent {
 
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-		for (let i = 0; i < 1; i++) {
-			this.testEntitySpawn();
+		for (let i = 0; i < this.entityPositionHandler.getEntityNumber(); i++) {
+			this.entityPositionHandler.spawnEntity(this.viewer, i);
 		}
-
-		this.entityPositionHandler.startComputation(this.entity);
-	}
-
-	// remove eventually
-	testEntitySpawn(): void {
-		this.entity = this.viewer.entities.add({
-			polygon: {
-				hierarchy: CesiumClass.polygonHierarchy(this.entityPositionHandler.points),
-				height: 0,
-				material: Cesium.Color.BLUE,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
-			},
-		});
 	}
 }
