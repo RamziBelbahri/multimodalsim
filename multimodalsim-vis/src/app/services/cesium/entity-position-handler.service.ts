@@ -11,7 +11,7 @@ export class EntityPositionHandlerService {
 	readonly INTERVAL = 10;
 	readonly NUMBER_OF_VERTEX = 4;
 
-	entityList: Array<Entity | undefined>;
+	private entityList: Array<Entity | undefined>;
 	private isChanged: Array<boolean>;
 
 	private pointList: Array<Array<Cartesian3>>;
