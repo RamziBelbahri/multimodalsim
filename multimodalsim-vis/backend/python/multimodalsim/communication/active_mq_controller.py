@@ -8,3 +8,7 @@ class ActiveMQController:
 		conn = Connection11([(host, port)])  
 		conn.connect(user, password)
 		return conn
+
+if __name__ == '__main__':
+	a = ActiveMQController().getConnection()
+	a.send("test", "queue/server")
