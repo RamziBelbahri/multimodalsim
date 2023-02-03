@@ -1,33 +1,37 @@
 #ng-sidebar-container {
-    height:100%;
-    width: 20%;
-    background-color:grey;
+	height: 100%;
+	width: 20%;
+	background-color: grey;
 }
 
-/* ::ng-deep .ng-sidebar{
-    background-color:whitesmoke;
-    width: 300px;
-    padding: 2em 3em;
-    box-shadow: 0 0 2.5em rgba(85, 85, 85, 0.5);
-} */
-
 .visualization {
-    margin-top: 2em;
-    display: block;
-    text-align: center;
-    color:blue;
-    font-weight: bold;
+	margin-top: 2em;
+	display: block;
+	text-align: center;
+	color: blue;
+	font-weight: bold;
 }
 
 #page {
-    height: 45em;
-    width: 100%;
-    display: flex;
-    justify-content:space-around;
-    border-radius: 6px;
+	height: 45em;
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	border-radius: 6px;
 }
 
-#cesium {
-    height:100%;
-    width: 100%;
+.cesium {
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	z-index: 1;
+	display: block;
+	position: relative;
+}
+
+.sidebarContainer {
+	padding-left: 10px;
+	padding-top: 10px;
+	z-index: 2;
+	position: absolute;
 }

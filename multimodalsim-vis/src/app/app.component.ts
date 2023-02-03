@@ -7,6 +7,4 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
 	title = 'multimodalsim-vis';
-opened: any;
-sidebar: any;
 }
