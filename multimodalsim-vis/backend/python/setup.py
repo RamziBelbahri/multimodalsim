@@ -15,5 +15,5 @@ setup(
     author='',
     author_email='',
     description='',
-    install_requires=['pip', 'setuptools', 'networkx', 'numpy', 'pandas', 'geopy']
+    install_requires=['pip', 'setuptools', 'networkx', 'numpy', 'pandas', 'geopy', 'psycopg2', 'stomp.py']
 )
