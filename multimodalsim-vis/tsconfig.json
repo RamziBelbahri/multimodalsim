@@ -16,8 +16,10 @@
 		"experimentalDecorators": true,
 		"moduleResolution": "node",
 		"importHelpers": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types/node"],
 		"target": "ES2022",
-		"module": "ES2022",
+		"module": "CommonJS",
 		"useDefineForClassFields": false,
 		"lib": ["ES2022", "dom"]
 	},

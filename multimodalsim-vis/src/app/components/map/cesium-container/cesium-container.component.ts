@@ -1,9 +1,14 @@
 import { Component, ElementRef } from '@angular/core';
+import * as assert from 'node:assert';
 import { Entity, Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
+
+import * as fs from 'fs';
+
+
 
 @Component({
 	selector: 'app-cesium-container',
