@@ -3,9 +3,10 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { CesiumContainerComponent } from './components/map/cesium-container/cesium-container.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent],
 	imports: [BrowserModule],
 	providers: [],
 	bootstrap: [AppComponent],
