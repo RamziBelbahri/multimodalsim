@@ -11,4 +11,4 @@ class ActiveMQController:
 
 if __name__ == '__main__':
 	a = ActiveMQController().getConnection()
-	a.send("test", "queue/server")
+	a.send("/queue/server", body="yooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo")
