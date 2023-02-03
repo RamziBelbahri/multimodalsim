@@ -33,7 +33,7 @@ export class CesiumContainerComponent {
 				}
 			}
 		});
-		new MessageQueueStompService("ws://localhost:4300/ws")
+		let a = new MessageQueueStompService("ws://localhost:61614/stomp")
 	}
 
 	ngOnInit() {
