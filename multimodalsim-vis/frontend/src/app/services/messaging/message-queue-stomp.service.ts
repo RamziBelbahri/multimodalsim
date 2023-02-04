@@ -10,9 +10,9 @@ export class MessageQueueStompService {
 	public static client:CompatClient;
 	private static readonly HEADERS = {id: 'JUST.FCX', ack: 'client'};
 	private static readonly QUEUE = "/queue/server";
-
+	private static readonly WEBSOCKET = "ws://localhost:61614/stomp";
 	// note: static is needed so that there the callbacks can work
-	constructor(socketAddress:string, debug:boolean=false, username:string="admin", password:string="admin") {
+	constructor(socketAddress:string=MessageQueueStompService.WEBSOCKET, debug:boolean=false, username:string="admin", password:string="admin") {
 		this.socketAddress = socketAddress;
 		MessageQueueStompService.client = Stomp.client(socketAddress, this.PROTOCOLS);
 		if(!debug){
