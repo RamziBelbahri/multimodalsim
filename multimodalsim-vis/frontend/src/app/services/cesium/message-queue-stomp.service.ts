@@ -11,14 +11,14 @@ export class MessageQueueStompService {
 	private static readonly HEADERS = {id: 'JUST.FCX', ack: 'client'};
 	private static readonly QUEUE = "/queue/server";
 
-
-	constructor(socketAddress:string, debug:boolean=false) {
+	// note: static is needed so that there the callbacks can work
+	constructor(socketAddress:string, debug:boolean=false, username:string="admin", password:string="admin") {
 		this.socketAddress = socketAddress;
 		MessageQueueStompService.client = Stomp.client(socketAddress, this.PROTOCOLS);
 		if(!debug){
 			MessageQueueStompService.client.debug = function() {};
 		}
-		MessageQueueStompService.client.connect("admin","admin", this.onConnect, this.onError);
+		MessageQueueStompService.client.connect(username,password, this.onConnect, this.onError);
 	}
 
 	onConnect():void {
