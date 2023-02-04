@@ -14,17 +14,17 @@ from multimodalsim.shuttle.shuttle_greedy_dispatcher import \
 DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, DIR)
 
-from logger.formatter import ColoredFormatter
+from multimodalsim.logger.formatter import ColoredFormatter
 from multimodalsim.observer.environment_observer import \
     StandardEnvironmentObserver
 from multimodalsim.simulator.coordinates import CoordinatesOSRM
 from multimodalsim.statistics.data_analyzer import FixedLineDataAnalyzer
-from optimization.dispatcher import FixedLineDispatcher
-from optimization.optimization import Optimization
-from optimization.splitter import OneLegSplitter, MultimodalSplitter
-from reader.data_reader import BusDataReader, GTFSReader, ShuttleDataReader
-from simulator.network import create_graph
-from simulator.simulation import Simulation
+from multimodalsim.optimization.dispatcher import FixedLineDispatcher
+from multimodalsim.optimization.optimization import Optimization
+from multimodalsim.optimization.splitter import OneLegSplitter, MultimodalSplitter
+from multimodalsim.reader.data_reader import BusDataReader, GTFSReader, ShuttleDataReader
+from multimodalsim.simulator.network import create_graph
+from multimodalsim.simulator.simulation import Simulation
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +205,6 @@ def main():
             data_reader = GTFSReader(args.gtfs_folder, requests_file_path)
             # RTC: fixed --gtfs --gtfs-folder ../../data/fixed_line/gtfs_rtc/ -r ../../data/fixed_line/requests_gtfs_rtc/small_requests.csv --log-level INFO
             # STL: fixed --gtfs --gtfs-folder ../../data/fixed_line/stl/gtfs/generated/2019-11-01/ -r ../../data/fixed_line/stl/gtfs/generated/2019-11-01/day_requests.csv --log-level INFO
-
         else:
             # Parameters example: fixed -r
             # ../../data/fixed_line/bus/requests_v1.csv -v
