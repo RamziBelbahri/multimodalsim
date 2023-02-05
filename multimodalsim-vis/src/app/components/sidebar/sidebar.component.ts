@@ -48,8 +48,6 @@ export class SidebarComponent {
 	}
 
 	toggleSubMenu(id: number, optionAmount: number): void {
-		console.log(this.subMenuList[id]);
-
 		if (Number(this.subMenuList[id].style.opacity) === 0) {
 			this.subMenuList[id].style.height = this.OPTION_PIXEL_SIZE * optionAmount + this.OPTION_PIXEL_MARGIN + 'px';
 			this.subMenuList[id].style.opacity = '1';
