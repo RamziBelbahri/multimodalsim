@@ -21,9 +21,9 @@ export class SidebarComponent {
 		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
 
-		this.parameterList.push('Parameter 1');
-		this.parameterList.push('Parameter 2');
-		this.parameterList.push('Parameter 3');
+		this.parameterList.push('Paramètre 1');
+		this.parameterList.push('Paramètre 2');
+		this.parameterList.push('Paramètre 3');
 
 		this.visOptionList.push('Temps d\'attente moyen');
 		this.visOptionList.push('Temps de parcours moyen');
