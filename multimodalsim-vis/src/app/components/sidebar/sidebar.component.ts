@@ -30,11 +30,6 @@ export class SidebarComponent {
 		this.visOptionList.push('Nombre de lignes d\'autobus');
 		this.visOptionList.push('Nombre de types de transport');
 		this.visOptionList.push('Types de modes de transport');
-		this.visOptionList.push('Types de modes de transport');
-		this.visOptionList.push('Types de modes de transport');
-		this.visOptionList.push('Types de modes de transport');
-		this.visOptionList.push('Types de modes de transport');
-		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
 	}
