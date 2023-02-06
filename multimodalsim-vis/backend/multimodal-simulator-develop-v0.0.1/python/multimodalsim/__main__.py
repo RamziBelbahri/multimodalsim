@@ -222,8 +222,7 @@ def main():
         else:
             # Connections between different stops is impossible.
             available_connections = []
-
-        if args.graph:
+        if args.graph != None:
             g = nx.read_gpickle(args.graph)
         else:
             logger.info("Generate network graph...")
@@ -231,7 +230,7 @@ def main():
                 available_connections=available_connections)
             g_path = "../../data/fixed_line/stl/network_graph/" \
                      "bus_network_graph_20191101.txt"
-            nx.write_gpickle(g, g_path)
+            # nx.write_gpickle(g, g_path)
 
         if args.multimodal:
             splitter = MultimodalSplitter(
