@@ -1,0 +1,17 @@
+<div id="sidebar-menu" class="sidebar">
+	<a class="close-button" (click)="close()">&times;</a>
+	<div class="sub-menu-button" (click)="toggleSubMenu(0, parameterList.length)">Paramètres</div>
+	<div class="sub-menu" id="sub-menu-param">
+		<div class="sub-menu-option" *ngFor="let param of parameterList">{{param}}</div>
+	</div>
+	<div class="sub-menu-button" (click)="toggleSubMenu(1, visOptionList.length)">Visualisation</div>
+	<div class="sub-menu" id="sub-menu-vis">
+		<div class="sub-menu-option" *ngFor="let vis of visOptionList">{{vis}}</div>
+	</div>
+	<div class="sub-menu-button" (click)="toggleSubMenu(2, manipOptionList.length)">Manipulation</div>
+	<div class="sub-menu" id="sub-menu-manip">
+		<div class="sub-menu-option" *ngFor="let manip of manipOptionList">{{manip}}</div>
+	</div>
+</div>
+
+<i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
