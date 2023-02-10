@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Papa } from 'ngx-papaparse';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { papaParse } from 'src/app/helpers/parsers';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 @Injectable({
 	providedIn: 'root',
@@ -30,10 +31,10 @@ export class SimulationParserService {
 	}
 
 	parseFile(csvString: string): void {
-		const papa = new Papa();
-		const data = papa.parse(csvString, {
+		const data = papaParse(csvString, {
 			header: true,
 			dynamicTyping: true,
+			skipEmptyLines: true,
 			transformHeader: (header) => {
 				return header.replace(/\s/g, '').toLowerCase();
 			},
@@ -51,6 +52,7 @@ export class SimulationParserService {
 	}
 
 	parseToBusData(data: any): BusEvent[] {
+
 		const busData: BusEvent[] = [];
 
 		for (const line of data) {

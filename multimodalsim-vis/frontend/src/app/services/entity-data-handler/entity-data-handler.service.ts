@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { getTime } from 'src/app/helpers/parsers';
 
 @Injectable({
 	providedIn: 'root',
@@ -20,20 +21,18 @@ export class EntityDataHandlerService {
 
 	// runs the simulation, if the clock is equal
 	runVehiculeSimulation() {
-		const firstTime = this.data[1].time;
-		const secondTime = this.data[2].time;
-		console.log('firstTime: ', firstTime, 'secondTime: ', secondTime);
-
+		console.log(this.data);
 		for (const event of this.data) {
 			if (event) {
-				//console.log(event);
-				//this.getDelay(event);
-				//this.clock = event.time;
+				console.log(event);
+				const delay = this.getDelay(event);
+				console.log(delay);
+				this.clock = getTime(event.time);
 			}
 		}
 	}
 
-	getDelay(event: any) {
-		return event.time - this.clock;
+	getDelay(event: BusEvent) {
+		return getTime(event.time) - this.clock;
 	}
 }
