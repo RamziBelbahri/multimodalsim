@@ -54,6 +54,6 @@ export class CesiumContainerComponent {
 	}
 
 	readContent(): void {
-		this.simulationParserService.getCSVData();
+		this.simulationParserService.readFile();
 	}
 }
