@@ -86,15 +86,15 @@ export class ZipHandlerComponent{
 				component.csvData.set(filePath.split("/").at(-1), csvArray);				
 				if(component.csvData.has(component.vehicleDataFileName) &&
 					component.csvData.has(component.tripsDataFileName)) {
-					let vehicle:any = component.csvData.get(component.vehicleDataFileName)?.map(e => ({ ... e }));
+					let vehicles:any = component.csvData.get(component.vehicleDataFileName)?.map(e => ({ ... e }));
 					let trips:any = component.csvData.get(component.tripsDataFileName)?.map(e => ({ ... e }));
-					vehicle = vehicle.concat(trips);
-					vehicle.sort((a:any, b:any) => {
+					let vehiclesAndTrips:any = vehicles.concat(trips);
+					vehiclesAndTrips.sort((a:any, b:any) => {
 						if (a.Time > b.Time) return 1;
 						if (a.Time < b.Time) return -1;
 						return 0;
 					})
-					console.log(vehicle)
+					component.csvData.set(component.combined, vehiclesAndTrips);
 				}
 			} catch(e) {
 				component.errors.push((e as Error).message as string)
