@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
+import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -10,8 +11,10 @@ export class EntityDataHandlerService {
 	private busData: BusEvent[];
 	private passengerData:PassengerEvent[];
 	private clock: number;
+	private busDrawing:string = "🚍";
+	private passengerDrawing:string = "🚶🏼";
 
-	constructor() {
+	constructor(private entityPositionHandler:EntityPositionHandlerService) {
 		this.busData = [];
 		this.passengerData = [];
 		this.clock = 0;
@@ -56,4 +59,24 @@ export class EntityDataHandlerService {
 	getDelay(event: BusEvent|PassengerEvent) {
 		return getTime(event.time) - this.clock;
 	}
+
+	// fonction pour dessiner un bus
+	putBusOnMap(event:BusEvent) {
+
+	}
+
+	// fonction pour dessiner un passager
+	putPassengerOnMap(event:PassengerEvent) {
+
+	}
+
+	moveBus(event:BusEvent) {
+
+	}
+
+	movePassenger(event:PassengerEvent) {
+
+	}
+
+
 }
