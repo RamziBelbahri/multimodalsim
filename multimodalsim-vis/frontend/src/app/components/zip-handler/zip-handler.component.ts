@@ -104,7 +104,9 @@ export class ZipHandlerComponent{
 	readCSV(zip:any, filePath:any, component:ZipHandlerComponent):void {
 		zip.file(filePath)?.async('text').then(function(txt:string) {
 			try{
-				let csvArray = component.papa.parse(txt,{header: true, dynamicTyping: true}).data;
+				let csvArray = component.papa.parse(txt,{header: true, dynamicTyping: true,transformHeader: (header) => {
+					return header.replace(" ", "_").toLowerCase();
+				}}).data;
 				if(!(csvArray.at(-1).ID)) {
 					csvArray.pop();
 				}
@@ -112,14 +114,14 @@ export class ZipHandlerComponent{
 				let readVehicles:boolean = component.csvData.has(component.vehicleDataFileName);
 				let readPassengers:boolean = component.csvData.has(component.tripsDataFileName);
 				if( readVehicles && readPassengers) {
-					// component.tupleStringToArray(component, component.csvData.get(component.vehicleDataFileName))
-					
+					component.tupleStringToArray(component, component.csvData.get(component.vehicleDataFileName))
 					component.csvData.set(
 						component.vehicleDataFileName,
 						component.parser.parseToBusData(
 							component.csvData.get(component.vehicleDataFileName)
 						)
 					);
+					component.tupleStringToArray(component, component.csvData.get(component.tripsDataFileName))
 					component.csvData.set(
 						component.tripsDataFileName,
 						component.parser.parseToPassengerData(
@@ -130,17 +132,14 @@ export class ZipHandlerComponent{
 					let trips:any = component.csvData.get(component.tripsDataFileName)?.map(e => ({ ... e }));
 					let vehiclesAndTrips:any = vehicles.concat(trips);
 					vehiclesAndTrips.sort((a:any, b:any) => {
-						let a_time:number = Date.parse(a.Time);
-						let b_time:number = Date.parse(b.Time);
+						let a_time:number = Date.parse(a.time);
+						let b_time:number = Date.parse(b.time);
 						if (a_time > b_time) return 1;
 						if (a_time < b_time) return -1;
 						return 0;
 					})
-					
 					component.csvData.set(component.combined, vehiclesAndTrips);
-					
 					console.log(vehiclesAndTrips)
-					
 				}
 			} catch(e) {
 				component.errors.push((e as Error).message as string)

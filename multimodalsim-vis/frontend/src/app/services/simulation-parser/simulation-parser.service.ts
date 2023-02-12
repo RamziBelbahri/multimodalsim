@@ -37,7 +37,7 @@ export class SimulationParserService {
 			dynamicTyping: true,
 			skipEmptyLines: true,
 			transformHeader: (header) => {
-				return header.replace(/\s/g, '').toLowerCase();
+				return header.replace(" ", "").toLowerCase();
 			},
 		}).data;
 		const busData = this.parseToBusData(data);
@@ -61,13 +61,13 @@ export class SimulationParserService {
 				line.id,
 				line.time,
 				line.status,
-				line.previousstops,
-				line.currentstops,
-				line.nextstops,
-				line.assignedlegs,
-				line.onboardlegs,
-				line.alightedlegs,
-				line.cumulativedistance,
+				line.previous_stops,
+				line.current_stop,
+				line.next_stops,
+				line.assigned_legs,
+				line.onboard_legs,
+				line.alighted_legs,
+				line.cumulative_distance,
 				line.longitude,
 				line.latitude,
 				line.duration
