@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Papa } from 'ngx-papaparse';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { papaParse } from 'src/app/helpers/parsers';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 @Injectable({
@@ -74,5 +75,23 @@ export class SimulationParserService {
 			busData.push(busEvent);
 		}
 		return busData;
+	}
+	parseToPassengerData(data:any):PassengerEvent[] {
+		const passengerData: PassengerEvent[] = [];
+		for (const line of data) {
+			const passengerEvent = new PassengerEvent(
+				line.id,
+				line.time,
+				line.status,
+				line.assigned_vehicle,
+				line.current_location,
+				line.previous_legs,
+				line.current_leg,
+				line.next_legs,
+				line.duration,
+			);
+			passengerData.push(passengerEvent);
+		}
+		return passengerData;
 	}
 }
