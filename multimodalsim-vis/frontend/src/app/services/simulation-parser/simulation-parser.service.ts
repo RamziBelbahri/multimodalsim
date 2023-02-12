@@ -41,15 +41,15 @@ export class SimulationParserService {
 			},
 		}).data;
 		const busData = this.parseToBusData(data);
-		this.setSimulationData(busData);
+		this.setSimulationBusData(busData);
 	}
 
 	getCSVData(): [] {
 		return this.csvData;
 	}
 
-	setSimulationData(data: BusEvent[]): void {
-		this.entityDataHandlerService.setData(data);
+	setSimulationBusData(data: BusEvent[]): void {
+		this.entityDataHandlerService.setBusData(data);
 	}
 
 	parseToBusData(data: any): BusEvent[] {
