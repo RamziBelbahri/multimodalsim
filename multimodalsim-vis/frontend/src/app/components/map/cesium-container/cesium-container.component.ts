@@ -2,7 +2,7 @@ import { Component, ElementRef } from '@angular/core';
 import { Entity, Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
-import { MessageQueueStompService } from 'src/app/services/messaging/message-queue-stomp.service';
+import { PassengerHandlerService } from 'src/app/services/cesium/passenger-handler.service';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
@@ -15,8 +15,13 @@ export class CesiumContainerComponent {
 	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	entity: Entity | undefined;
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityPositionHandler: EntityPositionHandlerService,
-    private simulationParserService: SimulationParserService) {
+	constructor(
+		private element: ElementRef,
+		private cameraHandler: CameraHandlerService,
+		private entityPositionHandler: EntityPositionHandlerService,
+		private simulationParserService: SimulationParserService,
+		private passengerHandler: PassengerHandlerService
+	) {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
@@ -55,6 +60,11 @@ export class CesiumContainerComponent {
 	}
 
 	readContent(): void {
-		this.simulationParserService.getCSVData();
+		const data = this.simulationParserService.getCSVData(); //trier selon les types de données
+
+		for (const line of data) {
+			this.passengerHandler.initPassenger(line['ID'], line['Current location'], line['Status'], line['Assigned vehicle'], this.viewer); // à voir pour une meilleur implémentation
+			break;
+		}
 	}
 }
