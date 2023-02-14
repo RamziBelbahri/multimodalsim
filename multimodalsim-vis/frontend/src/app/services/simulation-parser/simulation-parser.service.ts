@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Papa } from 'ngx-papaparse';
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class SimulationParserService {
 	private csvFile: Blob;
@@ -21,7 +21,7 @@ export class SimulationParserService {
 	readFile(): void {
 		const fileReader = new FileReader();
 		fileReader.onload = () => {
-			if(fileReader.result) {
+			if (fileReader.result) {
 				this.parseFile(fileReader.result.toString());
 			}
 		};
@@ -30,7 +30,7 @@ export class SimulationParserService {
 
 	parseFile(csvString: string): void {
 		const papa = new Papa();
-		this.csvData= papa.parse(csvString,{header: true, dynamicTyping: true}).data;
+		this.csvData = papa.parse(csvString, { header: true, dynamicTyping: true }).data;
 	}
 
 	getCSVData(): [] {
