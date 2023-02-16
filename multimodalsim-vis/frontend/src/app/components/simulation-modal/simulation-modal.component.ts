@@ -16,4 +16,9 @@ export class SimulationModalComponent {
 	readContent(): void {
 		this.simulationParserService.getCSVData();
 	}
+
+	closeModal(): void {
+		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'hidden';
+		(document.getElementById('page-container') as HTMLElement).style.visibility = 'hidden';
+	}
 }

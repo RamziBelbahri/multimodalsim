@@ -30,6 +30,7 @@
     left: 0;
     background-color: black;
     opacity: 0.4;
+	overflow-x: hidden;
     visibility: visible;
 }
 
