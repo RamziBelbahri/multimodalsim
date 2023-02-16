@@ -10,11 +10,11 @@ const delay = require('delay');
 })
 export class EntityDataHandlerService {
 	private data: BusEvent[];
-	private clock: number;
+	private busDrawing = '🚍';
+	private passengerDrawing = '🚶🏼';
 
 	constructor(private entityPositionHandlerService: EntityPositionHandlerService) {
 		this.data = [];
-		this.clock = 0;
 	}
 
 	getData(): BusEvent[] {
