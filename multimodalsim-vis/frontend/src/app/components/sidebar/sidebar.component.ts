@@ -62,4 +62,9 @@ export class SidebarComponent {
 			this.openedMenuList.push(id);
 		}
 	}
+
+	openSimulationModal(): void {
+		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
+		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+	}
 }
