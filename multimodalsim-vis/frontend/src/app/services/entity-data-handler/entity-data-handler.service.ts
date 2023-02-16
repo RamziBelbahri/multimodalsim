@@ -1,82 +1,43 @@
 import { Injectable } from '@angular/core';
+import { Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
-import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const delay = require('delay');
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityDataHandlerService {
-	private busData: BusEvent[];
-	private passengerData:PassengerEvent[];
-	private clock: number;
-	private busDrawing:string = "🚍";
-	private passengerDrawing:string = "🚶🏼";
+	private data: BusEvent[];
+	private busDrawing = '🚍';
+	private passengerDrawing = '🚶🏼';
 
-	constructor(private entityPositionHandler:EntityPositionHandlerService) {
-		this.busData = [];
-		this.passengerData = [];
-		this.clock = 0;
+	constructor(private entityPositionHandlerService: EntityPositionHandlerService) {
+		this.data = [];
 	}
 
-	setBusData(busData: BusEvent[]): void {
-		this.busData = busData;
-		this.runVehiculeSimulation();
+	getBusData(): BusEvent[] {
+		return this.data;
 	}
 
-	setPassengerData(passengerData:PassengerEvent[]):void {
-		this.passengerData = passengerData;
-		this.runPassengerSimulation()
+	setBusData(data: BusEvent[]): void {
+		this.data = data;
 	}
 
-	// runs the simulation, if the clock is equal
-	runVehiculeSimulation() {
-		console.log(this.busData);
-		for (const event of this.busData) {
+	async runVehiculeSimulation(viewer: Viewer): Promise<void> {
+		let previousTime = getTime(this.getBusData()[0].time);
+		for (const event of this.data) {
 			if (event) {
-				console.log(event);
-				const delay = this.getDelay(event);
-				console.log(delay);
-				this.clock = getTime(event.time);
+				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 100;
+				await delay(timeDelay);
+				this.entityPositionHandlerService.loadBus(viewer, event);
+				previousTime = getTime(event.time);
 			}
 		}
 	}
 
-	// runs the simulation, if the clock is equal
-	runPassengerSimulation() {
-		console.log(this.passengerData);
-		for (const event of this.passengerData) {
-			if (event) {
-				console.log(event);
-				const delay = this.getDelay(event);
-				console.log(delay);
-				this.clock = getTime(event.time);
-			}
-		}
+	getDelay(currentTime: number, previousTime: number) {
+		return currentTime - previousTime;
 	}
-
-	getDelay(event: BusEvent|PassengerEvent) {
-		return getTime(event.time) - this.clock;
-	}
-
-	// fonction pour dessiner un bus
-	putBusOnMap(event:BusEvent) {
-
-	}
-
-	// fonction pour dessiner un passager
-	putPassengerOnMap(event:PassengerEvent) {
-
-	}
-
-	moveBus(event:BusEvent) {
-
-	}
-
-	movePassenger(event:PassengerEvent) {
-
-	}
-
-
 }

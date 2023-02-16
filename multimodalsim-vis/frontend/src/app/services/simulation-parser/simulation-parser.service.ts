@@ -19,6 +19,7 @@ export class SimulationParserService {
 	selectFile(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		this.csvFile = (target.files as FileList)[0];
+		this.readFile();
 	}
 
 	readFile(): void {
@@ -37,7 +38,7 @@ export class SimulationParserService {
 			dynamicTyping: true,
 			skipEmptyLines: true,
 			transformHeader: (header) => {
-				return header.replace(" ", "").toLowerCase();
+				return header.replace(' ', '').toLowerCase();
 			},
 		}).data;
 		const busData = this.parseToBusData(data);
@@ -53,7 +54,6 @@ export class SimulationParserService {
 	}
 
 	parseToBusData(data: any): BusEvent[] {
-
 		const busData: BusEvent[] = [];
 
 		for (const line of data) {
@@ -76,20 +76,11 @@ export class SimulationParserService {
 		}
 		return busData;
 	}
-	parseToPassengerData(data:any):PassengerEvent[] {
+	parseToPassengerData(data: any): PassengerEvent[] {
 		const passengerData: PassengerEvent[] = [];
 		for (const line of data) {
-			const passengerEvent = new PassengerEvent(
-				line.id,
-				line.time,
-				line.status,
-				line.assigned_vehicle,
-				line.current_location,
-				line.previous_legs,
-				line.current_leg,
-				line.next_legs,
-				line.duration,
-			);
+			const passengerEvent = new PassengerEvent(line.id, line.time, line.status, line.assigned_vehicle,
+				line.current_location, line.previous_legs, line.current_leg, line.next_legs, line.duration);
 			passengerData.push(passengerEvent);
 		}
 		return passengerData;
