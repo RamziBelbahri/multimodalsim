@@ -1,3 +1,5 @@
+import { Cartesian3 } from 'cesium';
+import { CesiumClass } from 'src/app/shared/cesium-class';
 import { EntityEvent } from '../entity/entity-event';
 
 export class BusEvent implements EntityEvent {
@@ -11,9 +13,10 @@ export class BusEvent implements EntityEvent {
 	onboard_legs: number[];
 	alighted_legs: number[];
 	cumulative_distance: number;
-	longitude: number;
-	latitude: number;
+	position: Cartesian3;
 	duration: string;
+	hasChanged: boolean;
+	movement: Cartesian3;
 
 	constructor(
 		id: number,
@@ -40,8 +43,9 @@ export class BusEvent implements EntityEvent {
 		this.onboard_legs = onboard_legs;
 		this.alighted_legs = alighted_legs;
 		this.cumulative_distance = cumulative_distance;
-		this.longitude = longitude;
-		this.latitude = latitude;
+		this.position = CesiumClass.cartesianDegrees(longitude, latitude);
 		this.duration = duration;
+		this.hasChanged = false;
+		this.movement = CesiumClass.cartesian3(0, 0, 0);
 	}
 }

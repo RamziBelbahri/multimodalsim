@@ -3,6 +3,8 @@ import { Cartesian3, Entity, Viewer } from 'cesium';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import * as _ from 'lodash';
+import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { getTime } from 'src/app/helpers/parsers';
 
 @Injectable({
 	providedIn: 'root',
@@ -10,85 +12,84 @@ import * as _ from 'lodash';
 export class EntityPositionHandlerService {
 	readonly INTERVAL = 10;
 	readonly NUMBER_OF_VERTEX = 4;
+	readonly POLYGON_RADIUS = 5;
 
-	private entityList: Array<Entity | undefined>;
-	private isChanged: Array<boolean>;
-
-	private pointList: Array<Array<Cartesian3>>;
-	private tickValueList: Array<Array<Cartesian3>>;
-	private tickNumberList: Array<number>;
+	private busList: Array<BusEvent>;
 
 	constructor() {
-		this.entityList = new Array<Entity | undefined>(0);
-		this.isChanged = new Array<boolean>(0);
+		this.busList = new Array<BusEvent>();
+	}
 
-		this.tickValueList = new Array<Array<Cartesian3>>(0);
-		this.tickNumberList = new Array<number>(0);
-
-		if (typeof Cesium !== 'undefined') {
-			// à enlever quand on va avoir les vrais données de la simulation
-			this.pointList = [
-				[
-					CesiumClass.cartesianDegrees(-73.715045, 45.548226),
-					CesiumClass.cartesianDegrees(-73.714945, 45.548226),
-					CesiumClass.cartesianDegrees(-73.714945, 45.548176),
-					CesiumClass.cartesianDegrees(-73.715045, 45.548176),
-				],
-			];
+	loadBus(viewer: Viewer, busEvent: BusEvent): void {
+		const busIndex = this.getBusIndex(busEvent.id) as number;
+		const busSpawned = busIndex !== -1;
+		if (busSpawned) {
+			const previousBusEvent = this.busList[busIndex];
+			this.setBusTarget(previousBusEvent, busEvent);
 		} else {
-			this.pointList = [];
+			this.spawnBus(viewer, busEvent);
 		}
 	}
 
-	getEntityNumber(): number {
-		return this.pointList.length;
-	}
+	spawnBus(viewer: Viewer, busEvent: BusEvent): void {
 
-	// Donne un trajet à parcourir pour une entité sur une certaine durée.
-	setTargetPosition(targetPos: Array<Cartesian3>, duration: number, entityIndex: number): void {
-		this.tickNumberList.push(Math.max(this.INTERVAL, duration) / this.INTERVAL);
-		const tickValue = new Array<Cartesian3>(targetPos.length);
-
-		for (let i = 0; i < targetPos.length; i++) {
-			const distance = CesiumClass.cartesianDistance(this.pointList[entityIndex][i], targetPos[i]) as Cartesian3;
-
-			tickValue[i] = CesiumClass.cartesianScalarDiv(distance, this.tickNumberList[entityIndex]);
-		}
-
-		this.tickValueList.push(tickValue);
-		this.isChanged.push(true);
-	}
-
-	// Génère une entité
-	spawnEntity(viewer: Viewer, entityIndex: number): void {
-		// Fonction callback utilisée pour mettre à jours les points d'une entité
-		const func = () => {
-			if (this.isChanged[entityIndex]) {
-				for (let i = 0; i < this.pointList[entityIndex].length; i++) {
-					this.pointList[entityIndex][i] = CesiumClass.addCartesian(this.pointList[entityIndex][i], this.tickValueList[entityIndex][i]);
-				}
-
-				this.tickNumberList[entityIndex]--;
-
-				if (this.tickNumberList[entityIndex] < 0) {
-					this.tickNumberList[entityIndex] = 0;
-					this.isChanged[entityIndex] = false;
-				}
+		const updatePosition = () => {
+			const busIndex = this.getBusIndex(busEvent.id) as number;
+			const correspondingBus = this.busList[busIndex];
+			let position = correspondingBus.position;
+			if (correspondingBus.hasChanged) {
+				console.log('position 1: ', this.busList[0].position);
+				const cartesianMovement = correspondingBus.movement;
+				position = CesiumClass.addCartesian(position, cartesianMovement);
+				this.setBusPosition(busIndex, position);
 			}
+			const edges: Array<Cartesian3> = [
+				CesiumClass.cartesian3(position.x - this.POLYGON_RADIUS, position.y + this.POLYGON_RADIUS, position.z),
+				CesiumClass.cartesian3(position.x + this.POLYGON_RADIUS, position.y + this.POLYGON_RADIUS, position.z),
+				CesiumClass.cartesian3(position.x + this.POLYGON_RADIUS, position.y - this.POLYGON_RADIUS, position.z),
+				CesiumClass.cartesian3(position.x - this.POLYGON_RADIUS, position.y - this.POLYGON_RADIUS, position.z),
+			];
 
-			return CesiumClass.polygonHierarchy(this.pointList[entityIndex]);
+			return CesiumClass.polygonHierarchy(edges);
 		};
 
-		this.entityList.push(
-			viewer.entities.add({
-				polygon: {
-					hierarchy: CesiumClass.callback(_.throttle(func, this.INTERVAL), false),
-					height: 0,
-					material: Cesium.Color.BLUE,
-					outline: true,
-					outlineColor: Cesium.Color.BLACK,
-				},
-			})
-		);
+		this.busList.push(busEvent);
+
+		viewer.entities.add({
+			polygon: {
+				hierarchy: CesiumClass.callback(_.throttle(updatePosition, this.INTERVAL), false),
+				height: 0,
+				material: Cesium.Color.BLUE,
+				outline: true,
+				outlineColor: Cesium.Color.BLACK,
+			},
+		});
+	}
+
+	setBusTarget(previousBus: BusEvent, currentBus: BusEvent): void {
+		const duration = getTime(currentBus.time) - getTime(previousBus.time);
+		const distance = CesiumClass.cartesianDistance(previousBus.position, currentBus.position) as Cartesian3;
+		const tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
+		const movement = CesiumClass.cartesianScalarDiv(distance, tickNumber);
+		const busIndex = this.getBusIndex(currentBus.id) as number;
+
+		this.setBusMovement(busIndex, movement);
+		this.setBusHaschanged(busIndex, true);
+	}
+
+	getBusIndex(id: number): number | undefined {
+		return this.busList.findIndex((event) => id === event.id);
+	}
+
+	setBusPosition(busIndex: number, position: Cartesian3): void {
+		this.busList[busIndex].position = position;
+	}
+
+	setBusMovement(busIndex: number, movement: Cartesian3): void {
+		this.busList[busIndex].movement = movement;
+	}
+
+	setBusHaschanged(busIndex: number, hasChanged: boolean): void {
+		this.busList[busIndex].hasChanged = hasChanged;
 	}
 }
