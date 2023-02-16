@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { getTime } from 'src/app/helpers/parsers';
-
+import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const delay = require('delay');
 @Injectable({
 	providedIn: 'root',
 })
@@ -9,30 +12,32 @@ export class EntityDataHandlerService {
 	private data: BusEvent[];
 	private clock: number;
 
-	constructor() {
+	constructor(private entityPositionHandlerService: EntityPositionHandlerService) {
 		this.data = [];
 		this.clock = 0;
 	}
 
-	setData(data: BusEvent[]): void {
-		this.data = data;
-		this.runVehiculeSimulation();
+	getData(): BusEvent[] {
+		return this.data;
 	}
 
-	// runs the simulation, if the clock is equal
-	runVehiculeSimulation() {
-		console.log(this.data);
+	setData(data: BusEvent[]): void {
+		this.data = data;
+	}
+
+	async runVehiculeSimulation(viewer: Viewer): Promise<void> {
+		let previousTime = getTime(this.getData()[0].time);
 		for (const event of this.data) {
 			if (event) {
-				console.log(event);
-				const delay = this.getDelay(event);
-				console.log(delay);
-				this.clock = getTime(event.time);
+				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 10;
+				await delay(timeDelay);
+				this.entityPositionHandlerService.loadBus(viewer, event);
+				previousTime = getTime(event.time);
 			}
 		}
 	}
 
-	getDelay(event: BusEvent) {
-		return getTime(event.time) - this.clock;
+	getDelay(currentTime: number, previousTime: number) {
+		return currentTime - previousTime;
 	}
 }

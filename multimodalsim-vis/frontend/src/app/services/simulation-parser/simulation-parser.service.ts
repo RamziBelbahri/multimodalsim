@@ -18,6 +18,7 @@ export class SimulationParserService {
 	selectFile(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		this.csvFile = (target.files as FileList)[0];
+		this.readFile();
 	}
 
 	readFile(): void {
@@ -52,7 +53,6 @@ export class SimulationParserService {
 	}
 
 	parseToBusData(data: any): BusEvent[] {
-
 		const busData: BusEvent[] = [];
 
 		for (const line of data) {
