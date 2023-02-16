@@ -31,7 +31,7 @@
     background-color: black;
     opacity: 0.4;
 	overflow-x: hidden;
-    visibility: visible;
+    visibility: hidden;
 }
 
 #modal-container {
@@ -48,7 +48,7 @@
     border: solid;
 	color: black;
 	overflow-x: hidden;
-    visibility: visible;
+    visibility: hidden;
 }
 
 .cesium {

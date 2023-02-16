@@ -15,6 +15,7 @@ export class SimulationModalComponent {
 
 	readContent(): void {
 		this.simulationParserService.getCSVData();
+		this.closeModal();
 	}
 
 	closeModal(): void {
