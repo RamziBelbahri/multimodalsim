@@ -32,13 +32,11 @@ export class EntityPositionHandlerService {
 	}
 
 	spawnBus(viewer: Viewer, busEvent: BusEvent): void {
-
 		const updatePosition = () => {
 			const busIndex = this.getBusIndex(busEvent.id) as number;
 			const correspondingBus = this.busList[busIndex];
 			let position = correspondingBus.position;
 			if (correspondingBus.hasChanged) {
-				console.log('position 1: ', this.busList[0].position);
 				const cartesianMovement = correspondingBus.movement;
 				position = CesiumClass.addCartesian(position, cartesianMovement);
 				this.setBusPosition(busIndex, position);

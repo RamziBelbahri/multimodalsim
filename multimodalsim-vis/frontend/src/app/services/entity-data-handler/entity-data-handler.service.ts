@@ -17,19 +17,19 @@ export class EntityDataHandlerService {
 		this.data = [];
 	}
 
-	getData(): BusEvent[] {
+	getBusData(): BusEvent[] {
 		return this.data;
 	}
 
-	setData(data: BusEvent[]): void {
+	setBusData(data: BusEvent[]): void {
 		this.data = data;
 	}
 
 	async runVehiculeSimulation(viewer: Viewer): Promise<void> {
-		let previousTime = getTime(this.getData()[0].time);
+		let previousTime = getTime(this.getBusData()[0].time);
 		for (const event of this.data) {
 			if (event) {
-				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 10;
+				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 100;
 				await delay(timeDelay);
 				this.entityPositionHandlerService.loadBus(viewer, event);
 				previousTime = getTime(event.time);
