@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Papa } from 'ngx-papaparse';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { papaParse } from 'src/app/helpers/parsers';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 @Injectable({
@@ -37,19 +38,19 @@ export class SimulationParserService {
 			dynamicTyping: true,
 			skipEmptyLines: true,
 			transformHeader: (header) => {
-				return header.replace(/\s/g, '').toLowerCase();
+				return header.replace(" ", "").toLowerCase();
 			},
 		}).data;
 		const busData = this.parseToBusData(data);
-		this.setSimulationData(busData);
+		this.setSimulationBusData(busData);
 	}
 
 	getCSVData(): [] {
 		return this.csvData;
 	}
 
-	setSimulationData(data: BusEvent[]): void {
-		this.entityDataHandlerService.setData(data);
+	setSimulationBusData(data: BusEvent[]): void {
+		this.entityDataHandlerService.setBusData(data);
 	}
 
 	parseToBusData(data: any): BusEvent[] {
@@ -60,13 +61,13 @@ export class SimulationParserService {
 				line.id,
 				line.time,
 				line.status,
-				line.previousstops,
-				line.currentstops,
-				line.nextstops,
-				line.assignedlegs,
-				line.onboardlegs,
-				line.alightedlegs,
-				line.cumulativedistance,
+				line.previous_stops,
+				line.current_stop,
+				line.next_stops,
+				line.assigned_legs,
+				line.onboard_legs,
+				line.alighted_legs,
+				line.cumulative_distance,
 				line.longitude,
 				line.latitude,
 				line.duration
@@ -74,5 +75,23 @@ export class SimulationParserService {
 			busData.push(busEvent);
 		}
 		return busData;
+	}
+	parseToPassengerData(data:any):PassengerEvent[] {
+		const passengerData: PassengerEvent[] = [];
+		for (const line of data) {
+			const passengerEvent = new PassengerEvent(
+				line.id,
+				line.time,
+				line.status,
+				line.assigned_vehicle,
+				line.current_location,
+				line.previous_legs,
+				line.current_leg,
+				line.next_legs,
+				line.duration,
+			);
+			passengerData.push(passengerEvent);
+		}
+		return passengerData;
 	}
 }
