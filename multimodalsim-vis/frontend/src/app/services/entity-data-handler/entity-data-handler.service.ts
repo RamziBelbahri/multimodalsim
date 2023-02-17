@@ -3,8 +3,6 @@ import { Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const delay = require('delay');
 @Injectable({
 	providedIn: 'root',
 })
@@ -17,27 +15,36 @@ export class EntityDataHandlerService {
 		this.data = [];
 	}
 
-	getBusData(): BusEvent[] {
+	private getBusData(): BusEvent[] {
 		return this.data;
 	}
 
-	setBusData(data: BusEvent[]): void {
+	public setBusData(data: BusEvent[]): void {
 		this.data = data;
 	}
 
-	async runVehiculeSimulation(viewer: Viewer): Promise<void> {
+	public async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
+		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
+	}
+
+	private async runFullSimulation(viewer: Viewer): Promise<void> {
 		let previousTime = getTime(this.getBusData()[0].time);
 		for (const event of this.data) {
 			if (event) {
-				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 100;
-				await delay(timeDelay);
-				this.entityPositionHandlerService.loadBus(viewer, event);
+				await this.entityPositionHandlerService.loadBus(viewer, event, previousTime);
 				previousTime = getTime(event.time);
 			}
 		}
 	}
 
-	getDelay(currentTime: number, previousTime: number) {
-		return currentTime - previousTime;
+	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
+		let previousTime = getTime(this.getBusData()[0].time);
+		for (let i = 0; i < eventsAmount; i++) {
+			const event = this.data[i];
+			if (event) {
+				await this.entityPositionHandlerService.loadBus(viewer, event, previousTime);
+				previousTime = getTime(event.time);
+			}
+		}
 	}
 }
