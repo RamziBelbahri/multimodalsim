@@ -5,8 +5,8 @@ import { Camera } from 'cesium';
 	providedIn: 'root',
 })
 export class CameraHandlerService {
-	private readonly LAVAL_LONGITUDE: number = -73.717289; /*-73.667207*/
-	private readonly LAVAL_LATITUDE: number = 45.545031; /*45.555819;*/
+	private readonly LAVAL_LONGITUDE: number = -73.717289;
+	private readonly LAVAL_LATITUDE: number = 45.545031;
 	private readonly BASE_HEIGHT: number = 2000.0;
 	private readonly LAVAL_ZOOM: number = 10000;
 

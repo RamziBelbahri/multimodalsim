@@ -43,6 +43,7 @@ export class BusEvent implements EntityEvent {
 		this.onboard_legs = onboard_legs;
 		this.alighted_legs = alighted_legs;
 		this.cumulative_distance = cumulative_distance;
+		// Certains events(trajets en cours) ont des positions nulles, on veut conserver cette information
 		this.position = longitude == null || latitude == null ? null : CesiumClass.cartesianDegrees(longitude, latitude);
 		this.duration = duration;
 		this.hasChanged = false;

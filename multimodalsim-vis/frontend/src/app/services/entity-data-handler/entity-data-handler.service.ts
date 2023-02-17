@@ -37,6 +37,7 @@ export class EntityDataHandlerService {
 		}
 	}
 
+	//for demo purposes only
 	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
 		let previousTime = getTime(this.getBusData()[0].time);
 		for (let i = 0; i < eventsAmount; i++) {
