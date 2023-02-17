@@ -13,6 +13,7 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 export class CesiumContainerComponent {
 	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	entity: Entity | undefined;
+	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 
 	constructor(
 		private element: ElementRef,
@@ -26,7 +27,6 @@ export class CesiumContainerComponent {
 			//assetId 4 est la carte 2D et 1 est la carte 3D par défaut
 			CesiumClass.imagery({ assetId: 4 })
 		);
-
 		this.cameraHandler.initCameraData(this.viewer.camera);
 	}
 
@@ -35,6 +35,6 @@ export class CesiumContainerComponent {
 	}
 
 	launch(): void {
-		this.entityDataHandlerService.runVehiculeSimulation(this.viewer);
+		this.entityDataHandlerService.runVehiculeSimulation(this.viewer, this.DEMO_EVENTS_AMOUNT);
 	}
 }
