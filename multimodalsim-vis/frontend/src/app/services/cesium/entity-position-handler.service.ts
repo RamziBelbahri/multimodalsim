@@ -26,6 +26,9 @@ export class EntityPositionHandlerService {
 		const busSpawned = busIndex !== -1;
 		const currentTime = getTime(busEvent.time);
 		const timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
+
+		// Si le bus apparaît, on attend pour l'intervalle avec l'évènement précédent, sinon
+		// on attend pour l'intervalle avec l'évènement de déplacement
 		if (busSpawned) {
 			const previousBusEvent = this.busList[busIndex];
 			this.setBusTarget(previousBusEvent, busEvent);
