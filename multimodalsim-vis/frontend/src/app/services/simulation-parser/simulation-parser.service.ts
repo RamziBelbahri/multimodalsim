@@ -13,17 +13,13 @@ export class SimulationParserService {
 		this.csvData = [];
 	}
 
-	selectFile(event: Event, isStopIDs:boolean = false): void {
+	selectFile(event: Event, isStopIDs = false): void {
 		const target = event.target as HTMLInputElement;
 		this.csvFile = (target.files as FileList)[0];
 		this.readFile(isStopIDs);
 	}
 
-	onStopIDsUpload(event:Event) {
-
-	}
-
-	readFile(isStopIDs:boolean = false): void {
+	readFile(isStopIDs = false): void {
 		const fileReader = new FileReader();
 		fileReader.onload = () => {
 			if (fileReader.result) {
@@ -33,12 +29,12 @@ export class SimulationParserService {
 		fileReader.readAsText(this.csvFile);
 	}
 
-	parseFile(csvString: string,isStopIDs:boolean = false): void {
+	parseFile(csvString: string,isStopIDs = false): void {
 		const papa = new Papa();
 		this.csvData = papa.parse(csvString, { header: true, dynamicTyping: true }).data;
 		if(isStopIDs) {
-			for(let line of this.csvData) {
-				EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line)
+			for(const line of this.csvData) {
+				EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
 			}
 		}
 	}

@@ -71,8 +71,8 @@ export class CesiumContainerComponent {
 			}
 
 			if(EntityPositionHandlerService.STOPID_LOOKUP.has(line['Current location'])) {
-				let stop = EntityPositionHandlerService.STOPID_LOOKUP.get(line['Current location'])
-				line['Current location'] ="("+ stop['stop_lon']  + "," + stop['stop_lat']+ ")" as never
+				const stop = EntityPositionHandlerService.STOPID_LOOKUP.get(line['Current location']);
+				line['Current location'] ='('+ stop['stop_lon']  + ',' + stop['stop_lat']+ ')' as never;
 
 			}
 			this.passengerHandler.initPassenger(line['ID'], line['Current location'], line['Status'], line['Assigned vehicle'], this.viewer); // à voir pour une meilleur implémentation
