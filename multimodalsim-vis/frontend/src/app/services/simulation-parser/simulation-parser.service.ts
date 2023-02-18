@@ -3,6 +3,7 @@ import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { papaParse } from 'src/app/helpers/parsers';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
+import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 @Injectable({
 	providedIn: 'root',
 })
@@ -15,23 +16,24 @@ export class SimulationParserService {
 		this.csvData = [];
 	}
 
-	selectFile(event: Event): void {
+	selectFile(event: Event, isStopIDs = false): void {
 		const target = event.target as HTMLInputElement;
 		this.csvFile = (target.files as FileList)[0];
-		this.readFile();
+		this.readFile(isStopIDs);
 	}
 
-	readFile(): void {
+	readFile(isStopIDs = false): void {
 		const fileReader = new FileReader();
 		fileReader.onload = () => {
 			if (fileReader.result) {
-				this.parseFile(fileReader.result.toString());
+				const csvString = fileReader.result.toString();
+				isStopIDs ? this.parseStopsFile(csvString) : this.parseVehicleFile(csvString);
 			}
 		};
 		fileReader.readAsText(this.csvFile);
 	}
 
-	parseFile(csvString: string): void {
+	parseVehicleFile(csvString: string): void {
 		const data = papaParse(csvString, {
 			header: true,
 			dynamicTyping: true,
@@ -42,6 +44,12 @@ export class SimulationParserService {
 		}).data;
 		const busData = this.parseToBusData(data);
 		this.setSimulationBusData(busData);
+	}
+	parseStopsFile(csvString: string): void {
+		this.csvData = papaParse(csvString, { header: true, dynamicTyping: true }).data;
+		for (const line of this.csvData) {
+			EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
+		}
 	}
 
 	getCSVData(): [] {
@@ -78,8 +86,8 @@ export class SimulationParserService {
 	parseToPassengerData(data: any): PassengerEvent[] {
 		const passengerData: PassengerEvent[] = [];
 		for (const line of data) {
-			const passengerEvent = new PassengerEvent(line.id, line.time, line.status, line.assigned_vehicle,
-				line.current_location, line.previous_legs, line.current_leg, line.next_legs, line.duration);
+			const passengerEvent = new PassengerEvent(line.id, line.time, line.status, line.assigned_vehicle, line.current_location, line.previous_legs,
+				line.current_leg, line.next_legs, line.duration);
 			passengerData.push(passengerEvent);
 		}
 		return passengerData;
