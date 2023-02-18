@@ -3,7 +3,8 @@ import { Component } from '@angular/core';
 import * as JSZip from 'jszip';
 import { Papa } from 'ngx-papaparse';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
-
+// import { papaParse } from 'src/app/helpers/parsers';
+import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 const DEBUG = false;
 
 @Component({
@@ -23,11 +24,9 @@ export class ZipHandlerComponent{
 	private eventObservationFileName = 'events_observations_df.csv';
 	private combined = 'combined-trips-vehicle';
 	private parser:SimulationParserService;
-	// private attrParser:Record<string,Function> = {
-	// 	"Current stop": (stop:string):string[] => {
+	public static zipHandler:ZipHandlerComponent;
+	private input:HTMLInputElement|undefined;
 
-	// 	}
-	// }
 	constructor(parser:SimulationParserService) {
 		this.zipper = JSZip();
 		this.papa = new Papa();
@@ -37,20 +36,27 @@ export class ZipHandlerComponent{
 		this.ignored = [];
 		// this is purely for in case we need to add a bunch of file types in the future
 		this.parser = parser;
+		ZipHandlerComponent.zipHandler = this;
 	}
 
 	changeListener(event: Event): void {
 		this.clear();
-		const input:HTMLInputElement = event.target as HTMLInputElement;
-		if(input.files != null) {
-			const file:File|null = input.files[input.files.length - 1];
+		this.input = event.target as HTMLInputElement;
+	}
+
+	readZipContent() {
+		// const input:HTMLInputElement = event.target as HTMLInputElement;
+		if(this.input == undefined) {return;}
+		if(this.input.files != null) {
+			const file:File|null = this.input.files[this.input.files.length - 1];
 			// so that we can call it inside the callback; otherwise this.readFiles will have errors
 			// eslint-disable-next-line @typescript-eslint/no-this-alias
 			const component: ZipHandlerComponent = this;
 			this.zipper.loadAsync(file).then(function(zip) {
 				component.readFiles(zip);
 			}).then(function() {
-				input.files = null;
+				if(component.input != undefined)
+					component.input.files = null;
 			});
 		}
 	}
@@ -67,7 +73,7 @@ export class ZipHandlerComponent{
 				} catch (e) {
 					extension = '/';
 				}
-				if(extension == 'csv') {
+				if(extension == 'csv' || extension == 'txt') {
 					component.readCSV(zip, filePath, component);
 				} else if (extension == '\'') {
 					component.readDirectory(zip, filePath, component);
@@ -98,6 +104,13 @@ export class ZipHandlerComponent{
 		}
 	}
 
+	parseStopsFile(csvArray: Array<any>): void {
+		// const csvData = papaParse(csvString, { header: true, dynamicTyping: true }).data;
+		for (const line of csvArray) {
+			EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
+		}
+	}
+
 	readCSV(zip: any, filePath: any, component: ZipHandlerComponent): void {
 		zip
 			.file(filePath)
@@ -111,13 +124,21 @@ export class ZipHandlerComponent{
 							return header.replace(' ', '_').toLowerCase();
 						},
 					}).data;
-					if (!csvArray.at(-1).ID) {
+					// console.log(filePath);
+
+					if(filePath.toString().endsWith('stops.txt')) {
+						component.parseStopsFile(csvArray);
+						console.log(EntityPositionHandlerService.STOPID_LOOKUP);
+					}
+
+
+					if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 						csvArray.pop();
 					}
 					component.csvData.set(filePath.split('/').at(-1), csvArray);
 					const readVehicles: boolean = component.csvData.has(component.vehicleDataFileName);
 					const readPassengers: boolean = component.csvData.has(component.tripsDataFileName);
-					if (readVehicles && readPassengers) {
+					if (readVehicles && readPassengers && !component.csvData.has(component.combined)) {
 						component.tupleStringToArray(component, component.csvData.get(component.vehicleDataFileName));
 						component.csvData.set(component.vehicleDataFileName, component.parser.parseToBusData(component.csvData.get(component.vehicleDataFileName)));
 						component.tupleStringToArray(component, component.csvData.get(component.tripsDataFileName));
