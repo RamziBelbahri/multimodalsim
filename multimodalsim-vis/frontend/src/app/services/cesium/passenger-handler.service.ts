@@ -11,8 +11,9 @@ export class PassengerHandlerService {
 
 	initPassenger(id: number, locationString: string, status: string, assignedVehiculeId: number, viewer: Viewer): void {
 		if (!this.passengerList.some((passenger) => passenger.id === id)) {
+			// console.log(locationString)
 			const locationValues = locationString.substring(1, locationString.length - 1).split(',');
-			const location3D = CesiumClass.cartesian3(+locationValues[0], +locationValues[1], 0);
+			const location3D = CesiumClass.cartesianDegrees(+locationValues[0], +locationValues[1]);
 
 			this.passengerList.push(new Passenger(id, location3D, status.split('.')[1], assignedVehiculeId));
 			this.createPassenger(location3D, viewer);
@@ -23,9 +24,9 @@ export class PassengerHandlerService {
 		viewer.entities.add({
 			position: location,
 			ellipse: {
-				semiMinorAxis: 300000.0,
-				semiMajorAxis: 300000.0,
-				height: location.z,
+				semiMinorAxis: 10.0,
+				semiMajorAxis: 10.0,
+				height: 0,
 				material: Cesium.Color.GREEN,
 				outline: true, // height must be set for outline to display
 			},

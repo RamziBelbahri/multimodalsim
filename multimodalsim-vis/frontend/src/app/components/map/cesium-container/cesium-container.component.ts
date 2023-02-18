@@ -59,12 +59,23 @@ export class CesiumContainerComponent {
 		this.simulationParserService.selectFile(event);
 	}
 
+	selectFileStopID(event: Event): void {
+		this.simulationParserService.selectFile(event,true);
+	}
+
 	readContent(): void {
 		const data = this.simulationParserService.getCSVData(); //trier selon les types de données
-
 		for (const line of data) {
+			if(line['ID'] == null ||  line['Current location'] == null) {
+				continue;
+			}
+
+			if(EntityPositionHandlerService.STOPID_LOOKUP.has(line['Current location'])) {
+				let stop = EntityPositionHandlerService.STOPID_LOOKUP.get(line['Current location'])
+				line['Current location'] ="("+ stop['stop_lon']  + "," + stop['stop_lat']+ ")" as never
+
+			}
 			this.passengerHandler.initPassenger(line['ID'], line['Current location'], line['Status'], line['Assigned vehicle'], this.viewer); // à voir pour une meilleur implémentation
-			break;
 		}
 	}
 }
