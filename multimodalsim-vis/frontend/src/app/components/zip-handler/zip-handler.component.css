@@ -1,0 +1,14 @@
+.selection-input {   
+	display: block;
+    position: relative;
+    padding: 1%;
+    left: 25%;
+    width: 50%;
+    background-color: rgb(229, 229, 229);
+	color: black;
+    border: 2px solid black;
+	cursor: pointer;
+	font-size: 16px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	text-align: center;
+}
