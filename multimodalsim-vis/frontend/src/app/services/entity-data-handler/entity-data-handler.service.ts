@@ -49,11 +49,6 @@ export class EntityDataHandlerService {
 		return this.eventObservations;
 	}
 	public combinePassengerAndBusEvents(component:ZipHandlerComponent): void {
-		// component.tupleStringToArray(component, component.csvData.get(component.vehicleDataFileName));
-		// component.csvData.set(component.vehicleDataFileName, component.parser.parseToBusData(component.csvData.get(component.vehicleDataFileName)));
-		// component.tupleStringToArray(component, component.csvData.get(component.tripsDataFileName));
-		// component.csvData.set(component.tripsDataFileName, component.parser.parseToPassengerData(component.csvData.get(component.tripsDataFileName)));
-		
 		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
 		const vehiclesAndTrips: any = vehicles.concat(trips);
@@ -85,6 +80,7 @@ export class EntityDataHandlerService {
 	//for demo purposes only
 	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
 		let previousTime = getTime(this.getBusEvents()[0].time);
+		eventsAmount = Math.min(eventsAmount, this.busEvents.length);
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.busEvents[i];
 			if (event) {
