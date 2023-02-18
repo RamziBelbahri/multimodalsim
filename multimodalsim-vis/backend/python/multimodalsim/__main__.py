@@ -194,6 +194,26 @@ def main():
             # --log-level DEBUG
             data_reader = BusDataReader(requests_file_path, vehicles_file_path)
 
+        # -c ../../data/fixed_line/stl/available_connections/available_connections_0p25.json
+        # -g ../../data/fixed_line/stl/network_graph/bus_network_graph_20191101.txt
+        logger.info("Available connections file: {}".format(
+            args.connections))
+        if args.connections is not None:
+            available_connections = data_reader.get_available_connections(
+                args.connections)
+        else:
+            # Connections between different stops is impossible.
+            available_connections = []
+        if args.graph != None:
+            g = nx.read_gpickle(args.graph)
+        else:
+            logger.info("Generate network graph...")
+            g = data_reader.get_network_graph(
+                available_connections=available_connections)
+            g_path = "../../data/fixed_line/stl/network_graph/" \
+                     "bus_network_graph_20191101.txt"
+            # nx.write_gpickle(g, g_path)
+
         if args.multimodal:
             # -c ../../data/fixed_line/stl/available_connections/available_connections_0p25.json
             # -g ../../data/fixed_line/stl/network_graph/bus_network_graph_20191101.txt

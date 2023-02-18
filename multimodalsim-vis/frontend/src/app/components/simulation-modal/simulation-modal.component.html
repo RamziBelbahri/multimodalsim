@@ -1,0 +1,10 @@
+<a class="close-button" (click)="closeModal()">&times;</a>
+<div class="selection">
+    <p>Open from CSV</p>
+    <input class="selection-input" type='file' (change)="selectFile($event)">
+</div>
+<div class="selection">
+    <p class="selection-title">Open from zip</p>
+    <app-zip-handler></app-zip-handler>
+</div>
+<button class="modal-button" (click)="readContent()">Read content</button>
