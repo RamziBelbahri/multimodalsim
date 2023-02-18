@@ -6,7 +6,6 @@ import { SimulationParserService } from 'src/app/services/simulation-parser/simu
 // import { papaParse } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
-import { PassengerHandlerService } from 'src/app/services/cesium/passenger-handler.service';
 const DEBUG = false;
 
 @Component({
@@ -108,7 +107,6 @@ export class ZipHandlerComponent{
 	}
 
 	parseStopsFile(csvArray: Array<any>): void {
-		// const csvData = papaParse(csvString, { header: true, dynamicTyping: true }).data;
 		for (const line of csvArray) {
 			EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
 		}
@@ -141,16 +139,13 @@ export class ZipHandlerComponent{
 					}).data;
 					if(filePath.toString().endsWith('stops.txt')) {
 						component.parseStopsFile(csvArray);
-						console.log(EntityPositionHandlerService.STOPID_LOOKUP);
 					}
 					if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 						csvArray.pop();
 					}
 					component.csvData.add(filePath.split('/').at(-1));
-
 					const readVehicles: boolean = component.csvData.has(component.vehicleDataFileName);
 					const readPassengers: boolean = component.csvData.has(component.tripsDataFileName);
-					// const readEventObservations:boolean = component.csvData.has(component.eventObservationFileName);
 					
 					if(filePath.toString().endsWith(component.vehicleDataFileName)) {
 						component.setBusData(csvArray, component);
@@ -163,11 +158,6 @@ export class ZipHandlerComponent{
 						component.entityDataHandlerService.combinePassengerAndBusEvents(component);
 						component.csvData.add(component.combined);
 					}
-					
-					
-					// if (readVehicles && readPassengers && !component.csvData.has(component.combined)) {
-					// 	// console.log(vehiclesAndTrips);
-					// }
 				} catch (e) {
 					component.errors.push((e as Error).message as string);
 				}
@@ -186,20 +176,4 @@ export class ZipHandlerComponent{
 		this.directories = [];
 		this.ignored = [];
 	}
-
-	// getVehicleData():any {
-	// 	return this.csvData.get(this.vehicleDataFileName);
-	// }
-
-	// getTripsData():any {
-	// 	return this.csvData.get(this.tripsDataFileName);
-	// }
-
-	// getEventObservationData():any {
-	// 	return this.csvData.get(this.eventObservationFileName);
-	// }
-
-	// getTripsAndVehicleData():any {
-	// 	return this.csvData.get(this.combined);
-	// }
 }
