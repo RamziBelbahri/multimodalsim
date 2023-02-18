@@ -23,11 +23,7 @@ export class ZipHandlerComponent{
 	private eventObservationFileName = 'events_observations_df.csv';
 	private combined = 'combined-trips-vehicle';
 	private parser:SimulationParserService;
-	// private attrParser:Record<string,Function> = {
-	// 	"Current stop": (stop:string):string[] => {
 
-	// 	}
-	// }
 	constructor(parser:SimulationParserService) {
 		this.zipper = JSZip();
 		this.papa = new Papa();
