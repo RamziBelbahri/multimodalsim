@@ -2,6 +2,8 @@ import { Component, ElementRef } from '@angular/core';
 import { Entity, Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
+import { PassengerHandlerService } from 'src/app/services/cesium/passenger-handler.service';
+import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
 @Component({
@@ -13,7 +15,13 @@ export class CesiumContainerComponent {
 	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	entity: Entity | undefined;
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityPositionHandler: EntityPositionHandlerService) {
+	constructor(
+		private element: ElementRef,
+		private cameraHandler: CameraHandlerService,
+		private entityPositionHandler: EntityPositionHandlerService,
+		private simulationParserService: SimulationParserService,
+		private passengerHandler: PassengerHandlerService
+	) {
 		// remplacer ça par un algo qui va déterminer la position à prendre
 		document.addEventListener('keydown', (event) => {
 			if (event.key == 'q') {
@@ -44,6 +52,30 @@ export class CesiumContainerComponent {
 
 		for (let i = 0; i < this.entityPositionHandler.getEntityNumber(); i++) {
 			this.entityPositionHandler.spawnEntity(this.viewer, i);
+		}
+	}
+
+	selectFile(event: Event): void {
+		this.simulationParserService.selectFile(event);
+	}
+
+	selectFileStopID(event: Event): void {
+		this.simulationParserService.selectFile(event,true);
+	}
+
+	readContent(): void {
+		const data = this.simulationParserService.getCSVData(); //trier selon les types de données
+		for (const line of data) {
+			if(line['ID'] == null ||  line['Current location'] == null) {
+				continue;
+			}
+
+			if(EntityPositionHandlerService.STOPID_LOOKUP.has(line['Current location'])) {
+				const stop = EntityPositionHandlerService.STOPID_LOOKUP.get(line['Current location']);
+				line['Current location'] ='('+ stop['stop_lon']  + ',' + stop['stop_lat']+ ')' as never;
+
+			}
+			this.passengerHandler.initPassenger(line['ID'], line['Current location'], line['Status'], line['Assigned vehicle'], this.viewer); // à voir pour une meilleur implémentation
 		}
 	}
 }
