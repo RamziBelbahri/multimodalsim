@@ -13,8 +13,8 @@ const delay = require('delay');
 export class EntityPositionHandlerService {
 	private readonly INTERVAL = 10;
 	private readonly POLYGON_RADIUS = 50;
-	private readonly SPEED_FACTOR = 10000;
-	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
+	private readonly SPEED_FACTOR = 100000;
+	public static STOPID_LOOKUP: Map<number, any> = new Map<number, any>();
 
 	private busList: Array<BusEvent>;
 
@@ -26,12 +26,14 @@ export class EntityPositionHandlerService {
 		const busIndex = this.getBusIndex(busEvent.id) as number;
 		const busSpawned = busIndex !== -1;
 		const currentTime = getTime(busEvent.time);
-		const timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
+		let timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
 
 		// Si le bus apparaît, on attend pour l'intervalle avec l'évènement précédent, sinon
 		// on attend pour l'intervalle avec l'évènement de déplacement
 		if (busSpawned) {
 			const previousBusEvent = this.busList[busIndex];
+			const previousBusTime = getTime(previousBusEvent.time);
+			timeDelay = this.getDelay(currentTime, previousBusTime) / this.SPEED_FACTOR;
 			this.setBusTarget(previousBusEvent, busEvent);
 			await delay(timeDelay);
 			this.stopBus(busIndex);
