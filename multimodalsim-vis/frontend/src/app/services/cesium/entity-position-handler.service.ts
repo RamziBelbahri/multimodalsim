@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 export class EntityPositionHandlerService {
 	readonly INTERVAL = 10;
 	readonly NUMBER_OF_VERTEX = 4;
+	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
 
 	private entityList: Array<Entity | undefined>;
 	private isChanged: Array<boolean>;
