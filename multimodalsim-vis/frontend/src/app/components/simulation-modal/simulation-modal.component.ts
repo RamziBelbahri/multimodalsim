@@ -16,7 +16,6 @@ export class SimulationModalComponent {
 
 	readContent(): void {
 		this.simulationParserService.readFile();
-		//this.entityDataHandlerService.runVehiculeSimulation();
 		this.closeModal();
 	}
 
