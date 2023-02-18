@@ -14,6 +14,7 @@ export class EntityPositionHandlerService {
 	private readonly INTERVAL = 10;
 	private readonly POLYGON_RADIUS = 50;
 	private readonly SPEED_FACTOR = 10000;
+	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
 
 	private busList: Array<BusEvent>;
 
