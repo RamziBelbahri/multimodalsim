@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 
 @Component({
@@ -7,14 +8,14 @@ import { SimulationParserService } from 'src/app/services/simulation-parser/simu
 	styleUrls: ['./simulation-modal.component.css'],
 })
 export class SimulationModalComponent {
-	constructor(private simulationParserService: SimulationParserService) {}
+	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService) {}
 
 	selectFile(event: Event): void {
 		this.simulationParserService.selectFile(event);
 	}
 
 	readContent(): void {
-		this.simulationParserService.getCSVData();
+		this.simulationParserService.readFile();
 		this.closeModal();
 	}
 

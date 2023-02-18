@@ -1,0 +1,3 @@
+[submodule "multimodalsim-vis/backend/multimodal-simulator"]
+	path = multimodalsim-vis/backend/multimodal-simulator
+	url = https://github.com/RTOpt/multimodal-simulator.git
