@@ -5,6 +5,8 @@ import { Papa } from 'ngx-papaparse';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 // import { papaParse } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
+import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
+import { PassengerHandlerService } from 'src/app/services/cesium/passenger-handler.service';
 const DEBUG = false;
 
 @Component({
@@ -15,7 +17,7 @@ const DEBUG = false;
 export class ZipHandlerComponent{
 	private zipper:JSZip;
 	private papa:Papa;
-	private csvData:Map<string, any[]>;
+	private csvData:Set<string>;
 	private errors:string[];
 	private ignored:string[];
 	private directories:string[];
@@ -23,14 +25,15 @@ export class ZipHandlerComponent{
 	private tripsDataFileName = 'trips_observations_df.csv';
 	private eventObservationFileName = 'events_observations_df.csv';
 	private combined = 'combined-trips-vehicle';
-	private parser:SimulationParserService;
+	public parser:SimulationParserService;
 	public static zipHandler:ZipHandlerComponent;
 	private input:HTMLInputElement|undefined;
 
-	constructor(parser:SimulationParserService) {
+	constructor(parser:SimulationParserService,
+		public entityDataHandlerService:EntityDataHandlerService) {
 		this.zipper = JSZip();
 		this.papa = new Papa();
-		this.csvData = new Map<string, any[]>();
+		this.csvData = new Set<string>();
 		this.errors = [];
 		this.directories = [];
 		this.ignored = [];
@@ -111,6 +114,18 @@ export class ZipHandlerComponent{
 		}
 	}
 
+	setPassengerData(data:any[], component:ZipHandlerComponent) {
+		component.entityDataHandlerService.setPassengerData(component.parser.parseToPassengerData(data));
+	}
+
+	setBusData(data:any[],component:ZipHandlerComponent) {
+		component.entityDataHandlerService.setBusData(component.parser.parseToBusData(data));
+	}
+
+	setEventObservation(data:any[], component:ZipHandlerComponent) {
+		component.entityDataHandlerService.setEventObservations(data);
+	}
+
 	readCSV(zip: any, filePath: any, component: ZipHandlerComponent): void {
 		zip
 			.file(filePath)
@@ -124,38 +139,35 @@ export class ZipHandlerComponent{
 							return header.replace(' ', '_').toLowerCase();
 						},
 					}).data;
-					// console.log(filePath);
-
 					if(filePath.toString().endsWith('stops.txt')) {
 						component.parseStopsFile(csvArray);
 						console.log(EntityPositionHandlerService.STOPID_LOOKUP);
 					}
-
-
 					if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 						csvArray.pop();
 					}
-					component.csvData.set(filePath.split('/').at(-1), csvArray);
+					component.csvData.add(filePath.split('/').at(-1));
+
 					const readVehicles: boolean = component.csvData.has(component.vehicleDataFileName);
 					const readPassengers: boolean = component.csvData.has(component.tripsDataFileName);
-					if (readVehicles && readPassengers && !component.csvData.has(component.combined)) {
-						component.tupleStringToArray(component, component.csvData.get(component.vehicleDataFileName));
-						component.csvData.set(component.vehicleDataFileName, component.parser.parseToBusData(component.csvData.get(component.vehicleDataFileName)));
-						component.tupleStringToArray(component, component.csvData.get(component.tripsDataFileName));
-						component.csvData.set(component.tripsDataFileName, component.parser.parseToPassengerData(component.csvData.get(component.tripsDataFileName)));
-						const vehicles: any = component.csvData.get(component.vehicleDataFileName)?.map((e) => ({ ...e }));
-						const trips: any = component.csvData.get(component.tripsDataFileName)?.map((e) => ({ ...e }));
-						const vehiclesAndTrips: any = vehicles.concat(trips);
-						vehiclesAndTrips.sort((a: any, b: any) => {
-							const a_time: number = Date.parse(a.time);
-							const b_time: number = Date.parse(b.time);
-							if (a_time > b_time) return 1;
-							if (a_time < b_time) return -1;
-							return 0;
-						});
-						component.csvData.set(component.combined, vehiclesAndTrips);
-						console.log(vehiclesAndTrips);
+					// const readEventObservations:boolean = component.csvData.has(component.eventObservationFileName);
+					
+					if(filePath.toString().endsWith(component.vehicleDataFileName)) {
+						component.setBusData(csvArray, component);
+					} else if(filePath.toString().endsWith(component.tripsDataFileName)) {
+						component.setPassengerData(csvArray, component);
+					} else if(filePath.toString().endsWith(component.eventObservationFileName)) {
+						component.setEventObservation(csvArray, component);
 					}
+					if(readVehicles && readPassengers && !component.csvData.has(component.combined)) {
+						component.entityDataHandlerService.combinePassengerAndBusEvents(component);
+						component.csvData.add(component.combined);
+					}
+					
+					
+					// if (readVehicles && readPassengers && !component.csvData.has(component.combined)) {
+					// 	// console.log(vehiclesAndTrips);
+					// }
 				} catch (e) {
 					component.errors.push((e as Error).message as string);
 				}
@@ -169,25 +181,25 @@ export class ZipHandlerComponent{
 	clear(): void {
 		this.zipper = JSZip();
 		this.papa = new Papa();
-		this.csvData = new Map<string, any[]>();
+		this.csvData = new Set<string>();
 		this.errors = [];
 		this.directories = [];
 		this.ignored = [];
 	}
 
-	getVehicleData():any {
-		return this.csvData.get(this.vehicleDataFileName);
-	}
+	// getVehicleData():any {
+	// 	return this.csvData.get(this.vehicleDataFileName);
+	// }
 
-	getTripsData():any {
-		return this.csvData.get(this.tripsDataFileName);
-	}
+	// getTripsData():any {
+	// 	return this.csvData.get(this.tripsDataFileName);
+	// }
 
-	getEventObservationData():any {
-		return this.csvData.get(this.eventObservationFileName);
-	}
+	// getEventObservationData():any {
+	// 	return this.csvData.get(this.eventObservationFileName);
+	// }
 
-	getTripsAndVehicleData():any {
-		return this.csvData.get(this.combined);
-	}
+	// getTripsAndVehicleData():any {
+	// 	return this.csvData.get(this.combined);
+	// }
 }
