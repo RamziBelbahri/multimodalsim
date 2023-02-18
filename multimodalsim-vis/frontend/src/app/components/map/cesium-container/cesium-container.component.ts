@@ -41,9 +41,9 @@ export class CesiumContainerComponent {
 		this.simulationParserService.selectFile(event);
 	}
 
-	selectFileStopID(event: Event): void {
-		this.simulationParserService.selectFile(event, true);
-	}
+	// selectFileStopID(event: Event): void {
+	// 	this.simulationParserService.selectFile(event, true);
+	// }
 
 	readContent(): void {
 		const data = this.simulationParserService.getCSVData(); //trier selon les types de données

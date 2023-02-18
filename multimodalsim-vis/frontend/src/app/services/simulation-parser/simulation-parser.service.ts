@@ -16,18 +16,18 @@ export class SimulationParserService {
 		this.csvData = [];
 	}
 
-	selectFile(event: Event, isStopIDs = false): void {
+	selectFile(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		this.csvFile = (target.files as FileList)[0];
-		this.readFile(isStopIDs);
+		this.readFile();
 	}
 
-	readFile(isStopIDs = false): void {
+	readFile(): void {
 		const fileReader = new FileReader();
 		fileReader.onload = () => {
 			if (fileReader.result) {
 				const csvString = fileReader.result.toString();
-				isStopIDs ? this.parseStopsFile(csvString) : this.parseVehicleFile(csvString);
+				this.parseVehicleFile(csvString);
 			}
 		};
 		fileReader.readAsText(this.csvFile);
@@ -45,12 +45,7 @@ export class SimulationParserService {
 		const busData = this.parseToBusData(data);
 		this.setSimulationBusData(busData);
 	}
-	parseStopsFile(csvString: string): void {
-		this.csvData = papaParse(csvString, { header: true, dynamicTyping: true }).data;
-		for (const line of this.csvData) {
-			EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
-		}
-	}
+	
 
 	getCSVData(): [] {
 		return this.csvData;
