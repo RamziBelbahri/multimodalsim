@@ -155,7 +155,7 @@ export class ZipHandlerComponent{
 						component.setEventObservation(csvArray, component);
 					}
 					if(readVehicles && readPassengers && !component.csvData.has(component.combined)) {
-						component.entityDataHandlerService.combinePassengerAndBusEvents(component);
+						component.entityDataHandlerService.combinePassengerAndBusEvents();
 						component.csvData.add(component.combined);
 					}
 				} catch (e) {

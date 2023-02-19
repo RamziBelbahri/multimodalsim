@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Viewer } from 'cesium';
+import { Cartesian3, Entity, Property, Viewer } from 'cesium';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import * as _ from 'lodash';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
+import { BusStop } from 'src/app/classes/entity/bus-stop';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const delay = require('delay');
 
@@ -12,11 +13,12 @@ const delay = require('delay');
 	providedIn: 'root',
 })
 export class EntityPositionHandlerService {
+
 	private readonly INTERVAL = 10;
 	private readonly POLYGON_RADIUS = 50;
 	private readonly SPEED_FACTOR = 10000;
 	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
-	private PASSENGER_POSITION_LOOKUP:Map<number[], any> = new Map<number[], any>();
+	private PASSENGER_POSITION_LOOKUP:Map<number, number> = new Map<number, number>();
 	private busList: Array<BusEvent>;
 	private passengerList: Array<PassengerEvent>;
 
@@ -79,35 +81,76 @@ export class EntityPositionHandlerService {
 	}
 
 	public async loadPassenger(viewer: Viewer, passengerEvent: PassengerEvent, previousTime: number): Promise<void> {
-		const passengerIndex = this.getBusIndex(passengerEvent.id) as number;
-		const passengerSpawned = passengerIndex !== -1;
 		const currentTime = getTime(passengerEvent.time);
 		const timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
-		// Si le bus apparaît, on attend pour l'intervalle avec l'évènement précédent, sinon
-		// on attend pour l'intervalle avec l'évènement de déplacement
-		if (passengerSpawned) {
-			// const previousPassengerEvent = this.busList[passengerIndex];
-			// this.setBusTarget(previousBusEvent, busEvent);
-			// await delay(timeDelay);
-			// this.stopBus(busIndex);
-		} else {
+		const spawned = viewer.entities.getById((passengerEvent.current_location as number).toString()) == null;
+		if(spawned) {
 			await delay(timeDelay);
-			// console.log(busEvent)
 			this.spawnPassenger(viewer, passengerEvent);
+		} else {
+			let previousLocation:string|undefined;
+			await delay(timeDelay);
+			// find the previous location of this passenger
+			let locationChanged = false;
+			for(let i = this.passengerList.length - 1; i >= 0; i--) {
+				const eventid = this.passengerList[i].id;
+				previousLocation = this.passengerList[i].current_location.toString();
+
+				if(eventid == passengerEvent.id && this.passengerList[i].current_location != passengerEvent.current_location) {
+					locationChanged = true;
+					console.log(this.passengerList[i].current_location,passengerEvent.current_location)
+					break;
+				}
+			}
+			// decrease the number of passengers at this point
+			const labelPrev = viewer.entities.getById(previousLocation? previousLocation.toString():'undefined')?.label;
+			const textPrev:string[]|undefined = labelPrev?.text?.toString().split(':');
+			if(labelPrev != undefined && textPrev != undefined && locationChanged){
+				textPrev[1] = (Number(textPrev[1]) - 1).toString();
+				const newText = textPrev[0] + ':' + textPrev[1];
+				labelPrev.text = newText as unknown as Property;
+	
+			}
+			// increase the number of passengers at the current point
+			const label = viewer.entities.getById(passengerEvent.current_location.toString())?.label;
+			const text:string[]|undefined = label?.text?.toString().split(':');
+			if(label != undefined && text != undefined){
+				text[1] = (Number(text[1]) + 1).toString();
+				const newText = text[0] + ':' + text[1];
+				label.text = newText as unknown as Property;
+			}
 		}
+		this.passengerList.push(passengerEvent);
 	}
 
-	private async spawnPassenger(viewer: Viewer, passengerEvent: PassengerEvent): Promise<void> {
+	private spawnPassenger(viewer: Viewer, passengerEvent: PassengerEvent) {
 		// console.log("spawn",busEvent);
-		this.passengerList.push(passengerEvent);
-		viewer.entities.add({
-			ellipse: {
-				height: 0,
-				material: Cesium.Color.RED,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
-			},
-		});
+		// this.passengerList.push(passengerEvent);
+		let location:any|undefined;
+		if(passengerEvent.current_location) {
+			location = EntityPositionHandlerService.STOPID_LOOKUP.get(passengerEvent.current_location as number);
+		}
+		if(location) {
+			viewer.entities.add({
+				position: Cesium.Cartesian3.fromDegrees(location.stop_lon, location.stop_lat),
+				ellipse: {
+					semiMinorAxis:30,
+					semiMajorAxis:30,
+					height: 0,
+					material: Cesium.Color.RED,
+					outline: true,
+					outlineColor: Cesium.Color.BLACK
+				},
+				id:passengerEvent.current_location.toString(),
+				label:{
+					text:'passenger(s):1',
+					show:true,
+					verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+					fillColor:Cesium.Color.BLACK,
+					scaleByDistance:new Cesium.NearFarScalar(1500, 1, 10000, 0)
+				},
+			});
+		}
 	}
 
 	private setBusTarget(previousBus: BusEvent, currentBus: BusEvent): void {
@@ -124,20 +167,7 @@ export class EntityPositionHandlerService {
 			this.setBusHaschanged(busIndex, true);
 		}
 	}
-	private setPassengerTarget(previousBus: BusEvent, currentBus: BusEvent): void {
-		const previousPosition = previousBus.position;
-		const currentPosition = currentBus.position;
-		if (previousPosition !== null && currentPosition !== null && currentPosition !== previousPosition) {
-			const duration = (getTime(currentBus.time) - getTime(previousBus.time)) / this.SPEED_FACTOR;
-			const distance = CesiumClass.cartesianDistance(previousPosition, currentPosition) as Cartesian3;
-			const tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
-			const movement = CesiumClass.cartesianScalarDiv(distance, tickNumber);
-			const busIndex = this.getBusIndex(currentBus.id) as number;
-
-			this.setBusMovement(busIndex, movement);
-			this.setBusHaschanged(busIndex, true);
-		}
-	}
+	
 	private stopBus(busIndex: number): void {
 		this.setBusMovement(busIndex, CesiumClass.cartesian3(0, 0, 0));
 		this.setBusHaschanged(busIndex, false);

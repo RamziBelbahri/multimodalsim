@@ -17,6 +17,7 @@ export class BusEvent implements EntityEvent {
 	duration: string;
 	hasChanged: boolean;
 	movement: Cartesian3;
+	readonly eventType: string = 'BUS';
 
 	constructor(
 		id: number,
