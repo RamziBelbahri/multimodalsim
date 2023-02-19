@@ -1,7 +1,7 @@
 import { EntityEvent } from '../entity/entity-event';
 
 export class PassengerEvent implements EntityEvent{
-	id: number;
+	id: string;
 	time: string;
 	status: string;
 	assigned_vehicle:number|undefined;
@@ -12,7 +12,7 @@ export class PassengerEvent implements EntityEvent{
 	duration:string;
 	readonly eventType: string = 'PASSENGER';
 	constructor(
-		id: number,
+		id: string,
 		time: string,
 		status: string,
 		assigned_vehicle:number|undefined,

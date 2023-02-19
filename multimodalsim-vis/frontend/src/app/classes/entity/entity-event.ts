@@ -1,5 +1,5 @@
 export interface EntityEvent {
-  id: number;
+  id: string;
   time : string;
   status : string;
 	readonly eventType:string;
