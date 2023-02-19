@@ -18,7 +18,7 @@ export class EntityPositionHandlerService {
 	private readonly POLYGON_RADIUS = 50;
 	private readonly SPEED_FACTOR = 10000;
 	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
-	private PASSENGER_POSITION_LOOKUP:Map<number, number> = new Map<number, number>();
+	private PASSENGER_POSITION_LOOKUP:Map<string, string> = new Map<string, string>();
 	private busList: Array<BusEvent>;
 	private passengerList: Array<PassengerEvent>;
 
@@ -88,36 +88,58 @@ export class EntityPositionHandlerService {
 			await delay(timeDelay);
 			this.spawnPassenger(viewer, passengerEvent);
 		} else {
-			let previousLocation:string|undefined;
 			await delay(timeDelay);
 			// find the previous location of this passenger
-			let locationChanged = false;
-			for(let i = this.passengerList.length - 1; i >= 0; i--) {
-				const eventid = this.passengerList[i].id;
-				previousLocation = this.passengerList[i].current_location.toString();
+			// let locationChanged = false;
+			// for(let i = this.passengerList.length - 1; i >= 0; i--) {
+			// 	const eventid = this.passengerList[i].id;
+			// 	previousLocation = this.passengerList[i].current_location.toString();
 
-				if(eventid == passengerEvent.id && this.passengerList[i].current_location != passengerEvent.current_location) {
-					locationChanged = true;
-					console.log(this.passengerList[i].current_location,passengerEvent.current_location)
-					break;
-				}
-			}
+			// 	if(eventid == passengerEvent.id && this.passengerList[i].current_location != passengerEvent.current_location) {
+			// 		locationChanged = true;
+			// 		console.log(this.passengerList[i].current_location,passengerEvent.current_location)
+			// 		break;
+			// 	}
+			// }
 			// decrease the number of passengers at this point
-			const labelPrev = viewer.entities.getById(previousLocation? previousLocation.toString():'undefined')?.label;
+
+			let locationChanged = false;
+			let previousLocation:string|undefined = 'undefined';
+			if(this.PASSENGER_POSITION_LOOKUP.has(passengerEvent.id.toString())) {
+				locationChanged = this.PASSENGER_POSITION_LOOKUP.get(passengerEvent.id) == passengerEvent.current_location.toString();
+				previousLocation = this.PASSENGER_POSITION_LOOKUP.get(passengerEvent.id);
+			}
+			this.PASSENGER_POSITION_LOOKUP.set(passengerEvent.id, passengerEvent.current_location.toString());
+			const entityPrev = viewer.entities.getById(previousLocation? previousLocation:'undefined');
+			const labelPrev = entityPrev?.label;
 			const textPrev:string[]|undefined = labelPrev?.text?.toString().split(':');
+			
 			if(labelPrev != undefined && textPrev != undefined && locationChanged){
 				textPrev[1] = (Number(textPrev[1]) - 1).toString();
+				if(Number(textPrev[1]) - 1 <= 0 && entityPrev != undefined) {
+					entityPrev.show = false;
+					// DEBUGGING PURPOSES ONLY
+					// if(entityPrev.ellipse?.semiMajorAxis) {
+					// 	entityPrev.ellipse.semiMajorAxis= 300000 as unknown as Property;
+					// 	entityPrev.ellipse.semiMinorAxis= 300000 as unknown as Property;
+					// }
+					console.log(entityPrev.id, 'JUST WENT INVISIBLE')
+				}
+				else if(Number(textPrev[1]) - 1 > 0  && entityPrev != undefined) {
+					entityPrev.show = true;
+				}
 				const newText = textPrev[0] + ':' + textPrev[1];
 				labelPrev.text = newText as unknown as Property;
-	
 			}
 			// increase the number of passengers at the current point
-			const label = viewer.entities.getById(passengerEvent.current_location.toString())?.label;
+			const entity = viewer.entities.getById(passengerEvent.current_location.toString());
+			const label = entity?.label;
 			const text:string[]|undefined = label?.text?.toString().split(':');
-			if(label != undefined && text != undefined){
+			if(label != undefined && text != undefined && entity != undefined){
 				text[1] = (Number(text[1]) + 1).toString();
 				const newText = text[0] + ':' + text[1];
 				label.text = newText as unknown as Property;
+				entity.show = true;
 			}
 		}
 		this.passengerList.push(passengerEvent);
@@ -173,11 +195,11 @@ export class EntityPositionHandlerService {
 		this.setBusHaschanged(busIndex, false);
 	}
 
-	private getBusIndex(id: number): number {
+	private getBusIndex(id: string): number {
 		return this.busList.findIndex((event) => id === event.id);
 	}
 
-	private getPassengerIndex(id: number): number {
+	private getPassengerIndex(id: string): number {
 		return this.passengerList.findIndex((event) => id === event.id);
 	}
 
