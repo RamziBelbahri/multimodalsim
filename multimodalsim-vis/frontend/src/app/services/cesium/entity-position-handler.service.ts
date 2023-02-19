@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Entity, Property, Viewer } from 'cesium';
+import { Cartesian3, Property, Viewer } from 'cesium';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import * as _ from 'lodash';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
-import { BusStop } from 'src/app/classes/entity/bus-stop';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const delay = require('delay');
 
@@ -31,11 +30,13 @@ export class EntityPositionHandlerService {
 		const busIndex = this.getBusIndex(busEvent.id) as number;
 		const busSpawned = busIndex !== -1;
 		const currentTime = getTime(busEvent.time);
-		const timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
+		let timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
 		// Si le bus apparaît, on attend pour l'intervalle avec l'évènement précédent, sinon
 		// on attend pour l'intervalle avec l'évènement de déplacement
 		if (busSpawned) {
 			const previousBusEvent = this.busList[busIndex];
+			const previousBusTime = getTime(previousBusEvent.time);
+			timeDelay = this.getDelay(currentTime, previousBusTime) / this.SPEED_FACTOR;
 			this.setBusTarget(previousBusEvent, busEvent);
 			await delay(timeDelay);
 			this.stopBus(busIndex);
@@ -89,20 +90,6 @@ export class EntityPositionHandlerService {
 			this.spawnPassenger(viewer, passengerEvent);
 		} else {
 			await delay(timeDelay);
-			// find the previous location of this passenger
-			// let locationChanged = false;
-			// for(let i = this.passengerList.length - 1; i >= 0; i--) {
-			// 	const eventid = this.passengerList[i].id;
-			// 	previousLocation = this.passengerList[i].current_location.toString();
-
-			// 	if(eventid == passengerEvent.id && this.passengerList[i].current_location != passengerEvent.current_location) {
-			// 		locationChanged = true;
-			// 		console.log(this.passengerList[i].current_location,passengerEvent.current_location)
-			// 		break;
-			// 	}
-			// }
-			// decrease the number of passengers at this point
-
 			let locationChanged = false;
 			let previousLocation:string|undefined = 'undefined';
 			if(this.PASSENGER_POSITION_LOOKUP.has(passengerEvent.id.toString())) {
@@ -123,7 +110,7 @@ export class EntityPositionHandlerService {
 					// 	entityPrev.ellipse.semiMajorAxis= 300000 as unknown as Property;
 					// 	entityPrev.ellipse.semiMinorAxis= 300000 as unknown as Property;
 					// }
-					console.log(entityPrev.id, 'JUST WENT INVISIBLE')
+					console.log(entityPrev.id, 'JUST WENT INVISIBLE');
 				}
 				else if(Number(textPrev[1]) - 1 > 0  && entityPrev != undefined) {
 					entityPrev.show = true;
@@ -146,8 +133,6 @@ export class EntityPositionHandlerService {
 	}
 
 	private spawnPassenger(viewer: Viewer, passengerEvent: PassengerEvent) {
-		// console.log("spawn",busEvent);
-		// this.passengerList.push(passengerEvent);
 		let location:any|undefined;
 		if(passengerEvent.current_location) {
 			location = EntityPositionHandlerService.STOPID_LOOKUP.get(passengerEvent.current_location as number);
