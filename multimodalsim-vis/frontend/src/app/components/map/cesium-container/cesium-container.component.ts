@@ -16,14 +16,16 @@ export class CesiumContainerComponent {
 	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	entity: Entity | undefined;
 	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
-
+	public static cesiumContainer:CesiumContainerComponent;
 	constructor(
 		private element: ElementRef,
 		private cameraHandler: CameraHandlerService,
 		private simulationParserService: SimulationParserService,
 		private entityDataHandlerService: EntityDataHandlerService,
 		private passengerHandler: PassengerHandlerService
-	) {}
+	) {
+		CesiumContainerComponent.cesiumContainer = this;
+	}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
@@ -31,6 +33,7 @@ export class CesiumContainerComponent {
 			CesiumClass.imagery({ assetId: 4 })
 		);
 		this.cameraHandler.initCameraData(this.viewer.camera);
+
 	}
 
 	launch(): void {
@@ -41,9 +44,9 @@ export class CesiumContainerComponent {
 		this.simulationParserService.selectFile(event);
 	}
 
-	selectFileStopID(event: Event): void {
-		this.simulationParserService.selectFile(event, true);
-	}
+	// selectFileStopID(event: Event): void {
+	// 	this.simulationParserService.selectFile(event, true);
+	// }
 
 	readContent(): void {
 		const data = this.simulationParserService.getCSVData(); //trier selon les types de données
