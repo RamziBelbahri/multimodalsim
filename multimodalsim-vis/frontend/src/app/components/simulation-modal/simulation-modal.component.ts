@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
+import { ZipHandlerComponent } from 'src/app/components/zip-handler/zip-handler.component';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -15,7 +16,12 @@ export class SimulationModalComponent {
 	}
 
 	readContent(): void {
-		this.simulationParserService.readFile();
+		const csvInput:HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
+		if(csvInput.value != '')
+			this.simulationParserService.readFile();
+		const zipInput:HTMLInputElement = document.getElementById('zipInput') as HTMLInputElement;
+		if(zipInput.value != '')
+			ZipHandlerComponent.zipHandler.readZipContent();
 		this.closeModal();
 	}
 

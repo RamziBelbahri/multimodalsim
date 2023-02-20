@@ -3,7 +3,7 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 import { EntityEvent } from '../entity/entity-event';
 
 export class BusEvent implements EntityEvent {
-	id: number;
+	id: string;
 	time: string;
 	status: string;
 	previous_stop: string[];
@@ -17,9 +17,10 @@ export class BusEvent implements EntityEvent {
 	duration: string;
 	hasChanged: boolean;
 	movement: Cartesian3;
+	readonly eventType: string = 'BUS';
 
 	constructor(
-		id: number,
+		id: string,
 		time: string,
 		status: string,
 		previous_stop: string[],
