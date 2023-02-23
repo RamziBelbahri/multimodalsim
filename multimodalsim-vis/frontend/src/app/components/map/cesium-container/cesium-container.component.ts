@@ -7,22 +7,28 @@ import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-pos
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
+import { Subscription } from 'rxjs';
+import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 @Component({
 	selector: 'app-cesium-container',
 	templateUrl: './cesium-container.component.html',
 	styleUrls: ['./cesium-container.component.css'],
 })
 export class CesiumContainerComponent {
-	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
+	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
+	private viewerSubscription: Subscription = new Subscription();
+
 	entity: Entity | undefined;
+
 	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
-	public static cesiumContainer:CesiumContainerComponent;
+	public static cesiumContainer: CesiumContainerComponent;
 	constructor(
 		private element: ElementRef,
 		private cameraHandler: CameraHandlerService,
 		private simulationParserService: SimulationParserService,
 		private entityDataHandlerService: EntityDataHandlerService,
-		private passengerHandler: PassengerHandlerService
+		private passengerHandler: PassengerHandlerService,
+		private viewerSharer: ViewerSharingService
 	) {
 		CesiumContainerComponent.cesiumContainer = this;
 	}
@@ -34,6 +40,17 @@ export class CesiumContainerComponent {
 		);
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
+		// S'enregistrer sur le service qui partage le viewer entre les components.
+		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
+	}
+
+	ngAfterViewInit() {
+		// met à jour le viewer une fois que les composants sont abonnés.
+		this.viewerSharer.setViewer(this.viewer);
+	}
+
+	ngOnDestroy() {
+		this.viewerSubscription.unsubscribe();
 	}
 
 	launch(): void {
