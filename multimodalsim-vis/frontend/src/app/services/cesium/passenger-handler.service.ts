@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3, Viewer } from 'cesium';
-import { Passenger } from 'src/app/classes/passenger';
+import { Passenger } from 'src/app/classes/data-classes/passenger';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({

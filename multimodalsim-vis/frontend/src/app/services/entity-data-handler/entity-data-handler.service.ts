@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Viewer } from 'cesium';
-import { BusEvent } from 'src/app/classes/bus-class/bus-event';
-import { EntityEvent } from 'src/app/classes/entity/entity-event';
-import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
+import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
+import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 @Injectable({
@@ -36,35 +36,33 @@ export class EntityDataHandlerService {
 		this.passengerEvents = passengerEvents;
 	}
 
-	public setEventObservations(eventObservations: []) {
+	public setEventObservations(eventObservations: []): void {
 		this.eventObservations = eventObservations;
 	}
 
-	public getEventObservations() {
+	public getEventObservations(): [] {
 		return this.eventObservations;
 	}
 
-	public getCombinedEvents() {
+	public getCombinedEvents(): EntityEvent[] {
 		return this.combined;
 	}
 
 	public combinePassengerAndBusEvents(): void {
 		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
-		const vehiclesAndTrips: any = vehicles.concat(trips);
-		vehiclesAndTrips.sort((a: any, b: any) => {
-			const a_time: number = Date.parse(a.time);
-			const b_time: number = Date.parse(b.time);
-			if (a_time > b_time) return 1;
-			if (a_time < b_time) return -1;
+		const vehiclesAndTrips = vehicles.concat(trips);
+		vehiclesAndTrips.sort((firstEvent: any, secondEvent: any) => {
+			const first_time: number = Date.parse(firstEvent.time);
+			const second_time: number = Date.parse(secondEvent.time);
+			if (first_time > second_time) return 1;
+			if (first_time < second_time) return -1;
 			return 0;
 		});
 		this.combined = vehiclesAndTrips;
-		console.log('combined:' , this.combined);
 	}
 
-	public async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
-		console.log(this.passengerEvents);
+	async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
 		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
 	}
 
