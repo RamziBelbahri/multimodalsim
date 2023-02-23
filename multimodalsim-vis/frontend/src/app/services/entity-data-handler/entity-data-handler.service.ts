@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Entity, Viewer } from 'cesium';
+import { Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { EntityEvent } from 'src/app/classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
-import { ZipHandlerComponent } from 'src/app/components/zip-handler/zip-handler.component';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 @Injectable({
@@ -11,9 +10,9 @@ import { EntityPositionHandlerService } from '../cesium/entity-position-handler.
 })
 export class EntityDataHandlerService {
 	private busEvents: BusEvent[];
-	private passengerEvents:PassengerEvent[];
+	private passengerEvents: PassengerEvent[];
 	private combined: EntityEvent[];
-	private eventObservations:any[];
+	private eventObservations: [];
 
 	private busDrawing = '🚍';
 	private passengerDrawing = '🚶🏼';
@@ -37,11 +36,7 @@ export class EntityDataHandlerService {
 		this.passengerEvents = passengerEvents;
 	}
 
-	public getPassengerData(passengerEvents: PassengerEvent[]): void {
-		this.passengerEvents = passengerEvents;
-	}
-
-	public setEventObservations(eventObservations: any[]) {
+	public setEventObservations(eventObservations: []) {
 		this.eventObservations = eventObservations;
 	}
 
@@ -52,6 +47,7 @@ export class EntityDataHandlerService {
 	public getCombinedEvents() {
 		return this.combined;
 	}
+
 	public combinePassengerAndBusEvents(): void {
 		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
@@ -64,10 +60,11 @@ export class EntityDataHandlerService {
 			return 0;
 		});
 		this.combined = vehiclesAndTrips;
-		console.log(this.combined);
+		console.log('combined:' , this.combined);
 	}
 
 	public async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
+		console.log(this.passengerEvents);
 		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
 	}
 
@@ -88,10 +85,10 @@ export class EntityDataHandlerService {
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.combined[i];
 
-			if (event && (event.eventType == 'BUS')) {
+			if (event && event.eventType == 'BUS') {
 				await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
 				previousTime = getTime(event.time);
-			} else if(event && (event.eventType == 'PASSENGER')){
+			} else if (event && event.eventType == 'PASSENGER') {
 				await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
 			}
 		}
