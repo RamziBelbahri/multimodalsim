@@ -1,9 +1,8 @@
-import { Component, ElementRef } from '@angular/core';
-import { Entity, Viewer } from 'cesium';
+import { Component, ElementRef, OnInit } from '@angular/core';
+import { Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
 import { PassengerHandlerService } from 'src/app/services/cesium/passenger-handler.service';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
-import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
 
 import { CesiumClass } from 'src/app/shared/cesium-class';
@@ -12,11 +11,11 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 	templateUrl: './cesium-container.component.html',
 	styleUrls: ['./cesium-container.component.css'],
 })
-export class CesiumContainerComponent {
-	viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
-	entity: Entity | undefined;
+export class CesiumContainerComponent implements OnInit {
+	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 	public static cesiumContainer:CesiumContainerComponent;
+
 	constructor(
 		private element: ElementRef,
 		private cameraHandler: CameraHandlerService,

@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Component } from '@angular/core';
 import * as JSZip from 'jszip';
 import { Papa } from 'ngx-papaparse';
 import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
-// import { papaParse } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 const DEBUG = false;
@@ -47,9 +46,7 @@ export class ZipHandlerComponent{
 	}
 
 	readZipContent() {
-		// const input:HTMLInputElement = event.target as HTMLInputElement;
-		if(this.input == undefined) {return;}
-		if(this.input.files != null) {
+		if(this.input && this.input.files != null) {
 			const file:File|null = this.input.files[this.input.files.length - 1];
 			// so that we can call it inside the callback; otherwise this.readFiles will have errors
 			// eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -120,7 +117,7 @@ export class ZipHandlerComponent{
 		component.entityDataHandlerService.setBusData(component.parser.parseToBusData(data));
 	}
 
-	setEventObservation(data:any[], component:ZipHandlerComponent) {
+	setEventObservation(data:[], component:ZipHandlerComponent) {
 		component.entityDataHandlerService.setEventObservations(data);
 	}
 
@@ -146,7 +143,7 @@ export class ZipHandlerComponent{
 					component.csvData.add(filePath.split('/').at(-1));
 					const readVehicles: boolean = component.csvData.has(component.vehicleDataFileName);
 					const readPassengers: boolean = component.csvData.has(component.tripsDataFileName);
-					
+
 					if(filePath.toString().endsWith(component.vehicleDataFileName)) {
 						component.setBusData(csvArray, component);
 					} else if(filePath.toString().endsWith(component.tripsDataFileName)) {

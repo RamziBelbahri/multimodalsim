@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CesiumContainerComponent } from '../map/cesium-container/cesium-container.component';
 
 @Component({
@@ -6,12 +6,12 @@ import { CesiumContainerComponent } from '../map/cesium-container/cesium-contain
 	templateUrl: './sidebar.component.html',
 	styleUrls: ['./sidebar.component.css'],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
-	private openedMenuList: Array<number> = new Array<number>(0);
+	private openedMenuList: Array<number> = new Array<number>();
 
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
@@ -55,7 +55,7 @@ export class SidebarComponent {
 		this.toggleContainer(id);
 	}
 
-	private toggleContainer(id: number) {
+	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';
 		if (this.openedMenuList.indexOf(id) > -1) {
 			this.openedMenuList.splice(this.openedMenuList.indexOf(id), 1);

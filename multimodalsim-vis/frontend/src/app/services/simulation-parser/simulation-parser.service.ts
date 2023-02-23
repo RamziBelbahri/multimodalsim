@@ -3,7 +3,6 @@ import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
 import { papaParse } from 'src/app/helpers/parsers';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
-import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 @Injectable({
 	providedIn: 'root',
 })
@@ -45,7 +44,7 @@ export class SimulationParserService {
 		const busData = this.parseToBusData(data);
 		this.setSimulationBusData(busData);
 	}
-	
+
 
 	getCSVData(): [] {
 		return this.csvData;
