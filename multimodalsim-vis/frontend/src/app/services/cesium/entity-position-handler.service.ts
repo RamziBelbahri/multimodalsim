@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Cartesian3, Property, Viewer } from 'cesium';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import * as _ from 'lodash';
-import { BusEvent } from 'src/app/classes/bus-class/bus-event';
 import { getTime } from 'src/app/helpers/parsers';
-import { PassengerEvent } from 'src/app/classes/passenger-event/passenger-event';
+import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const delay = require('delay');
 
@@ -16,7 +16,7 @@ export class EntityPositionHandlerService {
 	private readonly INTERVAL = 10;
 	private readonly POLYGON_RADIUS = 50;
 	private readonly SPEED_FACTOR = 10000;
-	public static STOPID_LOOKUP:Map<number,any> = new Map<number,any>();
+	public static STOPID_LOOKUP:Map<number,string> = new Map<number,string>();
 	private PASSENGER_POSITION_LOOKUP:Map<string, string> = new Map<string, string>();
 	private busList: Array<BusEvent>;
 	private passengerList: Array<PassengerEvent>;
@@ -100,7 +100,7 @@ export class EntityPositionHandlerService {
 			const entityPrev = viewer.entities.getById(previousLocation? previousLocation:'undefined');
 			const labelPrev = entityPrev?.label;
 			const textPrev:string[]|undefined = labelPrev?.text?.toString().split(':');
-			
+
 			if(labelPrev != undefined && textPrev != undefined && locationChanged){
 				textPrev[1] = (Number(textPrev[1]) - 1).toString();
 				if(Number(textPrev[1]) - 1 <= 0 && entityPrev != undefined) {
@@ -174,7 +174,7 @@ export class EntityPositionHandlerService {
 			this.setBusHaschanged(busIndex, true);
 		}
 	}
-	
+
 	private stopBus(busIndex: number): void {
 		this.setBusMovement(busIndex, CesiumClass.cartesian3(0, 0, 0));
 		this.setBusHaschanged(busIndex, false);

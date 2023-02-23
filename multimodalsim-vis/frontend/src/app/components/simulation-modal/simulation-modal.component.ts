@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
-import { ZipHandlerComponent } from 'src/app/components/zip-handler/zip-handler.component';
-import { ZipParserService } from 'src/app/services/simulation-parser/zip-parser.service';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -9,23 +7,21 @@ import { ZipParserService } from 'src/app/services/simulation-parser/zip-parser.
 	styleUrls: ['./simulation-modal.component.css'],
 })
 export class SimulationModalComponent {
-	constructor(private simulationParserService: SimulationParserService, private zipHandlerService: ZipParserService) {}
+	constructor(private dataReaderService: DataReaderService) {}
 
 	selectFile(event: Event): void {
-		this.simulationParserService.selectFile(event);
+		this.dataReaderService.selectFile(event);
 	}
 
 	selectZip(event: Event): void {
-		this.zipHandlerService.changeListener(event);
+		this.dataReaderService.selectZip(event);
 	}
 
 	readContent(): void {
 		const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
-		if (csvInput.value != '') this.simulationParserService.readFile();
-		// const zipInput: HTMLInputElement = document.getElementById('zipInput') as HTMLInputElement;
-		// if (zipInput.value != '') ZipHandlerComponent.zipHandler.readZipContent();
-		const zipInput: HTMLInputElement = document.getElementById('zipinputs') as HTMLInputElement;
-		if (zipInput.value != '') this.zipHandlerService.readZipContent();
+		if (csvInput.value != '') this.dataReaderService.readCSV();
+		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
+		if (zipInput.value != '') this.dataReaderService.readZipContent();
 		this.closeModal();
 	}
 
