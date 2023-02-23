@@ -3,7 +3,6 @@ import { SimulationParserService } from 'src/app/services/simulation-parser/simu
 import { ZipHandlerComponent } from 'src/app/components/zip-handler/zip-handler.component';
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
-import { CesiumClass } from 'src/app/shared/cesium-class';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
 @Component({
