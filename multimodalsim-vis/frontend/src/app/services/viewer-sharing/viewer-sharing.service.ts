@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Viewer } from 'cesium';
-import { BehaviorSubject } from 'rxjs';
-import { CesiumClass } from 'src/app/shared/cesium-class';
+import { ReplaySubject } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class ViewerSharingService {
-	private viewerSource = new BehaviorSubject<Viewer>(CesiumClass.viewer(''));
+	private viewerSource = new ReplaySubject<Viewer>();
 
 	currentViewer = this.viewerSource.asObservable();
 
