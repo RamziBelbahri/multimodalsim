@@ -12,13 +12,17 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 	styleUrls: ['./simulation-modal.component.css'],
 })
 export class SimulationModalComponent {
-	private viewer: Viewer = CesiumClass.viewer('');
+	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 
 	constructor(private simulationParserService: SimulationParserService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
+	}
+
+	ngOnDestroy() {
+		this.viewerSubscription.unsubscribe();
 	}
 
 	selectFile(event: Event): void {
