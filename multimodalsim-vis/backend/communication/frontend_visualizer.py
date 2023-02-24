@@ -1,16 +1,17 @@
 from multimodalsim.observer.visualizer import Visualizer
 from active_mq_controller import ActiveMQController
 import json
-
+from log_levels import LogLevels
 import logging
 DEBUG = False
 import pprint
 
 logger = logging.getLogger(__name__)
+logger.disabled = True
 
 class FrontendVisualizer(Visualizer):
 
-    def __init__(self, data_analyzer=None):
+    def __init__(self, data_analyzer=None, level=LogLevels.INFO):
         super().__init__()
         self.__data_analyzer = data_analyzer
         self.__last_time = None
@@ -18,6 +19,7 @@ class FrontendVisualizer(Visualizer):
             self.connection = ActiveMQController.getConnection()
         self.info_queue = '/queue/info'
         self.event_queue = '/queue/event'
+        self.level = level
 
     def visualize_environment(self, env, current_event=None, event_index=None,
                               event_priority=None):
@@ -28,10 +30,14 @@ class FrontendVisualizer(Visualizer):
                 self.connection.send(self.info_queue, body=body)
             self.__last_time = env.current_time
 
-        if logger.parent.level == logging.DEBUG:
+        if self.level == LogLevels.DEBUG:
             self.__print_debug(env, current_event, event_index, event_priority)
         if not DEBUG:
-            self.connection.send(self.event_queue, body = json.dumps(current_event.__dict__) if current_event != None else 'None')
+            try:
+                body = json.dumps(current_event.__dict__, default=lambda x: str(x)) if current_event != None else 'None'
+            except:
+                body = json.dumps(current_event.__dict__, default=lambda x: str(x))
+            self.connection.send(self.event_queue, body = body)
 
     def __print_debug(self, env, current_event, event_index, event_priority):
         debug_dict = dict()
@@ -85,9 +91,9 @@ class FrontendVisualizer(Visualizer):
             
             prev_stops = []
             for stop in veh.route.previous_stops:
-                stop = dict()
-                stop[str(stop.location)] = stop.__dict__
-                prev_stops.append(stop)
+                stop_dict = dict()
+                stop_dict[str(stop.location)] = stop.__dict__
+                prev_stops.append(stop_dict)
             vehicle['prev_stops'] = prev_stops
 
             if veh.route.current_stop is not None:
@@ -148,9 +154,10 @@ class FrontendVisualizer(Visualizer):
             self.connection.send(self.info_queue, json.dumps(debug_dict,default=lambda x: str(x)))
 
     def __print_statistics(self):
-        logger.info("nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}"
-                    .format(self.__data_analyzer.nb_trips,
-                            self.__data_analyzer.nb_vehicles,
-                            self.__data_analyzer.total_distance_travelled,
-                            self.__data_analyzer.total_ghg_e))
+        pass
+        # logger.info("nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}"
+        #             .format(self.__data_analyzer.nb_trips,
+        #                     self.__data_analyzer.nb_vehicles,
+        #                     self.__data_analyzer.total_distance_travelled,
+        #                     self.__data_analyzer.total_ghg_e))
 
