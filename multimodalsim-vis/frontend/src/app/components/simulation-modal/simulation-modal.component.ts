@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
+import { Viewer } from 'cesium';
+import { Subscription } from 'rxjs';
+import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -7,7 +10,18 @@ import { DataReaderService } from 'src/app/services/data-initialization/data-rea
 	styleUrls: ['./simulation-modal.component.css'],
 })
 export class SimulationModalComponent {
-	constructor(private dataReaderService: DataReaderService) {}
+	private viewer: Viewer | undefined;
+	private viewerSubscription: Subscription = new Subscription();
+
+	constructor(private dataReaderService: DataReaderService, private viewerSharer: ViewerSharingService) {}
+
+	ngOnInit() {
+		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
+	}
+
+	ngOnDestroy() {
+		this.viewerSubscription.unsubscribe();
+	}
 
 	selectFile(event: Event): void {
 		this.dataReaderService.selectFile(event);
@@ -22,6 +36,10 @@ export class SimulationModalComponent {
 		if (csvInput.value != '') this.dataReaderService.readCSV();
 		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
 		if (zipInput.value != '') this.dataReaderService.readZipContent();
+	}
+
+	launchSimulation(): void {
+		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer);
 		this.closeModal();
 	}
 

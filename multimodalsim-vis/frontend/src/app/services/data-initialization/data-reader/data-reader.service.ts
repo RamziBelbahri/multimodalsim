@@ -4,6 +4,7 @@ import { SimulationParserService } from 'src/app/services/data-initialization/si
 import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { FileType } from 'src/app/classes/file-classes/file-type';
+import { Viewer } from 'cesium';
 
 @Injectable({
 	providedIn: 'root',
@@ -17,6 +18,7 @@ export class DataReaderService {
 	private readonly COMBINED = 'combined-trips-vehicle';
 	private zipInput: HTMLInputElement | undefined;
 	private csvInput: Blob;
+	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 
 	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService) {
 		this.zipper = JSZip();
@@ -25,6 +27,10 @@ export class DataReaderService {
 		this.directories = [];
 		this.ignored = [];
 		this.csvInput = new Blob();
+	}
+
+	launchSimulation(viewer: Viewer): void {
+		this.entityDataHandlerService.runVehiculeSimulation(viewer, this.DEMO_EVENTS_AMOUNT);
 	}
 
 	selectZip(event: Event): void {
@@ -66,7 +72,6 @@ export class DataReaderService {
 				case 'csv':
 				case 'txt':
 					this.readCSV(filePath, zip);
-					console.log('csv');
 					break;
 				case '\'':
 					this.readDirectory(zip, filePath);

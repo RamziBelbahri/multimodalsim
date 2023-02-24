@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CesiumContainerComponent } from '../map/cesium-container/cesium-container.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -67,9 +66,5 @@ export class SidebarComponent implements OnInit {
 	openSimulationModal(): void {
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
-	}
-
-	launchSimulation():void {
-		CesiumContainerComponent.cesiumContainer.launch();
 	}
 }
