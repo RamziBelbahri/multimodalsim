@@ -1,10 +1,11 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="selection">
-    <p>Open from CSV</p>
+    <p>Ouvrir d'un CSV</p>
     <input id="csvinput" class="selection-input" type='file' (change)="selectFile($event)">
   </div>
   <div class="selection">
-    <p class="selection-title">Open from zip</p>
+    <p class="selection-title">Ouvrir d'un zip</p>
     <input id="zipinput" class="selection-input" type='file' (change)="selectZip($event)">
 </div>
-<button class="modal-button" (click)="readContent()">Read content</button>
+<button class="modal-button" (click)="readContent()">Lire le contenu</button>
+<button class="modal-button" (click)="launchSimulation()">Lancer la simulation</button>
