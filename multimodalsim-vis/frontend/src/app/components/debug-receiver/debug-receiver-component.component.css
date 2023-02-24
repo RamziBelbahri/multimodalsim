@@ -1,0 +1,18 @@
+#received-text-holder {
+    width: 400px;
+    height: 400px;
+    position:absolute;
+    top:10%;
+    right:0%;
+    z-index: 3;
+    background-color: white;
+    border-radius: 10%;
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+
+}
+
+#received-text {
+    margin: 5%;
+}
