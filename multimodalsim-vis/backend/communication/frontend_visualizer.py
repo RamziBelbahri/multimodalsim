@@ -5,6 +5,7 @@ from log_levels import LogLevels
 import logging
 DEBUG = False
 import pprint
+from connection_credentials import ConnectionCredentials
 
 logger = logging.getLogger(__name__)
 logger.disabled = True
@@ -17,8 +18,7 @@ class FrontendVisualizer(Visualizer):
         self.__last_time = None
         if not DEBUG:
             self.connection = ActiveMQController.getConnection()
-        self.info_queue = '/queue/info'
-        self.event_queue = '/queue/event'
+
         self.level = level
 
     def visualize_environment(self, env, current_event=None, event_index=None,
@@ -27,7 +27,7 @@ class FrontendVisualizer(Visualizer):
         if self.__last_time is None or env.current_time != self.__last_time:
             body = "current_time:{}".format(env.current_time)
             if not DEBUG:
-                self.connection.send(self.info_queue, body=body)
+                self.connection.send(ConnectionCredentials.INFO_QUEUE, body=body)
             self.__last_time = env.current_time
 
         if self.level == LogLevels.DEBUG:
@@ -37,7 +37,7 @@ class FrontendVisualizer(Visualizer):
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x)) if current_event != None else 'None'
             except:
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x))
-            self.connection.send(self.event_queue, body = body)
+            self.connection.send(ConnectionCredentials.EVENT_QUEUE, body = body)
 
     def __print_debug(self, env, current_event, event_index, event_priority):
         debug_dict = dict()
@@ -151,7 +151,7 @@ class FrontendVisualizer(Visualizer):
             pprint.pprint(json.dumps(debug_dict, default=lambda x: str(x)))
             input()
         else:
-            self.connection.send(self.info_queue, json.dumps(debug_dict,default=lambda x: str(x)))
+            self.connection.send(ConnectionCredentials.INFO_QUEUE, json.dumps(debug_dict,default=lambda x: str(x)))
 
     def __print_statistics(self):
         pass

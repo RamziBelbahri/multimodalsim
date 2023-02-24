@@ -15,7 +15,7 @@ export class DebugReceiverComponentComponent {
 		DebugReceiverComponentComponent.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError)
 	}
 	onConnect() {
-		DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.EVENT_QUEUE, DebugReceiverComponentComponent.onMessage)
+		DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
 	}
 	onError(err:IMessage){
 		console.log(err.body);
