@@ -3,7 +3,7 @@ from active_mq_controller import ActiveMQController
 import json
 
 import logging
-
+DEBUG = False
 import pprint
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,8 @@ class FrontendVisualizer(Visualizer):
         super().__init__()
         self.__data_analyzer = data_analyzer
         self.__last_time = None
-        self.connection = ActiveMQController.getConnection()
+        if not DEBUG:
+            self.connection = ActiveMQController.getConnection()
         self.info_queue = '/queue/info'
         self.event_queue = '/queue/event'
 
@@ -23,13 +24,14 @@ class FrontendVisualizer(Visualizer):
 
         if self.__last_time is None or env.current_time != self.__last_time:
             body = "current_time:{}".format(env.current_time)
-            # self.connection.send(self.info_queue, body=body)
+            if not DEBUG:
+                self.connection.send(self.info_queue, body=body)
             self.__last_time = env.current_time
 
         if logger.parent.level == logging.DEBUG:
             self.__print_debug(env, current_event, event_index, event_priority)
-
-        # self.connection.send(self.event_queue, body = json.dumps(current_event.__dict__) if current_event != None else 'None')
+        if not DEBUG:
+            self.connection.send(self.event_queue, body = json.dumps(current_event.__dict__) if current_event != None else 'None')
 
     def __print_debug(self, env, current_event, event_index, event_priority):
         debug_dict = dict()
@@ -41,6 +43,8 @@ class FrontendVisualizer(Visualizer):
             current_event_info['event_time'] = current_event.time
             current_event_info['event_index'] = event_index
             current_event_info['current_event'] = current_event.__dict__
+            # current_event_info['current_event']['_Event__queue'] = current_event_info['current_event']['_Event__queue'].__dict__
+            # current_event_info['current_event']['_VehicleReady__vehicle'] = current_event_info['current_event']['_VehicleReady__vehicle'].__dict__
             current_event_info['event_priority'] = event_priority
         else:
             current_event_info['event_time'] = env.current_time
@@ -137,8 +141,11 @@ class FrontendVisualizer(Visualizer):
             request["next_legs"] = next_legs
             requests.append(request)            
         debug_dict['requests'] = requests
-        pprint.pprint(debug_dict)
-        input()
+        if DEBUG:
+            pprint.pprint(json.dumps(debug_dict, default=lambda x: str(x)))
+            input()
+        else:
+            self.connection.send(self.info_queue, json.dumps(debug_dict,default=lambda x: str(x)))
 
     def __print_statistics(self):
         logger.info("nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}"
