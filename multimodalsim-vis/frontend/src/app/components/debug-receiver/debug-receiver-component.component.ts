@@ -12,18 +12,18 @@ export class DebugReceiverComponentComponent {
 	constructor() {
 		const service = new MessageQueueStompService();
 		DebugReceiverComponentComponent.client = service.getClient();
-		DebugReceiverComponentComponent.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError)
+		// DebugReceiverComponentComponent.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError)
 	}
-	onConnect() {
-		DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
-	}
-	onError(err:IMessage){
-		console.log(err.body);
-	}
-	private static onMessage(msg:IMessage) {
-		const p = document.getElementById('received-text');
-		if(p) {
-			p.innerText = JSON.stringify(JSON.parse(msg.body), undefined, 2);
-		}
-	}
+	// onConnect() {
+	// 	DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
+	// }
+	// onError(err:IMessage){
+	// 	console.log(err.body);
+	// }
+	// private static onMessage(msg:IMessage) {
+	// 	const p = document.getElementById('received-text');
+	// 	if(p) {
+	// 		p.innerText = JSON.stringify(JSON.parse(msg.body), undefined, 2);
+	// 	}
+	// }
 }
