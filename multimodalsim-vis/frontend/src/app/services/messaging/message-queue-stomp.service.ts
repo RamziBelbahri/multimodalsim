@@ -1,4 +1,5 @@
 import { Stomp, CompatClient, IMessage } from '@stomp/stompjs'
+import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import {ConnectionCredentials} from './connection-constants'
 
 // uses STOMP with active MQ
@@ -8,7 +9,7 @@ export class MessageQueueStompService {
 	public static service:MessageQueueStompService;
 
 	// note: static is needed so that there the callbacks can work
-	constructor(socketAddress:string=ConnectionCredentials.WEBSOCKET, debug:boolean=true) {
+	constructor(private entityDataHandlerService:EntityDataHandlerService, socketAddress:string=ConnectionCredentials.WEBSOCKET, debug:boolean=true) {
 		if(MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
 		}
@@ -34,7 +35,6 @@ export class MessageQueueStompService {
 		const p = document.getElementById('received-text');
 		if(p) {
 			p.innerText = JSON.stringify(msg.body);
-			// console.log(p)
 		}
 	}
 

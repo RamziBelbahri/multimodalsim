@@ -11,10 +11,35 @@
     border-width: 2px;
     border-style: solid;
     overflow: scroll;
-
-
+    display: block;
+    transition-duration: 100ms;
+    /* transition */
 }
 
 #received-text {
     margin: 5%;
+}
+
+#open-close-debug {
+    position:absolute;
+    top:10%;
+    right:1%;
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    z-index: 4;
+    font-size: 20pt;
+    font-weight: 1000;
+}
+
+#open-close-debug:hover {
+    cursor: pointer;
+    background-color: lightgray;
 }
