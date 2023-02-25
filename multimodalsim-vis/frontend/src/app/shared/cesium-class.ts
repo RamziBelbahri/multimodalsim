@@ -1,7 +1,7 @@
 import { CallbackProperty, Cartesian3, IonImageryProvider, PolygonHierarchy, Viewer } from 'cesium';
 
 export class CesiumClass {
-	static viewer(element: Element): Viewer {
+	static viewer(element: Element | string): Viewer {
 		return new Cesium.Viewer(element);
 	}
 
