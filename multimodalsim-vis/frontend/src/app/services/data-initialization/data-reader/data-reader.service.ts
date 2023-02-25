@@ -91,7 +91,7 @@ export class DataReaderService {
 					this.readFileData(txt, filePath);
 				});
 		}
-				// } else {
+		// } else {
 		// 	const fileReader = new FileReader();
 		// 	fileReader.onload = () => {
 		// 		if (fileReader.result) {
