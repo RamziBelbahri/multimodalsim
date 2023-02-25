@@ -8,16 +8,20 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const delay = require('delay');
 
+/**
+ * DEPRECATED
+ * Delete quand le Jira GL4H2311-28 sera complété
+ */
+
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityPositionHandlerService {
-
 	private readonly INTERVAL = 10;
 	private readonly POLYGON_RADIUS = 50;
 	private readonly SPEED_FACTOR = 10000;
-	public static STOPID_LOOKUP:Map<number,string> = new Map<number,string>();
-	private PASSENGER_POSITION_LOOKUP:Map<string, string> = new Map<string, string>();
+	public static STOPID_LOOKUP: Map<number, string> = new Map<number, string>();
+	private PASSENGER_POSITION_LOOKUP: Map<string, string> = new Map<string, string>();
 	private busList: Array<BusEvent>;
 	private passengerList: Array<PassengerEvent>;
 
@@ -85,25 +89,25 @@ export class EntityPositionHandlerService {
 		const currentTime = getTime(passengerEvent.time);
 		const timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
 		const spawned = viewer.entities.getById((passengerEvent.current_location as number).toString()) == null;
-		if(spawned) {
+		if (spawned) {
 			await delay(timeDelay);
 			this.spawnPassenger(viewer, passengerEvent);
 		} else {
 			await delay(timeDelay);
 			let locationChanged = false;
-			let previousLocation:string|undefined = 'undefined';
-			if(this.PASSENGER_POSITION_LOOKUP.has(passengerEvent.id.toString())) {
+			let previousLocation: string | undefined = 'undefined';
+			if (this.PASSENGER_POSITION_LOOKUP.has(passengerEvent.id.toString())) {
 				locationChanged = this.PASSENGER_POSITION_LOOKUP.get(passengerEvent.id) == passengerEvent.current_location.toString();
 				previousLocation = this.PASSENGER_POSITION_LOOKUP.get(passengerEvent.id);
 			}
 			this.PASSENGER_POSITION_LOOKUP.set(passengerEvent.id, passengerEvent.current_location.toString());
-			const entityPrev = viewer.entities.getById(previousLocation? previousLocation:'undefined');
+			const entityPrev = viewer.entities.getById(previousLocation ? previousLocation : 'undefined');
 			const labelPrev = entityPrev?.label;
-			const textPrev:string[]|undefined = labelPrev?.text?.toString().split(':');
+			const textPrev: string[] | undefined = labelPrev?.text?.toString().split(':');
 
-			if(labelPrev != undefined && textPrev != undefined && locationChanged){
+			if (labelPrev != undefined && textPrev != undefined && locationChanged) {
 				textPrev[1] = (Number(textPrev[1]) - 1).toString();
-				if(Number(textPrev[1]) - 1 <= 0 && entityPrev != undefined) {
+				if (Number(textPrev[1]) - 1 <= 0 && entityPrev != undefined) {
 					entityPrev.show = false;
 					// DEBUGGING PURPOSES ONLY
 					// if(entityPrev.ellipse?.semiMajorAxis) {
@@ -111,8 +115,7 @@ export class EntityPositionHandlerService {
 					// 	entityPrev.ellipse.semiMinorAxis= 300000 as unknown as Property;
 					// }
 					console.log(entityPrev.id, 'JUST WENT INVISIBLE');
-				}
-				else if(Number(textPrev[1]) - 1 > 0  && entityPrev != undefined) {
+				} else if (Number(textPrev[1]) - 1 > 0 && entityPrev != undefined) {
 					entityPrev.show = true;
 				}
 				const newText = textPrev[0] + ':' + textPrev[1];
@@ -121,8 +124,8 @@ export class EntityPositionHandlerService {
 			// increase the number of passengers at the current point
 			const entity = viewer.entities.getById(passengerEvent.current_location.toString());
 			const label = entity?.label;
-			const text:string[]|undefined = label?.text?.toString().split(':');
-			if(label != undefined && text != undefined && entity != undefined){
+			const text: string[] | undefined = label?.text?.toString().split(':');
+			if (label != undefined && text != undefined && entity != undefined) {
 				text[1] = (Number(text[1]) + 1).toString();
 				const newText = text[0] + ':' + text[1];
 				label.text = newText as unknown as Property;
@@ -133,28 +136,28 @@ export class EntityPositionHandlerService {
 	}
 
 	private spawnPassenger(viewer: Viewer, passengerEvent: PassengerEvent) {
-		let location:any|undefined;
-		if(passengerEvent.current_location) {
+		let location: any | undefined;
+		if (passengerEvent.current_location) {
 			location = EntityPositionHandlerService.STOPID_LOOKUP.get(passengerEvent.current_location as number);
 		}
-		if(location) {
+		if (location) {
 			viewer.entities.add({
 				position: Cesium.Cartesian3.fromDegrees(location.stop_lon, location.stop_lat),
 				ellipse: {
-					semiMinorAxis:30,
-					semiMajorAxis:30,
+					semiMinorAxis: 30,
+					semiMajorAxis: 30,
 					height: 0,
 					material: Cesium.Color.RED,
 					outline: true,
-					outlineColor: Cesium.Color.BLACK
+					outlineColor: Cesium.Color.BLACK,
 				},
-				id:passengerEvent.current_location.toString(),
-				label:{
-					text:'passenger(s):1',
-					show:true,
+				id: passengerEvent.current_location.toString(),
+				label: {
+					text: 'passenger(s):1',
+					show: true,
 					verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-					fillColor:Cesium.Color.BLACK,
-					scaleByDistance:new Cesium.NearFarScalar(1500, 1, 10000, 0)
+					fillColor: Cesium.Color.BLACK,
+					scaleByDistance: new Cesium.NearFarScalar(1500, 1, 10000, 0),
 				},
 			});
 		}
