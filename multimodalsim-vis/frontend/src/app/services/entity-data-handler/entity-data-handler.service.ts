@@ -5,6 +5,7 @@ import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
+
 @Injectable({
 	providedIn: 'root',
 })
