@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
 	styleUrls: ['./sidebar.component.css'],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
-	private openedMenuList: Array<number> = new Array<number>(0);
+	private openedMenuList: Array<number> = new Array<number>();
 
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
@@ -54,12 +54,17 @@ export class SidebarComponent {
 		this.toggleContainer(id);
 	}
 
-	private toggleContainer(id: number) {
+	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';
 		if (this.openedMenuList.indexOf(id) > -1) {
 			this.openedMenuList.splice(this.openedMenuList.indexOf(id), 1);
 		} else {
 			this.openedMenuList.push(id);
 		}
+	}
+
+	openSimulationModal(): void {
+		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
+		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
 }

@@ -1,43 +1,94 @@
 import { Injectable } from '@angular/core';
 import { Viewer } from 'cesium';
-import { BusEvent } from 'src/app/classes/bus-class/bus-event';
+import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
+import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const delay = require('delay');
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityDataHandlerService {
-	private data: BusEvent[];
+	private busEvents: BusEvent[];
+	private passengerEvents: PassengerEvent[];
+	private combined: EntityEvent[];
+	private eventObservations: [];
+
 	private busDrawing = '🚍';
 	private passengerDrawing = '🚶🏼';
 
 	constructor(private entityPositionHandlerService: EntityPositionHandlerService) {
-		this.data = [];
+		this.busEvents = [];
+		this.passengerEvents = [];
+		this.combined = [];
+		this.eventObservations = [];
 	}
 
-	getBusData(): BusEvent[] {
-		return this.data;
+	public getBusEvents(): BusEvent[] {
+		return this.busEvents;
 	}
 
-	setBusData(data: BusEvent[]): void {
-		this.data = data;
+	public setBusData(busEvents: BusEvent[]): void {
+		this.busEvents = busEvents;
 	}
 
-	async runVehiculeSimulation(viewer: Viewer): Promise<void> {
-		let previousTime = getTime(this.getBusData()[0].time);
-		for (const event of this.data) {
+	public setPassengerData(passengerEvents: PassengerEvent[]): void {
+		this.passengerEvents = passengerEvents;
+	}
+
+	public setEventObservations(eventObservations: []): void {
+		this.eventObservations = eventObservations;
+	}
+
+	public getEventObservations(): [] {
+		return this.eventObservations;
+	}
+
+	public getCombinedEvents(): EntityEvent[] {
+		return this.combined;
+	}
+
+	public combinePassengerAndBusEvents(): void {
+		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
+		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
+		const vehiclesAndTrips = vehicles.concat(trips);
+		vehiclesAndTrips.sort((firstEvent: any, secondEvent: any) => {
+			const first_time: number = Date.parse(firstEvent.time);
+			const second_time: number = Date.parse(secondEvent.time);
+			if (first_time > second_time) return 1;
+			if (first_time < second_time) return -1;
+			return 0;
+		});
+		this.combined = vehiclesAndTrips;
+	}
+
+	async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
+		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
+	}
+
+	private async runFullSimulation(viewer: Viewer): Promise<void> {
+		let previousTime = getTime(this.getBusEvents()[0].time);
+		for (const event of this.busEvents) {
 			if (event) {
-				const timeDelay = this.getDelay(getTime(event.time), previousTime) / 100;
-				await delay(timeDelay);
-				this.entityPositionHandlerService.loadBus(viewer, event);
+				await this.entityPositionHandlerService.loadBus(viewer, event, previousTime);
 				previousTime = getTime(event.time);
 			}
 		}
 	}
 
-	getDelay(currentTime: number, previousTime: number) {
-		return currentTime - previousTime;
+	//for demo purposes only
+	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
+		let previousTime = getTime(this.getCombinedEvents()[0].time);
+		eventsAmount = Math.min(eventsAmount, this.busEvents.length);
+		for (let i = 0; i < eventsAmount; i++) {
+			const event = this.combined[i];
+
+			if (event && event.eventType == 'BUS') {
+				await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
+				previousTime = getTime(event.time);
+			} else if (event && event.eventType == 'PASSENGER') {
+				await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
+			}
+		}
 	}
 }
