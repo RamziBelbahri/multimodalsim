@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, Viewer } from 'cesium';
-import { Passenger } from 'src/app/classes/passenger';
+import { Cartesian3, Viewer } from 'cesium';
+import { Passenger } from 'src/app/classes/data-classes/passenger';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
@@ -11,7 +11,6 @@ export class PassengerHandlerService {
 
 	initPassenger(id: number, locationString: string, status: string, assignedVehiculeId: number, viewer: Viewer): void {
 		if (!this.passengerList.some((passenger) => passenger.id === id)) {
-			// console.log(locationString)
 			const locationValues = locationString.substring(1, locationString.length - 1).split(',');
 			const location3D = CesiumClass.cartesianDegrees(+locationValues[0], +locationValues[1]);
 

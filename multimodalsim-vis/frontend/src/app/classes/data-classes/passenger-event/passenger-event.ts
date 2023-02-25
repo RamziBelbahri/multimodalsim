@@ -11,6 +11,7 @@ export class PassengerEvent implements EntityEvent{
 	next_legs:number[][];
 	duration:string;
 	readonly eventType: string = 'PASSENGER';
+  
 	constructor(
 		id: string,
 		time: string,

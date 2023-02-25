@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { SimulationParserService } from 'src/app/services/simulation-parser/simulation-parser.service';
-import { ZipHandlerComponent } from 'src/app/components/zip-handler/zip-handler.component';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
@@ -14,7 +13,7 @@ export class SimulationModalComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 
-	constructor(private simulationParserService: SimulationParserService, private viewerSharer: ViewerSharingService) {}
+	constructor(private dataReaderService: DataReaderService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
@@ -25,14 +24,22 @@ export class SimulationModalComponent {
 	}
 
 	selectFile(event: Event): void {
-		this.simulationParserService.selectFile(event);
+		this.dataReaderService.selectFile(event);
+	}
+
+	selectZip(event: Event): void {
+		this.dataReaderService.selectZip(event);
 	}
 
 	readContent(): void {
 		const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
-		if (csvInput.value != '') this.simulationParserService.readFile();
-		const zipInput: HTMLInputElement = document.getElementById('zipInput') as HTMLInputElement;
-		if (zipInput.value != '') ZipHandlerComponent.zipHandler.readZipContent();
+		if (csvInput.value != '') this.dataReaderService.readCSV();
+		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
+		if (zipInput.value != '') this.dataReaderService.readZipContent();
+	}
+
+	launchSimulation(): void {
+		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer);
 		this.closeModal();
 	}
 
