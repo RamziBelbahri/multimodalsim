@@ -4,7 +4,10 @@ import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
+import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
+import { DateParserService } from '../util/date-parser.service';
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -17,7 +20,7 @@ export class EntityDataHandlerService {
 	private busDrawing = '🚍';
 	private passengerDrawing = '🚶🏼';
 
-	constructor(private entityPositionHandlerService: EntityPositionHandlerService) {
+	constructor(private entityPositionHandlerService: EntityPositionHandlerService, private dateParser: DateParserService, private busHandler: BusPositionHandlerService) {
 		this.busEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -63,6 +66,14 @@ export class EntityDataHandlerService {
 	}
 
 	async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
+		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
+		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+
+		viewer.clock.startTime = start.clone();
+		viewer.clock.stopTime = end.clone();
+		viewer.clock.currentTime = start.clone();
+		viewer.timeline.zoomTo(start, end);
+
 		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
 	}
 
@@ -78,16 +89,17 @@ export class EntityDataHandlerService {
 
 	//for demo purposes only
 	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
-		let previousTime = getTime(this.getCombinedEvents()[0].time);
+		//let previousTime = getTime(this.getCombinedEvents()[0].time);
 		eventsAmount = Math.min(eventsAmount, this.busEvents.length);
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.combined[i];
 
 			if (event && event.eventType == 'BUS') {
-				await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
-				previousTime = getTime(event.time);
+				/*await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
+				previousTime = getTime(event.time);*/
+				this.busHandler.loadEvent(viewer, event as BusEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
-				await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
+				//await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
 			}
 		}
 	}

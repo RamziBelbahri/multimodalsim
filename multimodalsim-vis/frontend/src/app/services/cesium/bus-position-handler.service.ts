@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Entity, JulianDate, SampledPositionProperty, Viewer } from 'cesium';
+import { Cartesian3, Entity, JulianDate, Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { BusStatus } from 'src/app/classes/data-classes/bus-class/bus-status';
-import { CesiumClass } from 'src/app/shared/cesium-class';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
 
@@ -21,7 +20,9 @@ export class BusPositionHandlerService {
 		}
 
 		if (busEvent.status == BusStatus.ENROUTE) {
-			const nextStop = this.stopLookup.coordinatesFromStopId(Number(busEvent.next_stop[0]));
+			const nextStops = busEvent.next_stop.toString().split('\'');
+
+			const nextStop = this.stopLookup.coordinatesFromStopId(Number(nextStops[1]));
 			const startTime = this.dateParser.parseTimeFromString(busEvent.time);
 			const endTime = this.dateParser.addDuration(startTime, busEvent.duration);
 
@@ -50,11 +51,16 @@ export class BusPositionHandlerService {
 		const bus = this.busIdMapping.get(busId);
 
 		if (bus != undefined) {
-			const positionProperty = new SampledPositionProperty();
+			const positionProperty = new Cesium.SampledPositionProperty();
 			positionProperty.addSample(end, target);
 
 			bus.position = positionProperty;
-			bus.availability = CesiumClass.timeInterval(start, end);
+			bus.availability = new Cesium.TimeIntervalCollection([
+				new Cesium.TimeInterval({
+					start: start,
+					stop: end,
+				}),
+			]);
 		}
 	}
 }

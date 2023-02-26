@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { Viewer } from 'cesium';
 import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.service';
-import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
+import { DateParserService } from 'src/app/services/util/date-parser.service';
 @Component({
 	selector: 'app-cesium-container',
 	templateUrl: './cesium-container.component.html',
@@ -14,7 +14,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private viewerSubscription: Subscription = new Subscription();
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private entityDataHandlerService: EntityDataHandlerService, private viewerSharer: ViewerSharingService) {}
+	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
