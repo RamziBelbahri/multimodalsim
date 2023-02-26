@@ -3,12 +3,16 @@ import { Cartesian3, Entity, JulianDate, SampledPositionProperty, Viewer } from 
 import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { BusStatus } from 'src/app/classes/data-classes/bus-class/bus-status';
 import { CesiumClass } from 'src/app/shared/cesium-class';
+import { DateParserService } from '../util/date-parser.service';
+import { StopLookupService } from '../util/stop-lookup.service';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class BusPositionHandlerService {
 	private busIdMapping = new Map<string, Entity>();
+
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
 	// Interprète les events de bus et appelle les bonnes fonctions
 	loadEvent(viewer: Viewer, busEvent: BusEvent): void {
@@ -17,7 +21,11 @@ export class BusPositionHandlerService {
 		}
 
 		if (busEvent.status == BusStatus.ENROUTE) {
-			//set destination
+			const nextStop = this.stopLookup.coordinatesFromStopId(Number(busEvent.next_stop[0]));
+			const startTime = this.dateParser.parseTimeFromString(busEvent.time);
+			const endTime = this.dateParser.addDuration(startTime, busEvent.duration);
+
+			this.setDestination(nextStop, startTime, endTime, busEvent.id);
 		}
 	}
 
