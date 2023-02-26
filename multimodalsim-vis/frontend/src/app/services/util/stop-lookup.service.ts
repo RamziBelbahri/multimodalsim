@@ -6,15 +6,16 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 	providedIn: 'root',
 })
 export class StopLookupService {
-	private coordinatesIdMapping: Map<number, string> = new Map<number, string>();
-
-	setLine(id: number, line: string): void {
-		this.coordinatesIdMapping.set(id, line);
-	}
+	coordinatesIdMapping: Map<number, Cartesian3> = new Map<number, Cartesian3>();
 
 	coordinatesFromStopId(id: number): Cartesian3 {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const stop = this.coordinatesIdMapping.has(id) ? '' : (this.coordinatesIdMapping.get(id) as any);
-		return CesiumClass.cartesianDegrees(stop.stop_lon, stop.stop_lat);
+		const stop = this.coordinatesIdMapping.get(id);
+
+		if (stop) {
+			return stop;
+		} else {
+			console.log('stop not found');
+			return CesiumClass.cartesianDegrees(0, 0);
+		}
 	}
 }
