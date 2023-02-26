@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { EntityHandlerService } from './entity-handler.service';
+import { BusPositionHandlerService } from './bus-position-handler.service';
 
 describe('EntityHandlerService', () => {
-	let service: EntityHandlerService;
+	let service: BusPositionHandlerService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({});
-		service = TestBed.inject(EntityHandlerService);
+		service = TestBed.inject(BusPositionHandlerService);
 	});
 
 	it('should be created', () => {

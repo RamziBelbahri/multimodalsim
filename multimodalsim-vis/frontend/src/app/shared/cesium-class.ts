@@ -1,4 +1,4 @@
-import { CallbackProperty, Cartesian3, IonImageryProvider, PolygonHierarchy, Viewer } from 'cesium';
+import { CallbackProperty, Cartesian3, IonImageryProvider, JulianDate, PolygonHierarchy, TimeIntervalCollection, Viewer } from 'cesium';
 
 export class CesiumClass {
 	static viewer(element: Element | string): Viewer {
@@ -47,5 +47,18 @@ export class CesiumClass {
 
 	static callback(func: CallbackProperty.Callback, isConstant: boolean): CallbackProperty {
 		return new Cesium.CallbackProperty(func, isConstant);
+	}
+
+	static timeInterval(start: JulianDate, end: JulianDate): TimeIntervalCollection {
+		return new Cesium.TimeIntervalCollection([
+			new Cesium.TimeInterval({
+				start: start,
+				stop: end,
+			}),
+		])();
+	}
+
+	static currentTime(): JulianDate {
+		return Cesium.JulianDate.now();
 	}
 }
