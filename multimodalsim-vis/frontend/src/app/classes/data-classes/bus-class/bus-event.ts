@@ -7,7 +7,7 @@ export class BusEvent implements EntityEvent {
 	time: string;
 	status: string;
 	private previous_stop: string[];
-	private current_stop: string;
+	current_stop: string;
 	next_stop: string[];
 	private assigned_legs: number[];
 	private onboard_legs: number[];

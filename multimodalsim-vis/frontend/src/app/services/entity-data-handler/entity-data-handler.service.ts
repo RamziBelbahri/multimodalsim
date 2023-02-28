@@ -97,10 +97,12 @@ export class EntityDataHandlerService {
 			if (event && event.eventType == 'BUS') {
 				/*await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
 				previousTime = getTime(event.time);*/
-				this.busHandler.loadEvent(viewer, event as BusEvent);
+				this.busHandler.compileEvents(event as BusEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
 				//await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
 			}
 		}
+
+		this.busHandler.loadSpawnEvents(viewer);
 	}
 }
