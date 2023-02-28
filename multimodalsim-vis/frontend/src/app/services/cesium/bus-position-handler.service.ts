@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Entity, SampledPositionProperty, Viewer } from 'cesium';
+import { SampledPositionProperty, Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { BusStatus } from 'src/app/classes/data-classes/bus-class/bus-status';
 import { DateParserService } from '../util/date-parser.service';
@@ -9,7 +9,6 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class BusPositionHandlerService {
-	private busIdMapping = new Map<string, Entity>();
 	private pathIdMapping = new Map<string, SampledPositionProperty>();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
@@ -28,6 +27,8 @@ export class BusPositionHandlerService {
 		if (busEvent.status == BusStatus.ENROUTE) {
 			const nextStops = busEvent.next_stop.toString().split('\'');
 			this.setNextStop(busEvent, Number(nextStops[1]));
+		} else if (busEvent.status == BusStatus.IDLE) {
+			this.setNextStop(busEvent, Number(busEvent.current_stop));
 		}
 	}
 
