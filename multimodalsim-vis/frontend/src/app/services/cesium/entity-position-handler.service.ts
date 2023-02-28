@@ -10,7 +10,7 @@ const delay = require('delay');
 
 /**
  * DEPRECATED
- * Delete quand le Jira GL4H2311-28 sera complété
+ * Delete quand les Jira GL4H2311-28 et GL4H2311-30 seront complétés
  */
 
 @Injectable({
