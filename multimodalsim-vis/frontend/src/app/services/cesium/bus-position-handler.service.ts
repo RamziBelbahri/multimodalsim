@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Entity, JulianDate, Viewer } from 'cesium';
+import { Entity, SampledPositionProperty, Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { BusStatus } from 'src/app/classes/data-classes/bus-class/bus-status';
 import { DateParserService } from '../util/date-parser.service';
@@ -10,30 +10,48 @@ import { StopLookupService } from '../util/stop-lookup.service';
 })
 export class BusPositionHandlerService {
 	private busIdMapping = new Map<string, Entity>();
+	private pathIdMapping = new Map<string, SampledPositionProperty>();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
-	// Interprète les events de bus et appelle les bonnes fonctions
-	loadEvent(viewer: Viewer, busEvent: BusEvent): void {
-		if (!this.busIdMapping.has(busEvent.id)) {
-			this.spawnEntity(busEvent.position as Cartesian3, busEvent.id, viewer);
+	// Compile les chemins des bus avant leur création
+	compileEvents(busEvent: BusEvent): void {
+		if (!this.pathIdMapping.has(busEvent.id)) {
+			this.pathIdMapping.set(busEvent.id, new Cesium.SampledPositionProperty());
+
+			// Donner une valeur non nulle afin de ne pas causer d'erreur si le bus ne se déplace jamais.
+			if (busEvent.status != BusStatus.ENROUTE) {
+				this.setNextStop(busEvent, Number(busEvent.current_stop));
+			}
 		}
 
 		if (busEvent.status == BusStatus.ENROUTE) {
 			const nextStops = busEvent.next_stop.toString().split('\'');
-
-			const nextStop = this.stopLookup.coordinatesFromStopId(Number(nextStops[1]));
-			const startTime = this.dateParser.parseTimeFromString(busEvent.time);
-			const endTime = this.dateParser.addDuration(startTime, busEvent.duration);
-
-			this.setDestination(nextStop, startTime, endTime, busEvent.id);
+			this.setNextStop(busEvent, Number(nextStops[1]));
 		}
 	}
 
-	// Génère un nouveau bus à sa position de départ
-	private spawnEntity(position: Cartesian3, busId: string, viewer: Viewer): void {
-		const entity = viewer.entities.add({
-			position: position,
+	// Charge tous les chemins des bus afin de les ajouter sur la carte
+	loadSpawnEvents(viewer: Viewer): void {
+		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty) => {
+			this.spawnEntity(positionProperty, viewer);
+		});
+	}
+
+	// Ajoute un échantillon au chemin d'un bus
+	private setNextStop(busEvent: BusEvent, stop: number): void {
+		const positionProperty = this.pathIdMapping.get(busEvent.id) as SampledPositionProperty;
+		const startTime = this.dateParser.parseTimeFromString(busEvent.time);
+		const endTime = this.dateParser.addDuration(startTime, busEvent.duration);
+
+		positionProperty.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
+		this.pathIdMapping.set(busEvent.id, positionProperty);
+	}
+
+	// Ajoute une entité sur la carte avec le chemin spécifié
+	private spawnEntity(positionProperty: SampledPositionProperty, viewer: Viewer): void {
+		viewer.entities.add({
+			position: positionProperty,
 			ellipse: {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
@@ -43,24 +61,5 @@ export class BusPositionHandlerService {
 				outlineColor: Cesium.Color.BLACK,
 			},
 		});
-		this.busIdMapping.set(busId, entity);
-	}
-
-	// Change la destination d'un bus ainsi que le temps qu'il doit prendre pour s'y rendre
-	private setDestination(target: Cartesian3, start: JulianDate, end: JulianDate, busId: string): void {
-		const bus = this.busIdMapping.get(busId);
-
-		if (bus != undefined) {
-			const positionProperty = new Cesium.SampledPositionProperty();
-			positionProperty.addSample(end, target);
-
-			bus.position = positionProperty;
-			bus.availability = new Cesium.TimeIntervalCollection([
-				new Cesium.TimeInterval({
-					start: start,
-					stop: end,
-				}),
-			]);
-		}
 	}
 }
