@@ -6,6 +6,7 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { getTime } from 'src/app/helpers/parsers';
 import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
 import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
+import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
 @Injectable({
@@ -20,7 +21,12 @@ export class EntityDataHandlerService {
 	private busDrawing = '🚍';
 	private passengerDrawing = '🚶🏼';
 
-	constructor(private entityPositionHandlerService: EntityPositionHandlerService, private dateParser: DateParserService, private busHandler: BusPositionHandlerService) {
+	constructor(
+		private entityPositionHandlerService: EntityPositionHandlerService,
+		private dateParser: DateParserService,
+		private busHandler: BusPositionHandlerService,
+		private passengerHandler: PassengerPositionHandlerService
+	) {
 		this.busEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -96,10 +102,11 @@ export class EntityDataHandlerService {
 			if (event && event.eventType == 'BUS') {
 				this.busHandler.compileEvents(event as BusEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
-				// TODO
+				this.passengerHandler.compileEvents(event as PassengerEvent);
 			}
 		}
 
 		this.busHandler.loadSpawnEvents(viewer);
+		this.passengerHandler.loadSpawnEvents(viewer);
 	}
 }
