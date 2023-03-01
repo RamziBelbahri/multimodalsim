@@ -89,17 +89,14 @@ export class EntityDataHandlerService {
 
 	//for demo purposes only
 	private async runPartialSimulation(viewer: Viewer, eventsAmount: number): Promise<void> {
-		//let previousTime = getTime(this.getCombinedEvents()[0].time);
 		eventsAmount = Math.min(eventsAmount, this.busEvents.length);
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.combined[i];
 
 			if (event && event.eventType == 'BUS') {
-				/*await this.entityPositionHandlerService.loadBus(viewer, event as BusEvent, previousTime);
-				previousTime = getTime(event.time);*/
 				this.busHandler.compileEvents(event as BusEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
-				//await this.entityPositionHandlerService.loadPassenger(viewer, event as PassengerEvent, previousTime);
+				// TODO
 			}
 		}
 
