@@ -4,7 +4,7 @@ import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.ser
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
-import { DateParserService } from 'src/app/services/util/date-parser.service';
+
 @Component({
 	selector: 'app-cesium-container',
 	templateUrl: './cesium-container.component.html',
