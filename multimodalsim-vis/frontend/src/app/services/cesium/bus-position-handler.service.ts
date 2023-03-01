@@ -24,11 +24,13 @@ export class BusPositionHandlerService {
 			}
 		}
 
-		if (busEvent.status == BusStatus.ENROUTE) {
-			const nextStops = busEvent.next_stop.toString().split('\'');
-			this.setNextStop(busEvent, Number(nextStops[1]));
-		} else if (busEvent.status == BusStatus.IDLE) {
+		switch (busEvent.status) {
+		case BusStatus.ENROUTE:
+			this.setNextStop(busEvent, Number(busEvent.next_stop.toString().split('\'')[1]));
+			break;
+		case BusStatus.IDLE:
 			this.setNextStop(busEvent, Number(busEvent.current_stop));
+			break;
 		}
 	}
 
