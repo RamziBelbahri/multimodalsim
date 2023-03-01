@@ -9,7 +9,7 @@ from multimodalsim.reader.data_reader import GTFSReader
 from multimodalsim.simulator.coordinates import CoordinatesFromFile, \
     CoordinatesOSRM
 from multimodalsim.simulator.simulation import Simulation
-
+import networkx as nx
 logger = logging.getLogger(__name__)
 
 from frontend_observer import FrontendEnvironmentObserver
@@ -27,13 +27,15 @@ if __name__ == '__main__':
     # Set to None if coordinates of the vehicles are not available.
     coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
                             "/coordinates_30s.csv"
-    coordinates = CoordinatesFromFile(coordinates_file_path)
+    # coordinates = CoordinatesFromFile(coordinates_file_path)
+    coordinates = CoordinatesOSRM()
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
 
     # Generate the network from GTFS files.
     g = data_reader.get_network_graph()
+    # g = nx.read_gpickle('path/to/gpickle')
 
     # Initialize the optimizer.
     splitter = MultimodalSplitter(g)
