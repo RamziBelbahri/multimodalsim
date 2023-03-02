@@ -74,7 +74,8 @@ export class EntityDataHandlerService {
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
 
-		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
+		this.testEntityRealTime(viewer);
+		//eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
 	}
 
 	private async runFullSimulation(viewer: Viewer): Promise<void> {
@@ -101,5 +102,9 @@ export class EntityDataHandlerService {
 		}
 
 		this.busHandler.loadSpawnEvents(viewer);
+	}
+
+	private async testEntityRealTime(viewer: Viewer): Promise<void> {
+		await this.busHandler.testEntityRealTime(viewer);
 	}
 }

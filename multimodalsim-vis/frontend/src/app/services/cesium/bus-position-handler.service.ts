@@ -13,6 +13,21 @@ export class BusPositionHandlerService {
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
+	async testEntityRealTime(viewer: Viewer): Promise<void> {
+		const positionProperty = new Cesium.SampledPositionProperty();
+		// 2790287,1969-12-31 23:16:47,0.284,-73.769447,45.640194,0 days 00:00:00
+		// 2790287,1969-12-31 23:32:03,-73.769224,45.639187,0 days 00:00:00
+
+		let startTime = this.dateParser.parseTimeFromString('1969-12-31 23:16:47');
+		let endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
+		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769447, 45.640194));
+		this.spawnEntity(positionProperty, viewer);
+		startTime = this.dateParser.parseTimeFromString('1969-12-31 23:32:03');
+		endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
+		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769224,45.639187));
+		console.log('entityRealTime: ');
+	}
+
 	// Compile les chemins des bus avant leur création
 	compileEvents(busEvent: BusEvent): void {
 		if (!this.pathIdMapping.has(busEvent.id)) {
