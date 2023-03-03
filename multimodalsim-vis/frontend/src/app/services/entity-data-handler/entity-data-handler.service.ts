@@ -4,7 +4,7 @@ import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
-import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
+import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
 @Injectable({
@@ -16,7 +16,7 @@ export class EntityDataHandlerService {
 	private combined: EntityEvent[];
 	private eventObservations: [];
 
-	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private passengerHandler: PassengerPositionHandlerService) {
+	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -84,11 +84,11 @@ export class EntityDataHandlerService {
 			if (event && event.eventType == 'VEHICLE') {
 				this.vehicleHandler.compileEvents(event as VehicleEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
-				this.passengerHandler.compileEvents(event as PassengerEvent);
+				this.stopHandler.compileEvents(event as PassengerEvent);
 			}
 		}
 
 		this.vehicleHandler.loadSpawnEvents(viewer);
-		this.passengerHandler.loadSpawnEvents(viewer);
+		this.stopHandler.loadSpawnEvents(viewer);
 	}
 }
