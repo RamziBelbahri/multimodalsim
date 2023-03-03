@@ -33,34 +33,4 @@ export class Stop {
 	getPassengerAmount(): number {
 		return this.passengerTimeMapping.size;
 	}
-
-	// Obtenir le temps auquel le premier passager arrive pour créer l'arrêt.
-	getSpawnTime(): JulianDate {
-		let spawnTime: JulianDate = Cesium.JulianDate.now();
-
-		this.passengerTimeMapping.forEach((interval: TimeInterval) => {
-			if (!spawnTime) {
-				spawnTime = interval.start;
-			} else if (Cesium.JulianDate.compare(spawnTime, interval.start) > 0) {
-				spawnTime = interval.start;
-			}
-		});
-
-		return spawnTime;
-	}
-
-	// Obtenir le temps auquel le dernier passager quitte pour enlever l'arrêt.
-	getEndTime(): JulianDate {
-		let endTime: JulianDate = Cesium.JulianDate.now();
-
-		this.passengerTimeMapping.forEach((interval: TimeInterval) => {
-			if (!endTime) {
-				endTime = interval.end;
-			} else if (Cesium.JulianDate.compare(endTime, interval.start) < 0) {
-				endTime = interval.end;
-			}
-		});
-
-		return endTime;
-	}
 }
