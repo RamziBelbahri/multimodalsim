@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as JSZip from 'jszip';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
-import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-position-handler.service';
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { FileType } from 'src/app/classes/file-classes/file-type';
 import { Viewer } from 'cesium';
