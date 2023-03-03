@@ -9,7 +9,7 @@ import { StopLookupService } from '../util/stop-lookup.service';
 @Injectable({
 	providedIn: 'root',
 })
-export class PassengerPositionHandlerService {
+export class StopPositionHandlerService {
 	private stopIdMapping = new Map<string, Stop>();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
@@ -73,7 +73,7 @@ export class PassengerPositionHandlerService {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 			},
 			id: id,
-			name: 'passenger',
+			name: 'stop',
 		});
 	}
 }
