@@ -57,13 +57,8 @@ export class PassengerPositionHandlerService {
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
-		const positionProperty = new Cesium.SampledPositionProperty();
-
-		positionProperty.addSample(stop.getSpawnTime(), stop.position);
-		positionProperty.addSample(stop.getEndTime(), stop.position);
-
 		viewer.entities.add({
-			position: positionProperty,
+			position: stop.position,
 			ellipse: {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,

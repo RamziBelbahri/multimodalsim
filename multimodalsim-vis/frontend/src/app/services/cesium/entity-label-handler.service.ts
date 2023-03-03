@@ -8,10 +8,11 @@ import { PassengerPositionHandlerService } from './passenger-position-handler.se
 })
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
-	private lastEntity: any;
+	private lastEntities = new Array<any>();
 
 	constructor(private passengerHandler: PassengerPositionHandlerService) {}
 
+	// Active le handler qui s'occupe d'afficher le texte
 	initHandler(viewer: Viewer): void {
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
@@ -21,22 +22,26 @@ export class EntityLabelHandlerService {
 					const entity = pickedObject.id;
 
 					if (entity.label) {
-						entity.label.text = new Cesium.ConstantProperty('{' + this.createText(entity) + '}');
-						this.lastEntity = entity;
+						entity.label.text = new Cesium.ConstantProperty(this.createText(entity));
+						this.lastEntities.push(entity);
 					}
-				} else if (this.lastEntity) {
-					this.lastEntity.label.text = new Cesium.ConstantProperty('');
+				} else if (this.lastEntities.length > 0) {
+					this.lastEntities.forEach((element: any) => {
+						element.label.text = new Cesium.ConstantProperty('');
+					});
 				}
 			}
 		});
 
 		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
+		// Modifie la position de souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
 			this.currentMousePosition = movement.endPosition;
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 	}
 
+	// Créé une string avec le nombre de passagers selon l'entité
 	private createText(entity: any): string {
 		let amount = 0;
 		console.log(entity);
@@ -48,6 +53,6 @@ export class EntityLabelHandlerService {
 			amount = 2;
 		}
 
-		return amount > 0 ? amount.toString() : '';
+		return amount > 0 ? '{' + amount.toString() + '}' : '';
 	}
 }
