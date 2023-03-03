@@ -5,7 +5,6 @@ import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { getTime } from 'src/app/helpers/parsers';
 import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
-import { EntityPositionHandlerService } from '../cesium/entity-position-handler.service';
 import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
@@ -21,12 +20,7 @@ export class EntityDataHandlerService {
 	private busDrawing = '🚍';
 	private passengerDrawing = '🚶🏼';
 
-	constructor(
-		private entityPositionHandlerService: EntityPositionHandlerService,
-		private dateParser: DateParserService,
-		private busHandler: BusPositionHandlerService,
-		private passengerHandler: PassengerPositionHandlerService
-	) {
+	constructor(private dateParser: DateParserService, private busHandler: BusPositionHandlerService, private passengerHandler: PassengerPositionHandlerService) {
 		this.busEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -80,16 +74,8 @@ export class EntityDataHandlerService {
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
 
-		eventsAmount ? this.runPartialSimulation(viewer, eventsAmount) : this.runFullSimulation(viewer);
-	}
-
-	private async runFullSimulation(viewer: Viewer): Promise<void> {
-		let previousTime = getTime(this.getBusEvents()[0].time);
-		for (const event of this.busEvents) {
-			if (event) {
-				await this.entityPositionHandlerService.loadBus(viewer, event, previousTime);
-				previousTime = getTime(event.time);
-			}
+		if (eventsAmount) {
+			this.runPartialSimulation(viewer, eventsAmount);
 		}
 	}
 

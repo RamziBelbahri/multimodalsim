@@ -44,7 +44,6 @@ export class EntityLabelHandlerService {
 	// Créé une string avec le nombre de passagers selon l'entité
 	private createText(entity: any): string {
 		let amount = 0;
-		console.log(entity);
 
 		if (entity.name == 'passenger') {
 			amount = this.passengerHandler.getPassengerAmount(entity.id);
