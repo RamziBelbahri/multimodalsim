@@ -5,6 +5,8 @@ import { EntityPositionHandlerService } from 'src/app/services/cesium/entity-pos
 import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 import { FileType } from 'src/app/classes/file-classes/file-type';
 import { Viewer } from 'cesium';
+import { StopLookupService } from '../../util/stop-lookup.service';
+import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
 	providedIn: 'root',
@@ -20,7 +22,7 @@ export class DataReaderService {
 	private csvInput: Blob;
 	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 
-	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService) {
+	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
 		this.zipper = JSZip();
 		this.csvData = new Set<string>();
 		this.errors = [];
@@ -140,7 +142,7 @@ export class DataReaderService {
 
 	private parseStopsFile(stops: []): void {
 		for (const line of stops) {
-			EntityPositionHandlerService.STOPID_LOOKUP.set(line['stop_id'], line);
+			this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
 		}
 	}
 
