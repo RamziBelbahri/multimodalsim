@@ -18,28 +18,29 @@ export class EntityPositionHandlerService {
 	private readonly SPEED_FACTOR = 10000;
 	public static STOPID_LOOKUP:Map<number,string> = new Map<number,string>();
 	private PASSENGER_POSITION_LOOKUP:Map<string, string> = new Map<string, string>();
-	private busList: Array<BusEvent>;
-	private passengerList: Array<PassengerEvent>;
+	private BUS_POSITION_LOOKUP: Map<string, BusEvent>;
+	// private passengerList: Array<PassengerEvent>;
 
 	constructor() {
-		this.busList = new Array<BusEvent>();
-		this.passengerList = new Array<PassengerEvent>();
+		this.BUS_POSITION_LOOKUP = new Map<string, BusEvent>();
+		// this.passengerList = new Array<PassengerEvent>();
 	}
 
 	public async loadBus(viewer: Viewer, busEvent: BusEvent, previousTime: number): Promise<void> {
-		const busIndex = this.getBusIndex(busEvent.id) as number;
-		const busSpawned = busIndex !== -1;
+		// const busIndex = this.getBusIndex(busEvent.id) as number;
+		const busLookup = this.BUS_POSITION_LOOKUP.get(busEvent.id);
+		const busSpawned = busLookup != null;
 		const currentTime = getTime(busEvent.time);
 		let timeDelay = this.getDelay(currentTime, previousTime) / this.SPEED_FACTOR;
 		// Si le bus apparaît, on attend pour l'intervalle avec l'évènement précédent, sinon
 		// on attend pour l'intervalle avec l'évènement de déplacement
 		if (busSpawned) {
-			const previousBusEvent = this.busList[busIndex];
+			const previousBusEvent = busLookup;
 			const previousBusTime = getTime(previousBusEvent.time);
 			timeDelay = this.getDelay(currentTime, previousBusTime) / this.SPEED_FACTOR;
 			this.setBusTarget(previousBusEvent, busEvent);
 			await delay(timeDelay);
-			this.stopBus(busIndex);
+			this.stopBus(busEvent.id);
 		} else {
 			await delay(timeDelay);
 			// console.log(busEvent)
@@ -50,13 +51,17 @@ export class EntityPositionHandlerService {
 	private spawnBus(viewer: Viewer, busEvent: BusEvent): void {
 		// console.log("spawn",busEvent);
 		const updatePosition = () => {
-			const busIndex = this.getBusIndex(busEvent.id) as number;
-			const correspondingBus = this.busList[busIndex];
+			// const busIndex = this.getBusIndex(busEvent.id) as number;
+			const correspondingBus = this.BUS_POSITION_LOOKUP.get(busEvent.id);
+			if(!correspondingBus) {return;}
 			let position = correspondingBus.position as Cartesian3;
 			if (correspondingBus.hasChanged) {
 				const cartesianMovement = correspondingBus.movement;
 				position = CesiumClass.addCartesian(position, cartesianMovement);
-				this.setBusPosition(busIndex, position);
+				this.setBusPosition(busEvent.id, position);
+			}
+			if(!position) {
+				position = CesiumClass.cartesian3(0,0,0);
 			}
 			const edges: Array<Cartesian3> = [
 				CesiumClass.cartesian3(position.x - this.POLYGON_RADIUS, position.y + this.POLYGON_RADIUS, position.z),
@@ -64,11 +69,14 @@ export class EntityPositionHandlerService {
 				CesiumClass.cartesian3(position.x + this.POLYGON_RADIUS, position.y - this.POLYGON_RADIUS, position.z),
 				CesiumClass.cartesian3(position.x - this.POLYGON_RADIUS, position.y - this.POLYGON_RADIUS, position.z),
 			];
-
 			return CesiumClass.polygonHierarchy(edges);
 		};
 
-		this.busList.push(busEvent);
+		if(busEvent.position == null) {
+			console.log(busEvent)
+			return;
+		}
+		this.BUS_POSITION_LOOKUP.set(busEvent.id, structuredClone(busEvent));
 
 		viewer.entities.add({
 			polygon: {
@@ -129,7 +137,7 @@ export class EntityPositionHandlerService {
 				entity.show = true;
 			}
 		}
-		this.passengerList.push(passengerEvent);
+		// this.passengerList.push(passengerEvent);
 	}
 
 	private spawnPassenger(viewer: Viewer, passengerEvent: PassengerEvent) {
@@ -168,39 +176,44 @@ export class EntityPositionHandlerService {
 			const distance = CesiumClass.cartesianDistance(previousPosition, currentPosition) as Cartesian3;
 			const tickNumber = Math.max(this.INTERVAL, duration) / this.INTERVAL;
 			const movement = CesiumClass.cartesianScalarDiv(distance, tickNumber);
-			const busIndex = this.getBusIndex(currentBus.id) as number;
+			// const busIndex = this.getBusIndex(currentBus.id) as number;
 
-			this.setBusMovement(busIndex, movement);
-			this.setBusHaschanged(busIndex, true);
+			this.setBusMovement(currentBus.id, movement);
+			this.setBusHaschanged(currentBus.id, true);
 		}
 	}
 
-	private stopBus(busIndex: number): void {
-		this.setBusMovement(busIndex, CesiumClass.cartesian3(0, 0, 0));
-		this.setBusHaschanged(busIndex, false);
+	private stopBus(busID: string): void {
+		this.setBusMovement(busID, CesiumClass.cartesian3(0, 0, 0));
+		this.setBusHaschanged(busID, false);
 	}
 
-	private getBusIndex(id: string): number {
-		return this.busList.findIndex((event) => id === event.id);
-	}
-
-	private getPassengerIndex(id: string): number {
-		return this.passengerList.findIndex((event) => id === event.id);
-	}
+	// private getBusIndex(id: string): number {
+	// 	return this.busList.findIndex((event) => id === event.id);
+	// }
 
 	private getDelay(currentTime: number, previousTime: number): number {
 		return currentTime - previousTime;
 	}
 
-	private setBusPosition(busIndex: number, position: Cartesian3): void {
-		this.busList[busIndex].position = position;
+	private setBusPosition(busID: string, position: Cartesian3): void {
+		const correspondingBus = this.BUS_POSITION_LOOKUP.get(busID);
+		if(correspondingBus) {
+			correspondingBus.position = position;
+		}
 	}
 
-	private setBusMovement(busIndex: number, movement: Cartesian3): void {
-		this.busList[busIndex].movement = movement;
+	private setBusMovement(busID: string, movement: Cartesian3): void {
+		const correspondingBus = this.BUS_POSITION_LOOKUP.get(busID);
+		if(correspondingBus) {
+			correspondingBus.movement = movement;
+		}
 	}
 
-	private setBusHaschanged(busIndex: number, hasChanged: boolean): void {
-		this.busList[busIndex].hasChanged = hasChanged;
+	private setBusHaschanged(busID: string, hasChanged: boolean): void {
+		const correspondingBus = this.BUS_POSITION_LOOKUP.get(busID);
+		if(correspondingBus) {
+			correspondingBus.hasChanged = hasChanged;
+		}
 	}
 }

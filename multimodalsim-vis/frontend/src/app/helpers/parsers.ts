@@ -1,7 +1,7 @@
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
 
-export function getTime(date: string): number {
-	return Date.parse(date);
+export function getTime(date: string | undefined): number {
+	return date ? Date.parse(date) : -1 ;
 }
 
 export function papaParse(data: string, config?: ParseConfig): ParseResult {
