@@ -47,8 +47,8 @@ export class EntityLabelHandlerService {
 
 		if (entity.name == 'passenger') {
 			amount = this.passengerHandler.getPassengerAmount(entity.id);
-		} else if (entity.name == 'bus') {
-			// TODO get le nombre dans un bus
+		} else if (entity.name == 'vehicle') {
+			// TODO get le nombre dans un véhicule
 			amount = 2;
 		}
 
