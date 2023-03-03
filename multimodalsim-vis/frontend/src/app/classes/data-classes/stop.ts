@@ -3,10 +3,13 @@ import { TimeInterval } from './time-interval';
 
 export class Stop {
 	private passengerTimeMapping: Map<string, TimeInterval>;
-	position: Cartesian3;
 
-	constructor(position: Cartesian3) {
+	position: Cartesian3;
+	id: string;
+
+	constructor(position: Cartesian3, id: string) {
 		this.position = position;
+		this.id = id;
 		this.passengerTimeMapping = new Map<string, TimeInterval>();
 	}
 
@@ -27,6 +30,11 @@ export class Stop {
 		this.passengerTimeMapping.delete(id);
 	}
 
+	getPassengerAmount(): number {
+		return this.passengerTimeMapping.size;
+	}
+
+	// Obtenir le temps auquel le premier passager arrive pour créer l'arrêt.
 	getSpawnTime(): JulianDate {
 		let spawnTime: JulianDate = Cesium.JulianDate.now();
 
@@ -41,6 +49,7 @@ export class Stop {
 		return spawnTime;
 	}
 
+	// Obtenir le temps auquel le dernier passager quitte pour enlever l'arrêt.
 	getEndTime(): JulianDate {
 		let endTime: JulianDate = Cesium.JulianDate.now();
 

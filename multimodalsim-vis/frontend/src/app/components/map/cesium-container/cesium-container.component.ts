@@ -4,6 +4,7 @@ import { CameraHandlerService } from 'src/app/services/cesium/camera-handler.ser
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
+import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -14,7 +15,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private viewerSubscription: Subscription = new Subscription();
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private viewerSharer: ViewerSharingService) {}
+	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private viewerSharer: ViewerSharingService, private labelHandler: EntityLabelHandlerService) {}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
@@ -22,6 +23,8 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 			CesiumClass.imagery({ assetId: 4 })
 		);
 		this.cameraHandler.initCameraData(this.viewer.camera);
+
+		this.labelHandler.initHandler(this.viewer);
 
 		// S'enregistrer sur le service qui partage le viewer entre les components.
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
