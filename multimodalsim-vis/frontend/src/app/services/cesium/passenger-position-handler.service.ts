@@ -19,7 +19,7 @@ export class PassengerPositionHandlerService {
 		const stopId = passengerEvent.current_location.toString();
 
 		if (!this.stopIdMapping.has(stopId)) {
-			const newStop = new Stop(this.stopLookup.coordinatesFromStopId(Number(stopId)));
+			const newStop = new Stop(this.stopLookup.coordinatesFromStopId(Number(stopId)), stopId);
 			this.stopIdMapping.set(stopId, newStop);
 		}
 
@@ -39,17 +39,25 @@ export class PassengerPositionHandlerService {
 
 	// Charge tous les arrêts qui contiennent des passagers
 	loadSpawnEvents(viewer: Viewer): void {
-		this.stopIdMapping.forEach((stop: Stop) => {
-			this.spawnEntity(stop, viewer);
+		this.stopIdMapping.forEach((stop: Stop, id: string) => {
+			this.spawnEntity(id, stop, viewer);
 		});
 	}
 
-	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
-	private spawnEntity(stop: Stop, viewer: Viewer): void {
-		const positionProperty = new Cesium.SampledPositionProperty();
+	getPassengerAmount(id: string): number {
+		let result = 0;
+		const stop = this.stopIdMapping.get(id);
 
-		console.log(stop.getSpawnTime());
-		console.log(stop.getEndTime());
+		if (stop) {
+			result = stop.getPassengerAmount();
+		}
+
+		return result;
+	}
+
+	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
+	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
+		const positionProperty = new Cesium.SampledPositionProperty();
 
 		positionProperty.addSample(stop.getSpawnTime(), stop.position);
 		positionProperty.addSample(stop.getEndTime(), stop.position);
@@ -64,6 +72,13 @@ export class PassengerPositionHandlerService {
 				outline: true,
 				outlineColor: Cesium.Color.BLACK,
 			},
+			label: {
+				font: '20px sans-serif',
+				showBackground: true,
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+			},
+			id: id,
+			name: 'passenger',
 		});
 	}
 }
