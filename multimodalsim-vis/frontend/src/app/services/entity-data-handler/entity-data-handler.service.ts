@@ -78,6 +78,8 @@ export class EntityDataHandlerService {
 	//for demo purposes only
 	private runPartialSimulation(viewer: Viewer, eventsAmount: number): void {
 		eventsAmount = Math.min(eventsAmount, this.vehicleEvents.length);
+		this.stopHandler.initStops();
+
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.combined[i];
 
