@@ -36,8 +36,8 @@ export class BusPositionHandlerService {
 
 	// Charge tous les chemins des bus afin de les ajouter sur la carte
 	loadSpawnEvents(viewer: Viewer): void {
-		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty) => {
-			this.spawnEntity(positionProperty, viewer);
+		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty, id: string) => {
+			this.spawnEntity(id, positionProperty, viewer);
 		});
 	}
 
@@ -52,7 +52,7 @@ export class BusPositionHandlerService {
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
-	private spawnEntity(positionProperty: SampledPositionProperty, viewer: Viewer): void {
+	private spawnEntity(id: string, positionProperty: SampledPositionProperty, viewer: Viewer): void {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
@@ -63,6 +63,13 @@ export class BusPositionHandlerService {
 				outline: true,
 				outlineColor: Cesium.Color.BLACK,
 			},
+			label: {
+				font: '20px sans-serif',
+				showBackground: true,
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+			},
+			id: id,
+			name: 'bus',
 		});
 	}
 }
