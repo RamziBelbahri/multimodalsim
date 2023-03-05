@@ -1,40 +1,96 @@
-import { Stomp, CompatClient, IMessage } from '@stomp/stompjs'
+import { Stomp, CompatClient, IMessage } from '@stomp/stompjs';
+import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
+import {ConnectionCredentials} from './connection-constants';
 
-const PING:string = "PING"
-const PONG:string = "PONG"
 // uses STOMP with active MQ
 export class MessageQueueStompService {
-	public socketAddress:string;
-	private readonly PROTOCOLS = ["v11.stomp"];
-
+	// public socketAddress:string;
 	public static client:CompatClient;
-	private static readonly HEADERS = {id: 'JUST.FCX', ack: 'client'};
-	private static readonly QUEUE = "/queue/server";
-	private static readonly WEBSOCKET = "ws://localhost:61614/stomp";
+	public static service:MessageQueueStompService;
+
 	// note: static is needed so that there the callbacks can work
-	constructor(socketAddress:string=MessageQueueStompService.WEBSOCKET, debug:boolean=false, username:string="admin", password:string="admin") {
-		this.socketAddress = socketAddress;
-		MessageQueueStompService.client = Stomp.client(socketAddress, this.PROTOCOLS);
+	constructor(private entityDataHandlerService:EntityDataHandlerService, socketAddress:string=ConnectionCredentials.WEBSOCKET, debug=true) {
+		if(MessageQueueStompService.service) {
+			return MessageQueueStompService.service;
+		}
+		MessageQueueStompService.client = Stomp.client(socketAddress, ConnectionCredentials.PROTOCOLS);
 		if(!debug){
-			MessageQueueStompService.client.debug = function() {};
+			MessageQueueStompService.client.debug = function() {return;};
 		}
-		MessageQueueStompService.client.connect(username,password, this.onConnect, this.onError);
+		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
+		MessageQueueStompService.service = this;
+		return this;
 	}
-
-	onConnect():void {
-		MessageQueueStompService.client.subscribe(MessageQueueStompService.QUEUE,MessageQueueStompService.onMessage)
+	onConnect() {
+		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, MessageQueueStompService.onReceivingInfo);
+		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, MessageQueueStompService.onReceivingEvent);
+		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, MessageQueueStompService.onReceivingEventObservation);
+		MessageQueueStompService.client.subscribe(ConnectionCredentials.TRIPS_QUEUE, MessageQueueStompService.onReceivingTripEvent);
+		MessageQueueStompService.client.subscribe(ConnectionCredentials.VEHICLE_QUEUE, MessageQueueStompService.onReceivingVehicleEvent);
 	}
-
-	static onMessage(msg:IMessage):void {
-		if(msg.body == PING) {
-			console.log("PING -- keeps the websocket open");
-			MessageQueueStompService.client.send(MessageQueueStompService.QUEUE, MessageQueueStompService.HEADERS, PONG);
+	onError(err:IMessage){
+		console.log(err.body);
+	}
+	private static onReceivingInfo(msg:IMessage) {
+		const p = document.getElementById('received-text');
+		if(p) {
+			p.innerText = JSON.stringify(msg.body);
 		}
-		console.log(msg.body)
-		// msg.ack();
 	}
 
-	onError(err:IMessage):void {
-		console.log(err.body)
+	private static onReceivingEvent(msg:IMessage) {
+		const p = document.getElementById('received-text');
+		if(p) {
+			try {
+				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+			} catch {
+				p.innerText = msg.body;
+				console.log('==========================================');
+				console.log(msg.body);
+			}
+		}
+	}
+
+	private static onReceivingEventObservation(msg:IMessage) {
+		const p = document.getElementById('received-text');
+		if(p) {
+			try {
+				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+			} catch {
+				p.innerText = msg.body;
+				console.log('==========================================');
+				console.log(msg.body);
+			}
+		}
+	}
+
+	private static onReceivingTripEvent(msg:IMessage) {
+		const p = document.getElementById('received-text');
+		if(p) {
+			try {
+				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+			} catch {
+				p.innerText = msg.body;
+				console.log('==========================================');
+				console.log(msg.body);
+			}
+		}
+	}
+
+	private static onReceivingVehicleEvent(msg:IMessage) {
+		const p = document.getElementById('received-text');
+		if(p) {
+			try {
+				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+			} catch {
+				p.innerText = msg.body;
+				console.log('==========================================');
+				console.log(msg.body);
+			}
+		}
+	}
+
+	getClient():CompatClient {
+		return MessageQueueStompService.client;
 	}
 }

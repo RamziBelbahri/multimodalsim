@@ -85,23 +85,24 @@ export class DataReaderService {
 
 	readCSV(filePath?: string, zip?: JSZip): void {
 		if (zip && filePath) {
-			zip
-				.file(filePath)
+			zip.file(filePath)
 				?.async('text')
 				.then((txt: string) => {
 					this.readFileData(txt, filePath);
 				});
-		} else {
-			const fileReader = new FileReader();
-			fileReader.onload = () => {
-				if (fileReader.result) {
-					const csvString = fileReader.result.toString();
-					const filePath = this.csvInput.name;
-					this.readFileData(csvString, filePath);
-				}
-			};
-			fileReader.readAsText(this.csvInput);
 		}
+		// } else {
+		// 	const fileReader = new FileReader();
+		// 	fileReader.onload = () => {
+		// 		if (fileReader.result) {
+		// 			const csvString = fileReader.result.toString();
+		// 			const filePath = this.csvInput.name;
+		// 			console.log(filePath)
+		// 			this.readFileData(csvString, filePath);
+		// 		}
+		// 	};
+		// 	fileReader.readAsText(this.csvInput);
+		// }
 	}
 
 	private readFileData(txt: string, filePath: string): void {
