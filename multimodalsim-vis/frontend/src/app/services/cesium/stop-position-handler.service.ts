@@ -18,7 +18,6 @@ export class StopPositionHandlerService {
 	initStops(): void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
 			if (id != 0) {
-				console.log(id);
 				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
 				this.stopIdMapping.set(id.toString(), newStop);
 			}
