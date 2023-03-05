@@ -2,31 +2,18 @@ import { Injectable } from '@angular/core';
 import { SampledPositionProperty, Viewer } from 'cesium';
 import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { BusStatus } from 'src/app/classes/data-classes/bus-class/bus-status';
-import { DateParserService } from '../util/date-parser.service';
-import { StopLookupService } from '../util/stop-lookup.service';
+import { DateParserService } from '../../util/date-parser.service';
+import { StopLookupService } from '../../util/stop-lookup.service';
 
 @Injectable({
 	providedIn: 'root',
 })
-export class BusPositionHandlerService {
+export class RealtimePositionHandlerService {
 	private pathIdMapping = new Map<string, SampledPositionProperty>();
-
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
-	async testEntityRealTime(viewer: Viewer): Promise<void> {
-		const positionProperty = new Cesium.SampledPositionProperty();
-
-		let startTime = this.dateParser.parseTimeFromString('1969-12-31 23:16:47');
-		let endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
-		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769447, 45.640194));
-		this.spawnEntity(positionProperty, viewer);
-		startTime = this.dateParser.parseTimeFromString('1969-12-31 23:32:03');
-		endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
-		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769224,45.639187));
-	}
-
 	// Compile les chemins des bus avant leur création
-	compileEvents(busEvent: BusEvent): void {
+	compileEvent(busEvent: BusEvent, viewer: Viewer): void {
 		if (!this.pathIdMapping.has(busEvent.id)) {
 			this.pathIdMapping.set(busEvent.id, new Cesium.SampledPositionProperty());
 
@@ -34,6 +21,7 @@ export class BusPositionHandlerService {
 			if (busEvent.status != BusStatus.ENROUTE) {
 				this.setNextStop(busEvent, Number(busEvent.current_stop));
 			}
+			this.spawnEntity(this.pathIdMapping.get(busEvent.id) as SampledPositionProperty, viewer);
 		}
 
 		switch (busEvent.status) {
@@ -63,7 +51,6 @@ export class BusPositionHandlerService {
 		this.pathIdMapping.set(busEvent.id, positionProperty);
 	}
 
-	// Ajoute une entité sur la carte avec le chemin spécifié
 	private spawnEntity(positionProperty: SampledPositionProperty, viewer: Viewer): void {
 		viewer.entities.add({
 			position: positionProperty,
