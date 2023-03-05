@@ -4,7 +4,7 @@ import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
-import { RealtimePositionHandlerService } from '../cesium/realtime-position-handler/realtime-position-handler.service';
+import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
 @Injectable({
@@ -19,7 +19,11 @@ export class EntityDataHandlerService {
 	private simulationRunning: boolean;
 	private simulationCompleted: boolean;
 
-	constructor(private dateParser: DateParserService, private busHandler: BusPositionHandlerService, private realTimePositionHandler: RealtimePositionHandlerService) {
+	constructor(
+		private dateParser: DateParserService,
+		private busHandler: BusPositionHandlerService,
+		private passengerHandler: PassengerPositionHandlerService
+	) {
 		this.busEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -84,12 +88,13 @@ export class EntityDataHandlerService {
 			const event = this.combined[i];
 
 			if (event && event.eventType == 'BUS') {
-				this.busHandler.compileEvents(event as BusEvent);
+				this.busHandler.compileEvent(event as BusEvent, false, viewer);
 			} else if (event && event.eventType == 'PASSENGER') {
-				// TODO
+				this.passengerHandler.compileEvent(event as PassengerEvent);
 			}
 		}
 		this.busHandler.loadSpawnEvents(viewer);
+		this.passengerHandler.loadSpawnEvents(viewer);
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
@@ -111,13 +116,15 @@ export class EntityDataHandlerService {
 			if (this.simulationRunning) {
 				const event = this.eventQueue.dequeue();
 				if (event && event.eventType == 'BUS') {
-					this.realTimePositionHandler.compileEvent(event as BusEvent, viewer);
+					this.busHandler.compileEvent(event as BusEvent, true, viewer);
 				} else if (event && event.eventType == 'PASSENGER') {
+					this.passengerHandler.compileEvent(event as PassengerEvent);
 					// TODO
 				}
 			}
 			i++;
 		}
+		this.passengerHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();
 	}
 

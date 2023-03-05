@@ -13,20 +13,8 @@ export class BusPositionHandlerService {
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
-	async testEntityRealTime(viewer: Viewer): Promise<void> {
-		const positionProperty = new Cesium.SampledPositionProperty();
-
-		let startTime = this.dateParser.parseTimeFromString('1969-12-31 23:16:47');
-		let endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
-		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769447, 45.640194));
-		this.spawnEntity(positionProperty, viewer);
-		startTime = this.dateParser.parseTimeFromString('1969-12-31 23:32:03');
-		endTime = this.dateParser.addDuration(startTime, '0 days 00:00:00');
-		positionProperty.addSample(endTime, Cesium.Cartesian3.fromDegrees(-73.769224,45.639187));
-	}
-
 	// Compile les chemins des bus avant leur création
-	compileEvents(busEvent: BusEvent): void {
+	compileEvent(busEvent: BusEvent, isRealTime: boolean, viewer: Viewer): void {
 		if (!this.pathIdMapping.has(busEvent.id)) {
 			this.pathIdMapping.set(busEvent.id, new Cesium.SampledPositionProperty());
 
@@ -34,6 +22,7 @@ export class BusPositionHandlerService {
 			if (busEvent.status != BusStatus.ENROUTE) {
 				this.setNextStop(busEvent, Number(busEvent.current_stop));
 			}
+			if (isRealTime) this.spawnEntity(busEvent.id, this.pathIdMapping.get(busEvent.id) as SampledPositionProperty, viewer);
 		}
 
 		switch (busEvent.status) {
@@ -48,8 +37,8 @@ export class BusPositionHandlerService {
 
 	// Charge tous les chemins des bus afin de les ajouter sur la carte
 	loadSpawnEvents(viewer: Viewer): void {
-		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty) => {
-			this.spawnEntity(positionProperty, viewer);
+		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty, id: string) => {
+			this.spawnEntity(id, positionProperty, viewer);
 		});
 	}
 
@@ -64,7 +53,7 @@ export class BusPositionHandlerService {
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
-	private spawnEntity(positionProperty: SampledPositionProperty, viewer: Viewer): void {
+	private spawnEntity(id: string, positionProperty: SampledPositionProperty, viewer: Viewer): void {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
@@ -75,6 +64,13 @@ export class BusPositionHandlerService {
 				outline: true,
 				outlineColor: Cesium.Color.BLACK,
 			},
+			label: {
+				font: '20px sans-serif',
+				showBackground: true,
+				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+			},
+			id: id,
+			name: 'bus',
 		});
 	}
 }
