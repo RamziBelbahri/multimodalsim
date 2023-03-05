@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Viewer } from 'cesium';
+import { ImageMaterialProperty, Viewer } from 'cesium';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
@@ -63,9 +63,7 @@ export class PassengerPositionHandlerService {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
 				height: 0,
-				material: Cesium.Color.RED,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
+				material: new Cesium.ImageMaterialProperty ({image: '../../../assets/passenger.svg', transparent: true}),
 			},
 			label: {
 				font: '20px sans-serif',
