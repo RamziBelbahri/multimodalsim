@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Cartesian2, Viewer } from 'cesium';
 import { StopPositionHandlerService } from './stop-position-handler.service';
+import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -10,7 +11,7 @@ export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities = new Array<any>();
 
-	constructor(private stopHandler: StopPositionHandlerService) {}
+	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {}
 
 	// Active le handler qui s'occupe d'afficher le texte
 	initHandler(viewer: Viewer): void {
@@ -48,8 +49,7 @@ export class EntityLabelHandlerService {
 		if (entity.name == 'stop') {
 			amount = this.stopHandler.getPassengerAmount(entity.id);
 		} else if (entity.name == 'vehicle') {
-			// TODO get le nombre dans un véhicule
-			amount = 2;
+			amount = this.vehicleHandler.getPassengerAmount(entity.id);
 		}
 
 		return amount > 0 ? '{' + amount.toString() + '}' : '';
