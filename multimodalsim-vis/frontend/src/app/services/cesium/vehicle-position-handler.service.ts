@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { SampledPositionProperty, Viewer } from 'cesium';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
+import { Vehicle } from 'src/app/classes/data-classes/vehicles';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
 
@@ -9,14 +10,14 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class VehiclePositionHandlerService {
-	private pathIdMapping = new Map<string, SampledPositionProperty>();
+	private vehicleIdMapping = new Map<string, Vehicle>();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
 	// Compile les chemins des véhicules avant leur création
 	compileEvents(vehicleEvent: VehicleEvent): void {
-		if (!this.pathIdMapping.has(vehicleEvent.id)) {
-			this.pathIdMapping.set(vehicleEvent.id, new Cesium.SampledPositionProperty());
+		if (!this.vehicleIdMapping.has(vehicleEvent.id)) {
+			this.vehicleIdMapping.set(vehicleEvent.id, new Vehicle(vehicleEvent.id));
 
 			// Donner une valeur non nulle afin de ne pas causer d'erreur si le véhicule ne se déplace jamais.
 			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
@@ -36,19 +37,30 @@ export class VehiclePositionHandlerService {
 
 	// Charge tous les chemins des véhicules afin de les ajouter sur la carte
 	loadSpawnEvents(viewer: Viewer): void {
-		this.pathIdMapping.forEach((positionProperty: SampledPositionProperty, id: string) => {
-			this.spawnEntity(id, positionProperty, viewer);
+		this.vehicleIdMapping.forEach((vehicle: Vehicle, id: string) => {
+			this.spawnEntity(id, vehicle.path, viewer);
 		});
+	}
+
+	getPassengerAmount(id: string): number {
+		let result = 0;
+		const vehicle = this.vehicleIdMapping.get(id);
+
+		if (vehicle) {
+			result = vehicle.getPassengerAmount();
+		}
+
+		return result;
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
-		const positionProperty = this.pathIdMapping.get(vehicleEvent.id) as SampledPositionProperty;
+		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id) as Vehicle;
 		const startTime = this.dateParser.parseTimeFromString(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
 
-		positionProperty.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
-		this.pathIdMapping.set(vehicleEvent.id, positionProperty);
+		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
+		this.vehicleIdMapping.set(vehicleEvent.id, vehicle);
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
