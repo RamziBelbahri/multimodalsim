@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Viewer } from 'cesium';
+import { Queue, Viewer } from 'cesium';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
@@ -16,6 +16,9 @@ export class EntityDataHandlerService {
 	private passengerEvents: PassengerEvent[];
 	private combined: EntityEvent[];
 	private eventObservations: [];
+	private eventQueue: Queue;
+	private simulationRunning: boolean;
+	private simulationCompleted: boolean;
 
 	constructor(
 		private dateParser: DateParserService,
@@ -27,6 +30,9 @@ export class EntityDataHandlerService {
 		this.passengerEvents = [];
 		this.combined = [];
 		this.eventObservations = [];
+		this.eventQueue = new Cesium.Queue();
+		this.simulationRunning = false;
+		this.simulationCompleted = false;
 	}
 
 	public getVehicleEvents(): VehicleEvent[] {
@@ -57,7 +63,7 @@ export class EntityDataHandlerService {
 		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
 		const vehiclesAndTrips = vehicles.concat(trips);
-		vehiclesAndTrips.sort((firstEvent: any, secondEvent: any) => {
+		vehiclesAndTrips.sort((firstEvent: VehicleEvent | PassengerEvent, secondEvent: VehicleEvent | PassengerEvent) => {
 			const first_time: number = Date.parse(firstEvent.time);
 			const second_time: number = Date.parse(secondEvent.time);
 			if (first_time > second_time) return 1;
@@ -67,7 +73,7 @@ export class EntityDataHandlerService {
 		this.combined = vehiclesAndTrips;
 	}
 
-	async runVehiculeSimulation(viewer: Viewer, eventsAmount?: number): Promise<void> {
+	runVehiculeSimulation(viewer: Viewer, isRealTime = true): void {
 		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
 		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
 
@@ -76,28 +82,58 @@ export class EntityDataHandlerService {
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
 
-		if (eventsAmount) {
-			this.runPartialSimulation(viewer, eventsAmount);
-		}
+		isRealTime ? this.runRealTimeSimulation(viewer) : this.runFullSimulation(viewer);
 	}
 
-	//for demo purposes only
-	private runPartialSimulation(viewer: Viewer, eventsAmount: number): void {
-		eventsAmount = Math.min(eventsAmount, this.vehicleEvents.length);
+	private runFullSimulation(viewer: Viewer): void {
 		this.stopHandler.initStops();
-
-		for (let i = 0; i < eventsAmount; i++) {
+		for (let i = 0; i < this.combined.length - 1; i++) {
 			const event = this.combined[i];
 
 			if (event && event.eventType == 'VEHICLE') {
-				this.vehicleHandler.compileEvents(event as VehicleEvent);
+				this.vehicleHandler.compileEvent(event as VehicleEvent, false, viewer);
 			} else if (event && event.eventType == 'PASSENGER') {
-				this.stopHandler.compileEvents(event as PassengerEvent);
+				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
 		}
-
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
 		this.boardingHandler.initBoarding(viewer);
+	}
+
+	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
+  la simulation pour terminer l'éxecution de la boucle.
+  Aussi à déterminer comment on gère les èvenements quand la simulation est en pause.
+  */
+	private runRealTimeSimulation(viewer: Viewer): void {
+		let i = 0;
+		this.stopHandler.initStops();
+		const clockState = viewer.animation.viewModel.clockViewModel;
+		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
+			this.setSimulationState(isRunning);
+		});
+
+		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
+		clockState.shouldAnimate = true;
+		while (!this.simulationCompleted && i < this.combined.length) {
+			const currentEvent = this.combined[i];
+			this.eventQueue.enqueue(currentEvent);
+			if (this.simulationRunning) {
+				const event = this.eventQueue.dequeue();
+				if (event && event.eventType == 'VEHICLE') {
+					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+				} else if (event && event.eventType == 'PASSENGER') {
+					this.stopHandler.compileEvent(event as PassengerEvent);
+					// TODO
+				}
+			}
+			i++;
+		}
+		this.stopHandler.loadSpawnEvents(viewer);
+		onPlaySubscription.dispose();
+	}
+
+	private setSimulationState(isRunning: boolean): void {
+		this.simulationRunning = isRunning;
 	}
 }

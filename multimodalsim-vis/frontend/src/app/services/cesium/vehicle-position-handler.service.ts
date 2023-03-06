@@ -15,7 +15,7 @@ export class VehiclePositionHandlerService {
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
 	// Compile les chemins des véhicules avant leur création
-	compileEvents(vehicleEvent: VehicleEvent): void {
+	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
 
 		if (!this.vehicleIdMapping.has(vehicleId)) {
@@ -25,6 +25,7 @@ export class VehiclePositionHandlerService {
 			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
 				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			}
+			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
 		}
 
 		switch (vehicleEvent.status) {
@@ -82,9 +83,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
 				height: 0,
-				material: Cesium.Color.BLUE,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/bus.svg', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
