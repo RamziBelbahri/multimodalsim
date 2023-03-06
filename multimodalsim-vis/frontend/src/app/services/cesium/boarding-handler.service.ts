@@ -14,6 +14,7 @@ export class BoardingHandlerService {
 		this.lastEvent = stopHandler.boardingEventPop();
 	}
 
+	// Initialise les Event listener. Permet de mettre à jour les passagers quand le bon tick de temps arrive.
 	initBoarding(viewer: Viewer): void {
 		viewer.clock.onTick.addEventListener((clock) => {
 			const currentTime = clock.currentTime;
