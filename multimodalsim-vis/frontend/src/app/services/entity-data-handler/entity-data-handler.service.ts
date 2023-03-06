@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Queue, Viewer } from 'cesium';
-import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
-import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
-import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
+import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
+import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityDataHandlerService {
-	private busEvents: BusEvent[];
+	private vehicleEvents: VehicleEvent[];
 	private passengerEvents: PassengerEvent[];
 	private combined: EntityEvent[];
 	private eventObservations: [];
@@ -19,12 +19,8 @@ export class EntityDataHandlerService {
 	private simulationRunning: boolean;
 	private simulationCompleted: boolean;
 
-	constructor(
-		private dateParser: DateParserService,
-		private busHandler: BusPositionHandlerService,
-		private passengerHandler: PassengerPositionHandlerService
-	) {
-		this.busEvents = [];
+	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
+		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
 		this.eventObservations = [];
@@ -33,12 +29,12 @@ export class EntityDataHandlerService {
 		this.simulationCompleted = false;
 	}
 
-	public getBusEvents(): BusEvent[] {
-		return this.busEvents;
+	public getVehicleEvents(): VehicleEvent[] {
+		return this.vehicleEvents;
 	}
 
-	public setBusData(busEvents: BusEvent[]): void {
-		this.busEvents = busEvents;
+	public setVehicleData(vehicleEvents: VehicleEvent[]): void {
+		this.vehicleEvents = vehicleEvents;
 	}
 
 	public setPassengerData(passengerEvents: PassengerEvent[]): void {
@@ -57,11 +53,11 @@ export class EntityDataHandlerService {
 		return this.combined;
 	}
 
-	public combinePassengerAndBusEvents(): void {
-		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
+	public combinePassengerAndVehicleEvents(): void {
+		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
 		const vehiclesAndTrips = vehicles.concat(trips);
-		vehiclesAndTrips.sort((firstEvent: BusEvent | PassengerEvent, secondEvent: BusEvent | PassengerEvent) => {
+		vehiclesAndTrips.sort((firstEvent: VehicleEvent | PassengerEvent, secondEvent: VehicleEvent | PassengerEvent) => {
 			const first_time: number = Date.parse(firstEvent.time);
 			const second_time: number = Date.parse(secondEvent.time);
 			if (first_time > second_time) return 1;
@@ -84,17 +80,18 @@ export class EntityDataHandlerService {
 	}
 
 	private runFullSimulation(viewer: Viewer): void {
+		this.stopHandler.initStops();
 		for (let i = 0; i < this.combined.length - 1; i++) {
 			const event = this.combined[i];
 
-			if (event && event.eventType == 'BUS') {
-				this.busHandler.compileEvent(event as BusEvent, false, viewer);
+			if (event && event.eventType == 'VEHICLE') {
+				this.vehicleHandler.compileEvent(event as VehicleEvent, false, viewer);
 			} else if (event && event.eventType == 'PASSENGER') {
-				this.passengerHandler.compileEvent(event as PassengerEvent);
+				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
 		}
-		this.busHandler.loadSpawnEvents(viewer);
-		this.passengerHandler.loadSpawnEvents(viewer);
+		this.vehicleHandler.loadSpawnEvents(viewer);
+		this.stopHandler.loadSpawnEvents(viewer);
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
@@ -103,6 +100,7 @@ export class EntityDataHandlerService {
   */
 	private runRealTimeSimulation(viewer: Viewer): void {
 		let i = 0;
+		this.stopHandler.initStops();
 		const clockState = viewer.animation.viewModel.clockViewModel;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
@@ -115,16 +113,16 @@ export class EntityDataHandlerService {
 			this.eventQueue.enqueue(currentEvent);
 			if (this.simulationRunning) {
 				const event = this.eventQueue.dequeue();
-				if (event && event.eventType == 'BUS') {
-					this.busHandler.compileEvent(event as BusEvent, true, viewer);
+				if (event && event.eventType == 'VEHICLE') {
+					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 				} else if (event && event.eventType == 'PASSENGER') {
-					this.passengerHandler.compileEvent(event as PassengerEvent);
+					this.stopHandler.compileEvent(event as PassengerEvent);
 					// TODO
 				}
 			}
 			i++;
 		}
-		this.passengerHandler.loadSpawnEvents(viewer);
+		this.stopHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();
 	}
 
