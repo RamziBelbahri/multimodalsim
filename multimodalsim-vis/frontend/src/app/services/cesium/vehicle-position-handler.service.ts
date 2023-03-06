@@ -42,6 +42,7 @@ export class VehiclePositionHandlerService {
 		});
 	}
 
+	// Obtenir le nombre de passagers dans un véhicule
 	getPassengerAmount(id: string): number {
 		let result = 0;
 		const vehicle = this.vehicleIdMapping.get(id);
