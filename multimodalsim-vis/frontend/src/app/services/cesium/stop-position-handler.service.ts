@@ -69,9 +69,7 @@ export class StopPositionHandlerService {
 				semiMinorAxis: 10,
 				semiMajorAxis: 10,
 				height: 0,
-				material: Cesium.Color.RED,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
