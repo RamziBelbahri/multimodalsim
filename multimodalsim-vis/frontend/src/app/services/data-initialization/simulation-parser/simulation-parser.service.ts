@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ParseResult } from 'ngx-papaparse';
-import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { papaParse } from 'src/app/helpers/parsers';
 
@@ -8,7 +8,6 @@ import { papaParse } from 'src/app/helpers/parsers';
 	providedIn: 'root',
 })
 export class SimulationParserService {
-
 	parseFile(txt: string): ParseResult {
 		return papaParse(txt, {
 			header: true,
@@ -19,11 +18,11 @@ export class SimulationParserService {
 		});
 	}
 
-	parseToBusData(data: any[]): BusEvent[] {
-		const busData: BusEvent[] = [];
+	parseToVehicleData(data: any[]): VehicleEvent[] {
+		const vehicleData: VehicleEvent[] = [];
 
 		for (const line of data) {
-			const busEvent = new BusEvent(
+			const vehicleEvent = new VehicleEvent(
 				line.id,
 				line.time,
 				line.status,
@@ -38,16 +37,16 @@ export class SimulationParserService {
 				line.latitude,
 				line.duration
 			);
-			busData.push(busEvent);
+			vehicleData.push(vehicleEvent);
 		}
-		return busData;
+		return vehicleData;
 	}
-  
+
 	parseToPassengerData(data: any[]): PassengerEvent[] {
 		const passengerData: PassengerEvent[] = [];
 		for (const line of data) {
-			const passengerEvent = new PassengerEvent(line.id, line.time, line.status, line.assigned_vehicle,
-				line.current_location, line.previous_legs, line.current_leg, line.next_legs, line.duration);
+			// eslint-disable-next-line max-len
+			const passengerEvent = new PassengerEvent(line.id, line.time, line.status, line.assigned_vehicle, line.current_location, line.previous_legs, line.current_leg, line.next_legs, line.duration);
 			passengerData.push(passengerEvent);
 		}
 		return passengerData;

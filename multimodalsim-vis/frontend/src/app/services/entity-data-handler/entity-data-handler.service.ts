@@ -1,38 +1,34 @@
 import { Injectable } from '@angular/core';
 import { Viewer } from 'cesium';
-import { BusEvent } from 'src/app/classes/data-classes/bus-class/bus-event';
+import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
-import { getTime } from 'src/app/helpers/parsers';
-import { BusPositionHandlerService } from '../cesium/bus-position-handler.service';
-import { PassengerPositionHandlerService } from '../cesium/passenger-position-handler.service';
+import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
+import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityDataHandlerService {
-	private busEvents: BusEvent[];
+	private vehicleEvents: VehicleEvent[];
 	private passengerEvents: PassengerEvent[];
 	private combined: EntityEvent[];
 	private eventObservations: [];
 
-	private busDrawing = '🚍';
-	private passengerDrawing = '🚶🏼';
-
-	constructor(private dateParser: DateParserService, private busHandler: BusPositionHandlerService, private passengerHandler: PassengerPositionHandlerService) {
-		this.busEvents = [];
+	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
+		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
 		this.eventObservations = [];
 	}
 
-	public getBusEvents(): BusEvent[] {
-		return this.busEvents;
+	public getVehicleEvents(): VehicleEvent[] {
+		return this.vehicleEvents;
 	}
 
-	public setBusData(busEvents: BusEvent[]): void {
-		this.busEvents = busEvents;
+	public setVehicleData(vehicleEvents: VehicleEvent[]): void {
+		this.vehicleEvents = vehicleEvents;
 	}
 
 	public setPassengerData(passengerEvents: PassengerEvent[]): void {
@@ -51,8 +47,8 @@ export class EntityDataHandlerService {
 		return this.combined;
 	}
 
-	public combinePassengerAndBusEvents(): void {
-		const vehicles: any = this.busEvents.map((e) => ({ ...e }));
+	public combinePassengerAndVehicleEvents(): void {
+		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
 		const vehiclesAndTrips = vehicles.concat(trips);
 		vehiclesAndTrips.sort((firstEvent: any, secondEvent: any) => {
@@ -81,18 +77,20 @@ export class EntityDataHandlerService {
 
 	//for demo purposes only
 	private runPartialSimulation(viewer: Viewer, eventsAmount: number): void {
-		eventsAmount = Math.min(eventsAmount, this.busEvents.length);
+		eventsAmount = Math.min(eventsAmount, this.vehicleEvents.length);
+		this.stopHandler.initStops();
+
 		for (let i = 0; i < eventsAmount; i++) {
 			const event = this.combined[i];
 
-			if (event && event.eventType == 'BUS') {
-				this.busHandler.compileEvents(event as BusEvent);
+			if (event && event.eventType == 'VEHICLE') {
+				this.vehicleHandler.compileEvents(event as VehicleEvent);
 			} else if (event && event.eventType == 'PASSENGER') {
-				this.passengerHandler.compileEvents(event as PassengerEvent);
+				this.stopHandler.compileEvents(event as PassengerEvent);
 			}
 		}
 
-		this.busHandler.loadSpawnEvents(viewer);
-		this.passengerHandler.loadSpawnEvents(viewer);
+		this.vehicleHandler.loadSpawnEvents(viewer);
+		this.stopHandler.loadSpawnEvents(viewer);
 	}
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ImageMaterialProperty, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
@@ -9,31 +9,37 @@ import { StopLookupService } from '../util/stop-lookup.service';
 @Injectable({
 	providedIn: 'root',
 })
-export class PassengerPositionHandlerService {
+export class StopPositionHandlerService {
 	private stopIdMapping = new Map<string, Stop>();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
+	// Initialise tous les stops de la liste de stop fournie
+	initStops(): void {
+		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
+			if (id != 0) {
+				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
+				this.stopIdMapping.set(id.toString(), newStop);
+			}
+		});
+	}
+
 	// Ajoute les moments ou les passagers sont présents à un arrêt
 	compileEvents(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
+		const stop = this.stopIdMapping.get(stopId);
 
-		if (!this.stopIdMapping.has(stopId)) {
-			const newStop = new Stop(this.stopLookup.coordinatesFromStopId(Number(stopId)), stopId);
-			this.stopIdMapping.set(stopId, newStop);
-		}
-
-		const stop = this.stopIdMapping.get(stopId) as Stop;
-
-		switch (passengerEvent.status) {
-		case PassengersStatus.RELEASE:
-			stop.addPassengerStart(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-			this.stopIdMapping.set(stopId, stop);
-			break;
-		case PassengersStatus.ONBOARD:
-			stop.setPassengerEnd(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-			this.stopIdMapping.set(stopId, stop);
-			break;
+		if (stop) {
+			switch (passengerEvent.status) {
+			case PassengersStatus.RELEASE:
+				stop.addPassengerStart(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
+				this.stopIdMapping.set(stopId, stop);
+				break;
+			case PassengersStatus.ONBOARD:
+				stop.setPassengerEnd(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
+				this.stopIdMapping.set(stopId, stop);
+				break;
+			}
 		}
 	}
 
@@ -60,10 +66,10 @@ export class PassengerPositionHandlerService {
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {
-				semiMinorAxis: 30,
-				semiMajorAxis: 30,
+				semiMinorAxis: 10,
+				semiMajorAxis: 10,
 				height: 0,
-				material: new Cesium.ImageMaterialProperty ({image: '../../../assets/passenger.svg', transparent: true}),
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
@@ -71,7 +77,7 @@ export class PassengerPositionHandlerService {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 			},
 			id: id,
-			name: 'passenger',
+			name: 'stop',
 		});
 	}
 }
