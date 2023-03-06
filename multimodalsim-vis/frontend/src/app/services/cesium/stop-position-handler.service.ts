@@ -27,7 +27,7 @@ export class StopPositionHandlerService {
 	}
 
 	// Ajoute les moments ou les passagers sont présents à un arrêt
-	compileEvents(passengerEvent: PassengerEvent): void {
+	compileEvent(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
 		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
@@ -91,9 +91,7 @@ export class StopPositionHandlerService {
 				semiMinorAxis: 10,
 				semiMajorAxis: 10,
 				height: 0,
-				material: Cesium.Color.RED,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
