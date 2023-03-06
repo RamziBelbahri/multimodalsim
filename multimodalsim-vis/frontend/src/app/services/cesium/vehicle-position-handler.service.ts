@@ -59,9 +59,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
 				height: 0,
-				material: Cesium.Color.BLUE,
-				outline: true,
-				outlineColor: Cesium.Color.BLACK,
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/bus.svg', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
