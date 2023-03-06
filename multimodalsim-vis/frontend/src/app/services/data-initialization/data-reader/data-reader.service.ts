@@ -19,7 +19,6 @@ export class DataReaderService {
 	private readonly COMBINED = 'combined-trips-vehicle';
 	private zipInput: HTMLInputElement | undefined;
 	private csvInput: Blob;
-	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 
 	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
 		this.zipper = JSZip();
@@ -31,7 +30,7 @@ export class DataReaderService {
 	}
 
 	launchSimulation(viewer: Viewer): void {
-		this.entityDataHandlerService.runVehiculeSimulation(viewer, this.DEMO_EVENTS_AMOUNT);
+		this.entityDataHandlerService.runVehiculeSimulation(viewer);
 	}
 
 	selectZip(event: Event): void {

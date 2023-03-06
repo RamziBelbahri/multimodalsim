@@ -25,7 +25,7 @@ export class StopPositionHandlerService {
 	}
 
 	// Ajoute les moments ou les passagers sont présents à un arrêt
-	compileEvents(passengerEvent: PassengerEvent): void {
+	compileEvent(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
 
