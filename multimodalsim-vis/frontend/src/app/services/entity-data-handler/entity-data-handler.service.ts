@@ -6,6 +6,7 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
+import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -16,7 +17,12 @@ export class EntityDataHandlerService {
 	private combined: EntityEvent[];
 	private eventObservations: [];
 
-	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
+	constructor(
+        private dateParser: DateParserService,
+        private vehicleHandler: VehiclePositionHandlerService,
+        private stopHandler: StopPositionHandlerService,
+        private boardingHandler: BoardingHandlerService
+    ) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -69,6 +75,8 @@ export class EntityDataHandlerService {
 		viewer.clock.stopTime = end.clone();
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
+
+        this.boardingHandler.initBoarding(viewer);
 
 		if (eventsAmount) {
 			this.runPartialSimulation(viewer, eventsAmount);
