@@ -1,8 +1,7 @@
-import { Cartesian3, JulianDate } from 'cesium';
-import { TimeInterval } from './time-interval';
+import { Cartesian3 } from 'cesium';
 
 export class Stop {
-	private passengerTimeMapping: Map<string, TimeInterval>;
+	private waitingPassengers = new Array<string>();
 
 	position: Cartesian3;
 	id: string;
@@ -10,27 +9,21 @@ export class Stop {
 	constructor(position: Cartesian3, id: string) {
 		this.position = position;
 		this.id = id;
-		this.passengerTimeMapping = new Map<string, TimeInterval>();
+		this.waitingPassengers = new Array<string>();
 	}
 
-	addPassengerStart(id: string, start: JulianDate): void {
-		this.passengerTimeMapping.set(id, new TimeInterval(start));
-	}
-
-	setPassengerEnd(id: string, end: JulianDate): void {
-		const interval = this.passengerTimeMapping.get(id);
-
-		if (interval) {
-			interval.end = end;
-			this.passengerTimeMapping.set(id, interval);
-		}
+	addPassenger(id: string): void {
+		this.waitingPassengers.push(id);
 	}
 
 	removePassenger(id: string): void {
-		this.passengerTimeMapping.delete(id);
+		const index = this.waitingPassengers.indexOf(id);
+		if (index > -1) {
+			this.waitingPassengers.splice(index, 1);
+		}
 	}
 
 	getPassengerAmount(): number {
-		return this.passengerTimeMapping.size;
+		return this.waitingPassengers.length;
 	}
 }
