@@ -18,11 +18,11 @@ export class EntityDataHandlerService {
 	private eventObservations: [];
 
 	constructor(
-        private dateParser: DateParserService,
-        private vehicleHandler: VehiclePositionHandlerService,
-        private stopHandler: StopPositionHandlerService,
-        private boardingHandler: BoardingHandlerService
-    ) {
+		private dateParser: DateParserService,
+		private vehicleHandler: VehiclePositionHandlerService,
+		private stopHandler: StopPositionHandlerService,
+		private boardingHandler: BoardingHandlerService
+	) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
@@ -76,8 +76,6 @@ export class EntityDataHandlerService {
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
 
-        this.boardingHandler.initBoarding(viewer);
-
 		if (eventsAmount) {
 			this.runPartialSimulation(viewer, eventsAmount);
 		}
@@ -100,5 +98,6 @@ export class EntityDataHandlerService {
 
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
+		this.boardingHandler.initBoarding(viewer);
 	}
 }

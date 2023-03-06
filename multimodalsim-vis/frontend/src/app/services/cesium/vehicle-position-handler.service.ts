@@ -16,8 +16,10 @@ export class VehiclePositionHandlerService {
 
 	// Compile les chemins des véhicules avant leur création
 	compileEvents(vehicleEvent: VehicleEvent): void {
-		if (!this.vehicleIdMapping.has(vehicleEvent.id)) {
-			this.vehicleIdMapping.set(vehicleEvent.id, new Vehicle(vehicleEvent.id));
+		const vehicleId = vehicleEvent.id.toString();
+
+		if (!this.vehicleIdMapping.has(vehicleId)) {
+			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
 
 			// Donner une valeur non nulle afin de ne pas causer d'erreur si le véhicule ne se déplace jamais.
 			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
@@ -54,14 +56,22 @@ export class VehiclePositionHandlerService {
 		return result;
 	}
 
+	addPassenger(passengerid: string, vehicleId: string): void {
+		this.vehicleIdMapping.get(vehicleId)?.addPassenger(passengerid);
+	}
+
+	removePassenger(passengerid: string, vehicleId: string): void {
+		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
+	}
+
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
-		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id) as Vehicle;
+		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
 		const startTime = this.dateParser.parseTimeFromString(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
-		this.vehicleIdMapping.set(vehicleEvent.id, vehicle);
+		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié

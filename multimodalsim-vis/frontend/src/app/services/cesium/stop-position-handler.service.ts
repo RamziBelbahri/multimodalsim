@@ -33,16 +33,12 @@ export class StopPositionHandlerService {
 		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
 		const time = this.dateParser.parseTimeFromString(passengerEvent.time);
 
-		if (stop) {
+		if (stop || PassengersStatus.ONBOARD) {
 			switch (passengerEvent.status) {
 			case PassengersStatus.RELEASE:
-				stop.addPassengerStart(passengerEvent.id, time);
-				this.stopIdMapping.set(stopId, stop);
+				this.stopIdMapping.set(stopId, stop as Stop);
 				break;
 			case PassengersStatus.ONBOARD:
-				stop.setPassengerEnd(passengerEvent.id, time);
-				this.stopIdMapping.set(stopId, stop);
-
 				this.boardingEventQueue.push(new BoardingEvent(passengerEvent.id, stopId, assignedVehicleId, true, time));
 				break;
 			case PassengersStatus.COMPLETE:
@@ -71,9 +67,21 @@ export class StopPositionHandlerService {
 		return result;
 	}
 
-    boardingEventPop(): BoardingEvent | undefined {
-        return this.boardingEventQueue.shift();
-    }
+	boardingEventPop(): BoardingEvent | undefined {
+		if (this.boardingEventQueue.length > 0) {
+			return this.boardingEventQueue.shift();
+		} else {
+			return undefined;
+		}
+	}
+
+	addPassenger(passengerid: string, stopId: string): void {
+		this.stopIdMapping.get(stopId)?.addPassenger(passengerid);
+	}
+
+	removePassenger(passengerid: string, stopId: string): void {
+		this.stopIdMapping.get(stopId)?.removePassenger(passengerid);
+	}
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {

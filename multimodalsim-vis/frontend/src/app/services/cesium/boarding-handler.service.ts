@@ -8,16 +8,36 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 	providedIn: 'root',
 })
 export class BoardingHandlerService {
-    private lastEvent: BoardingEvent | undefined;
+	private lastEvent: BoardingEvent | undefined;
 
-	constructor(stopHandler: StopPositionHandlerService, vehicleHandler: VehiclePositionHandlerService) {
-        this.lastEvent = stopHandler.boardingEventPop()
-    }
+	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
+		this.lastEvent = stopHandler.boardingEventPop();
+	}
 
 	initBoarding(viewer: Viewer): void {
 		viewer.clock.onTick.addEventListener((clock) => {
 			const currentTime = clock.currentTime;
-            //if()
+
+			if (!this.lastEvent) {
+				this.lastEvent = this.stopHandler.boardingEventPop();
+			}
+
+			if (this.lastEvent) {
+				while (currentTime >= this.lastEvent?.time) {
+					if (this.lastEvent.isBoardingVehicle) {
+						this.vehicleHandler.addPassenger(this.lastEvent.passengerId, this.lastEvent.targetId);
+						this.stopHandler.removePassenger(this.lastEvent.passengerId, this.lastEvent.originId);
+					} else {
+						this.stopHandler.addPassenger(this.lastEvent.passengerId, this.lastEvent.targetId);
+						this.vehicleHandler.removePassenger(this.lastEvent.passengerId, this.lastEvent.originId);
+					}
+
+					this.lastEvent = this.stopHandler.boardingEventPop();
+					if (!this.lastEvent) {
+						break;
+					}
+				}
+			}
 		});
 	}
 }
