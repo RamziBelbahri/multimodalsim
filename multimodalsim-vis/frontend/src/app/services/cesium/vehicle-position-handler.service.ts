@@ -14,7 +14,7 @@ export class VehiclePositionHandlerService {
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
 
 	// Compile les chemins des véhicules avant leur création
-	compileEvents(vehicleEvent: VehicleEvent): void {
+	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		if (!this.pathIdMapping.has(vehicleEvent.id)) {
 			this.pathIdMapping.set(vehicleEvent.id, new Cesium.SampledPositionProperty());
 
@@ -22,6 +22,7 @@ export class VehiclePositionHandlerService {
 			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
 				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			}
+			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.pathIdMapping.get(vehicleEvent.id) as SampledPositionProperty, viewer);
 		}
 
 		switch (vehicleEvent.status) {
