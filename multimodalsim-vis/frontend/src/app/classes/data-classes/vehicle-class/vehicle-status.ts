@@ -1,4 +1,4 @@
-export enum BusStatus {
+export enum VehicleStatus {
 	RELEASE = 'VehicleStatus.RELEASE',
 	IDLE = 'VehicleStatus.IDLE',
 	BOARDING = 'VehicleStatus.BOARDING',
