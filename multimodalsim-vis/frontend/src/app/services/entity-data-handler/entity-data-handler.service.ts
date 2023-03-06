@@ -7,18 +7,20 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
+import { EventEmitter } from 'events';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityDataHandlerService {
-	private vehicleEvents: VehicleEvent[];
-	private passengerEvents: PassengerEvent[];
-	private combined: EntityEvent[];
+	public vehicleEvents: VehicleEvent[];
+	public passengerEvents: PassengerEvent[];
+	public combined: EntityEvent[];
 	private eventObservations: [];
-	private eventQueue: Queue;
+	public eventQueue: Queue;
 	private simulationRunning: boolean;
-	private simulationCompleted: boolean;
+	public simulationCompleted: boolean;
+	private pauseEventEmitter = new EventEmitter();
 
 	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
 		this.vehicleEvents = [];
@@ -103,28 +105,38 @@ export class EntityDataHandlerService {
   la simulation pour terminer l'éxecution de la boucle.
   Aussi à déterminer comment on gère les èvenements quand la simulation est en pause.
   */
-	private runRealTimeSimulation(viewer: Viewer): void {
+	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
 		this.stopHandler.initStops();
 		const clockState = viewer.animation.viewModel.clockViewModel;
+		const service = this;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
+			if(isRunning) {
+				service.pauseEventEmitter.emit('unpause');
+			}
+			console.log(isRunning)
 		});
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
 		clockState.shouldAnimate = true;
-		while (!this.simulationCompleted && i < this.combined.length) {
+		while (!this.simulationCompleted) {
 			const currentEvent = this.combined[i];
 			this.eventQueue.enqueue(currentEvent);
-			if (this.simulationRunning) {
-				const event = this.eventQueue.dequeue();
-				if (event && event.eventType == 'VEHICLE') {
-					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				} else if (event && event.eventType == 'PASSENGER') {
-					this.stopHandler.compileEvent(event as PassengerEvent);
-					// TODO
-				}
+
+			if(!this.simulationRunning) {
+				await new Promise(resolve => this.pauseEventEmitter.once('unpause', resolve));
 			}
+
+
+			// if (this.simulationRunning) {
+			const event = this.eventQueue.dequeue();
+			if (event && event.eventType == 'VEHICLE') {
+				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+			} else if (event && event.eventType == 'PASSENGER') {
+				this.stopHandler.compileEvent(event as PassengerEvent);
+			}
+			// }
 			i++;
 		}
 		this.stopHandler.loadSpawnEvents(viewer);

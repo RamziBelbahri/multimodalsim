@@ -110,7 +110,8 @@ class FrontendDataCollector(DataCollector):
         self.__data_container.add_observation(
             "vehicles", obs_dict, "id",
             no_rep_on_keys=["id", "time"])
-        self.connection.send(ConnectionCredentials.VEHICLE_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
+        obs_dict['event_type'] = 'VEHICLE'
+        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __collect_trips_data(self, trip):
 
@@ -139,7 +140,8 @@ class FrontendDataCollector(DataCollector):
         self.__data_container.add_observation("trips", obs_dict, "id",
                                               no_rep_on_keys=["id",
                                                               "time"])
-        self.connection.send(ConnectionCredentials.TRIPS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
+        obs_dict['event_type'] = 'PASSENGER'
+        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __get_assigned_vehicle_id(self, trip):
         if trip.current_leg is not None \

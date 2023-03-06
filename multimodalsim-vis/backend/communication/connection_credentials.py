@@ -8,3 +8,6 @@ class ConnectionCredentials:
     PASSWORD                    = 'admin'
     HOST                        = '0.0.0.0'
     PORT                        = 61613
+    ENTITY_EVENTS_QUEUE 		= '/queue/entity_events'
+    SIMULATION_COMPLETED		= 'SIMULATION_COMPLETED';
+    

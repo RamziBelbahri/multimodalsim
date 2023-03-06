@@ -1,4 +1,6 @@
-import logging  # Required to modify the log level
+import logging
+from active_mq_controller import ActiveMQController
+from connection_credentials import ConnectionCredentials  # Required to modify the log level
 
 from multimodalsim.observer.environment_observer import \
     StandardEnvironmentObserver
@@ -27,8 +29,8 @@ if __name__ == '__main__':
     # Set to None if coordinates of the vehicles are not available.
     coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
                             "/coordinates_30s.csv"
-    # coordinates = CoordinatesFromFile(coordinates_file_path)
-    coordinates = CoordinatesOSRM()
+    coordinates = CoordinatesFromFile(coordinates_file_path)
+    # coordinates = CoordinatesOSRM()
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
@@ -52,3 +54,4 @@ if __name__ == '__main__':
 
     # Execute the simulation.
     simulation.simulate()
+    ActiveMQController().getConnection().send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)

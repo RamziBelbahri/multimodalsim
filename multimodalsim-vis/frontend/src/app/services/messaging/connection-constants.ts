@@ -10,4 +10,7 @@ export class ConnectionCredentials {
 	public static readonly TRIPS_QUEUE              = '/queue/trips';
 	public static readonly VEHICLE_QUEUE            = '/queue/vehicles';
 	public static readonly EVENTS_OBSERVATION_QUEUE = '/queue/events_observation';
+	public static readonly ENTITY_EVENTS_QUEUE 		= '/queue/entity_events';
+	public static readonly SIMULATION_COMPLETED		= 'SIMULATION_COMPLETED';
+
 }
