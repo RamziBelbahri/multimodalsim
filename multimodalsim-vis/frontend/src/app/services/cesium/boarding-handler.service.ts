@@ -24,7 +24,7 @@ export class BoardingHandlerService {
 			}
 
 			if (this.lastEvent) {
-				while (currentTime >= this.lastEvent?.time) {
+				while (currentTime >= this.lastEvent.time) {
 					if (this.lastEvent.isBoardingVehicle) {
 						this.vehicleHandler.addPassenger(this.lastEvent.passengerId, this.lastEvent.targetId);
 						this.stopHandler.removePassenger(this.lastEvent.passengerId, this.lastEvent.originId);

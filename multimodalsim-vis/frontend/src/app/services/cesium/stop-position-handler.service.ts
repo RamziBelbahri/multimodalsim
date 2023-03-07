@@ -11,10 +11,13 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class StopPositionHandlerService {
-	private stopIdMapping = new Map<string, Stop>();
-	private boardingEventQueue = new Array<BoardingEvent>();
+	private stopIdMapping;
+	private boardingEventQueue;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+		this.stopIdMapping = new Map<string, Stop>();
+		this.boardingEventQueue = new Array<BoardingEvent>();
+	}
 
 	// Initialise tous les stops de la liste de stop fournie
 	initStops(): void {

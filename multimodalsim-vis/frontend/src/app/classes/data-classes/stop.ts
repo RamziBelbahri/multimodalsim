@@ -1,7 +1,7 @@
 import { Cartesian3 } from 'cesium';
 
 export class Stop {
-	private waitingPassengers = new Array<string>();
+	private waitingPassengers;
 
 	position: Cartesian3;
 	id: string;

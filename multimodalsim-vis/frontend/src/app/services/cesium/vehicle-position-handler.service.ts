@@ -10,9 +10,11 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class VehiclePositionHandlerService {
-	private vehicleIdMapping = new Map<string, Vehicle>();
+	private vehicleIdMapping;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+		this.vehicleIdMapping = new Map<string, Vehicle>();
+	}
 
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
