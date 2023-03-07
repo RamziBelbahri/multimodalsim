@@ -113,6 +113,7 @@ export class EntityDataHandlerService {
 			this.eventQueue.enqueue(currentEvent);
 			if (this.simulationRunning) {
 				const event = this.eventQueue.dequeue();
+        
 				if (event && event.eventType == 'VEHICLE') {
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 				} else if (event && event.eventType == 'PASSENGER') {
