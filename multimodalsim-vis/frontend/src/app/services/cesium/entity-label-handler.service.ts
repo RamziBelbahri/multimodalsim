@@ -9,9 +9,11 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 })
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
-	private lastEntities = new Array<any>();
+	private lastEntities;
 
-	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {}
+	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
+		this.lastEntities = new Array<any>();
+	}
 
 	// Active le handler qui s'occupe d'afficher le texte
 	initHandler(viewer: Viewer): void {
