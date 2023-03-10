@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3, Viewer } from 'cesium';
+import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
@@ -10,9 +11,13 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class StopPositionHandlerService {
-	private stopIdMapping = new Map<string, Stop>();
+	private stopIdMapping;
+	private boardingEventQueue;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {}
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+		this.stopIdMapping = new Map<string, Stop>();
+		this.boardingEventQueue = new Array<BoardingEvent>();
+	}
 
 	// Initialise tous les stops de la liste de stop fournie
 	initStops(): void {
@@ -28,16 +33,19 @@ export class StopPositionHandlerService {
 	compileEvent(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
+		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
+		const time = this.dateParser.parseTimeFromString(passengerEvent.time);
 
-		if (stop) {
+		if (stop || PassengersStatus.ONBOARD) {
 			switch (passengerEvent.status) {
 			case PassengersStatus.RELEASE:
-				stop.addPassengerStart(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-				this.stopIdMapping.set(stopId, stop);
+				this.stopIdMapping.set(stopId, stop as Stop);
 				break;
 			case PassengersStatus.ONBOARD:
-				stop.setPassengerEnd(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-				this.stopIdMapping.set(stopId, stop);
+				this.boardingEventQueue.push(new BoardingEvent(passengerEvent.id, stopId, assignedVehicleId, true, time));
+				break;
+			case PassengersStatus.COMPLETE:
+				this.boardingEventQueue.push(new BoardingEvent(passengerEvent.id, assignedVehicleId, stopId, false, time));
 				break;
 			}
 		}
@@ -50,6 +58,7 @@ export class StopPositionHandlerService {
 		});
 	}
 
+	// Obtenir le nombre de passagers à un arrêt
 	getPassengerAmount(id: string): number {
 		let result = 0;
 		const stop = this.stopIdMapping.get(id);
@@ -59,6 +68,22 @@ export class StopPositionHandlerService {
 		}
 
 		return result;
+	}
+
+	boardingEventPop(): BoardingEvent | undefined {
+		if (this.boardingEventQueue.length > 0) {
+			return this.boardingEventQueue.shift();
+		} else {
+			return undefined;
+		}
+	}
+
+	addPassenger(passengerid: string, stopId: string): void {
+		this.stopIdMapping.get(stopId)?.addPassenger(passengerid);
+	}
+
+	removePassenger(passengerid: string, stopId: string): void {
+		this.stopIdMapping.get(stopId)?.removePassenger(passengerid);
 	}
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
