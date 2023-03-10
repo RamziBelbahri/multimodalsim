@@ -17,17 +17,17 @@ export class EntityDataHandlerService {
 	public passengerEvents: PassengerEvent[];
 	public combined: EntityEvent[];
 	private eventObservations: [];
-	public eventQueue: Queue;
+	// public eventQueue: Queue;
 	private simulationRunning: boolean;
 	public simulationCompleted: boolean;
-	private pauseEventEmitter = new EventEmitter();
+	public pauseEventEmitter = new EventEmitter();
 
 	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.combined = [];
 		this.eventObservations = [];
-		this.eventQueue = new Cesium.Queue();
+		// this.eventQueue = new Cesium.Queue();
 		this.simulationRunning = false;
 		this.simulationCompleted = false;
 	}
@@ -121,8 +121,8 @@ export class EntityDataHandlerService {
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
 		clockState.shouldAnimate = true;
 		while (!this.simulationCompleted) {
-			const currentEvent = this.combined[i];
-			this.eventQueue.enqueue(currentEvent);
+			const event = this.combined[i];
+			// this.eventQueue.enqueue(currentEvent);
 
 			if(!this.simulationRunning) {
 				await new Promise(resolve => this.pauseEventEmitter.once('unpause', resolve));
@@ -130,7 +130,7 @@ export class EntityDataHandlerService {
 
 
 			// if (this.simulationRunning) {
-			const event = this.eventQueue.dequeue();
+			// const event = this.eventQueue.dequeue();
 			if (event && event.eventType == 'VEHICLE') {
 				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 			} else if (event && event.eventType == 'PASSENGER') {
@@ -138,6 +138,9 @@ export class EntityDataHandlerService {
 			}
 			// }
 			i++;
+			if(i >= this.combined.length) {
+				await new Promise(resolve => this.pauseEventEmitter.once('newevent', resolve));
+			}
 		}
 		this.stopHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();

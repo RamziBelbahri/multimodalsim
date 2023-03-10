@@ -38,4 +38,40 @@ export class DateParserService {
 
 		return newTime;
 	}
+
+	substractDateString(currentTime:string, previousTime:string):string {
+		currentTime = currentTime.replace(' days ', ':');
+		previousTime = previousTime.replace(' days ', ':');
+		const previousTimeSplit = previousTime.split(':');
+		let previousTimeInSeconds = 0;
+		previousTimeInSeconds += +previousTimeSplit[0] * 24 * 60 * 60; // days
+		previousTimeInSeconds += +previousTimeSplit[1] * 60 * 60; // hours
+		previousTimeInSeconds += +previousTimeSplit[2] * 60; // minutes
+		previousTimeInSeconds += +previousTimeSplit[3]; // seconds
+
+		const currentTimeSplit = currentTime.split(':')
+		let currentTimeInSeconds = 0;
+		currentTimeInSeconds += +currentTimeSplit[0] * 24 * 60 * 60; // days
+		currentTimeInSeconds += +currentTimeSplit[1] * 60 * 60; // hours
+		currentTimeInSeconds += +currentTimeSplit[2] * 60; // minutes
+		currentTimeInSeconds += +currentTimeSplit[3]; // seconds
+
+		const duration = currentTimeInSeconds - previousTimeInSeconds;
+		const days  = Math.floor(duration / (24*60*60))
+		const hours = Math.floor((duration - days * (24*60*60)) / (60*60))
+		const minutes = Math.floor(
+			(
+				duration - days * (24*60*60) - hours * (60 * 60)
+			) / 60
+		)
+		const seconds = (
+			duration - days * (24*60*60) - hours * (60 * 60) - minutes * 60
+		)
+		
+		return days.toString() + ' days ' +
+			(hours < 10 ? '0' + hours.toString() : hours.toString()) + ':' +
+			(minutes < 10 ? '0' + minutes.toString() : minutes.toString()) + ':' +
+			(seconds < 10 ? '0' + seconds.toString() : seconds.toString())
+	
+	}
 }
