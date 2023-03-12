@@ -19,7 +19,6 @@ export class DataReaderService {
 	private readonly COMBINED = 'combined-trips-vehicle';
 	private zipInput: HTMLInputElement | undefined;
 	private csvInput: Blob;
-	private readonly DEMO_EVENTS_AMOUNT: number = 15000;
 
 	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
 		this.zipper = JSZip();
@@ -31,7 +30,7 @@ export class DataReaderService {
 	}
 
 	launchSimulation(viewer: Viewer): void {
-		this.entityDataHandlerService.runVehiculeSimulation(viewer, this.DEMO_EVENTS_AMOUNT);
+		this.entityDataHandlerService.runVehiculeSimulation(viewer);
 	}
 
 	selectZip(event: Event): void {
@@ -86,24 +85,13 @@ export class DataReaderService {
 
 	readCSV(filePath?: string, zip?: JSZip): void {
 		if (zip && filePath) {
-			zip.file(filePath)
+			zip
+				.file(filePath)
 				?.async('text')
 				.then((txt: string) => {
 					this.readFileData(txt, filePath);
 				});
 		}
-		// } else {
-		// 	const fileReader = new FileReader();
-		// 	fileReader.onload = () => {
-		// 		if (fileReader.result) {
-		// 			const csvString = fileReader.result.toString();
-		// 			const filePath = this.csvInput.name;
-		// 			console.log(filePath)
-		// 			this.readFileData(csvString, filePath);
-		// 		}
-		// 	};
-		// 	fileReader.readAsText(this.csvInput);
-		// }
 	}
 
 	private readFileData(txt: string, filePath: string): void {
@@ -121,7 +109,7 @@ export class DataReaderService {
 
 			this.setFileData(filePath, csvArray);
 			if (hasVehicles && hasPassengers && !this.csvData.has(this.COMBINED)) {
-				this.entityDataHandlerService.combinePassengerAndBusEvents();
+				this.entityDataHandlerService.combinePassengerAndVehicleEvents();
 				this.csvData.add(this.COMBINED);
 			}
 		} catch (error) {
@@ -131,7 +119,7 @@ export class DataReaderService {
 
 	private setFileData(filePath: string, csvArray: any): void {
 		if (filePath.toString().endsWith(FileType.VEHICLES_OBSERVATIONS_FILE_NAME)) {
-			this.setBusData(csvArray);
+			this.setVehicleData(csvArray);
 		} else if (filePath.toString().endsWith(FileType.TRIPS_OBSERVATIONS_FILE_NAME)) {
 			this.setPassengerData(csvArray);
 		} else if (filePath.toString().endsWith(FileType.EVENTS_OBSERVATIONS_FILE_NAME)) {
@@ -149,8 +137,8 @@ export class DataReaderService {
 		this.entityDataHandlerService.setPassengerData(this.simulationParserService.parseToPassengerData(data));
 	}
 
-	private setBusData(data: []): void {
-		this.entityDataHandlerService.setBusData(this.simulationParserService.parseToBusData(data));
+	private setVehicleData(data: []): void {
+		this.entityDataHandlerService.setVehicleData(this.simulationParserService.parseToVehicleData(data));
 	}
 
 	private setEventObservations(data: []): void {
