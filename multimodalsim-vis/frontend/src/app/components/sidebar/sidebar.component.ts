@@ -1,4 +1,9 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Viewer } from 'cesium';
+import { Subscription } from 'rxjs';
+import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
+import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -12,11 +17,20 @@ export class SidebarComponent implements OnInit {
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
 
+	private viewer: Viewer | undefined;
+	private viewerSubscription: Subscription = new Subscription();
+
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
+	entityInfos = new Map<string, any>();
+	
+	constructor(private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
+
 	ngOnInit() {
+		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
+		
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
@@ -32,6 +46,18 @@ export class SidebarComponent implements OnInit {
 		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
+
+		this.setClickedEntityInfos();
+
+	}
+
+	ngOnDestroy() {
+		this.viewerSubscription.unsubscribe();
+	}
+
+	setClickedEntityInfos(){
+	 	if(this.viewer) this.entityInfos = this.entityHandler.getClickedEntityInfos(this.viewer);
+		console.log(this.entityInfos);
 	}
 
 	open(): void {

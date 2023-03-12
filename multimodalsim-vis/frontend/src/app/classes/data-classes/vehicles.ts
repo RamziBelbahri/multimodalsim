@@ -1,6 +1,6 @@
-import { SampledPositionProperty } from 'cesium';
+import { Entity, SampledPositionProperty } from 'cesium';
 
-export class Vehicle {
+export class Vehicle{
 	private onBoardPassengers = new Array<string>();
 
 	path: SampledPositionProperty;
