@@ -8,6 +8,7 @@ import { StopPositionHandlerService } from '../cesium/stop-position-handler.serv
 import { DateParserService } from '../util/date-parser.service';
 import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
+import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -26,7 +27,8 @@ export class EntityDataHandlerService {
 		private dateParser: DateParserService,
 		private vehicleHandler: VehiclePositionHandlerService,
 		private stopHandler: StopPositionHandlerService,
-		private dataSaverService: DataSaverService
+		private dataSaverService: DataSaverService,
+		private boardingHandler: BoardingHandlerService
 	) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
@@ -105,6 +107,7 @@ export class EntityDataHandlerService {
 		}
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
+		this.boardingHandler.initBoarding(viewer);
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
