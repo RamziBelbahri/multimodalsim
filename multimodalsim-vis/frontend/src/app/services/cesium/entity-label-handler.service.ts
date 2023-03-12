@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Cartesian2, Viewer } from 'cesium';
-import { PassengerPositionHandlerService } from './passenger-position-handler.service';
+import { StopPositionHandlerService } from './stop-position-handler.service';
+import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -11,7 +12,9 @@ export class EntityLabelHandlerService {
 	private lastEntities = new Array<any>();
 	private displayedEntity = undefined;
 
-	constructor(private passengerHandler: PassengerPositionHandlerService) {}
+	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
+		this.lastEntities = new Array<any>();
+	}
 
 	// Active le handler qui s'occupe d'afficher le texte
 	initHandler(viewer: Viewer): void {
@@ -46,11 +49,10 @@ export class EntityLabelHandlerService {
 	private createText(entity: any): string {
 		let amount = 0;
 
-		if (entity.name == 'passenger') {
-			amount = this.passengerHandler.getPassengerAmount(entity.id);
-		} else if (entity.name == 'bus') {
-			// TODO get le nombre dans un bus
-			amount = 2;
+		if (entity.name == 'stop') {
+			amount = this.stopHandler.getPassengerAmount(entity.id);
+		} else if (entity.name == 'vehicle') {
+			amount = this.vehicleHandler.getPassengerAmount(entity.id);
 		}
 
 		return amount > 0 ? '{' + amount.toString() + '}' : '';

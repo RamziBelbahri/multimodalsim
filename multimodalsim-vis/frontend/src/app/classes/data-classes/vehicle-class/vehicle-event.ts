@@ -2,7 +2,7 @@ import { Cartesian3 } from 'cesium';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { EntityEvent } from '../entity/entity-event';
 
-export class BusEvent implements EntityEvent {
+export class VehicleEvent implements EntityEvent {
 	id: string;
 	time: string;
 	status: string;
@@ -17,7 +17,7 @@ export class BusEvent implements EntityEvent {
 	duration: string;
 	hasChanged: boolean;
 	movement: Cartesian3;
-	readonly eventType: string = 'BUS';
+	readonly eventType: string = 'VEHICLE';
 
 	constructor(
 		id: string,
@@ -46,7 +46,7 @@ export class BusEvent implements EntityEvent {
 		this.cumulative_distance = cumulative_distance;
 		// Certains events(trajets en cours) ont des positions nulles, on veut conserver cette information
 		this.position = longitude == null || latitude == null ? null : CesiumClass.cartesianDegrees(longitude, latitude);
-		this.duration = duration;
+		this.duration = duration == null ? '0 days 00:00:00' : duration;
 		this.hasChanged = false;
 		this.movement = CesiumClass.cartesian3(0, 0, 0);
 	}
