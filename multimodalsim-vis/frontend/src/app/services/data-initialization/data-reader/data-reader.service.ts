@@ -99,6 +99,7 @@ export class DataReaderService {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
+				this.setStops(csvArray);
 			}
 			if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 				csvArray.pop();
@@ -143,6 +144,10 @@ export class DataReaderService {
 
 	private setEventObservations(data: []): void {
 		this.entityDataHandlerService.setEventObservations(data);
+	}
+
+	private setStops(data: any): void {
+		this.entityDataHandlerService.setStops(data);
 	}
 
 	private readDirectory(_: JSZip, filePath: string): void {
