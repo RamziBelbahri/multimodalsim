@@ -9,6 +9,7 @@ import { PassengerPositionHandlerService } from './passenger-position-handler.se
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities = new Array<any>();
+	private displayedEntity = undefined;
 
 	constructor(private passengerHandler: PassengerPositionHandlerService) {}
 
@@ -54,4 +55,41 @@ export class EntityLabelHandlerService {
 
 		return amount > 0 ? '{' + amount.toString() + '}' : '';
 	}
+
+	// /**
+//  * NgModule definition for the Sidebar component.
+//  */
+// import { NgModule } from '@angular/core';
+// import { BrowserModule } from '@angular/platform-browser';
+// import { EntityInfosComponent } from './entity-infos/entity-infos.component';
+// import { SidebarComponent } from './sidebar.component';
+
+
+// @NgModule({
+//     imports: [BrowserModule],
+//     exports: [SidebarComponent],
+//     declarations: [SidebarComponent, EntityInfosComponent],
+//     providers: [],
+//  })
+ 
+// export declare class SidebarModule {
+// }
+
+	findClickedEntity (viewer: Viewer): void{
+		viewer.scene.preRender.addEventListener(() => {
+			if (this.currentMousePosition) {
+				const pickedObject = viewer.scene.pick(this.currentMousePosition);
+
+				if (pickedObject) this.displayedEntity = pickedObject.id;
+			}
+		});
+
+		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+
+		// Modifie la position de souris pour pouvoir pick une entité
+		mouseHandler.setInputAction((movement: any) => {
+			this.currentMousePosition = movement.endPosition;
+		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+	}
+
 }

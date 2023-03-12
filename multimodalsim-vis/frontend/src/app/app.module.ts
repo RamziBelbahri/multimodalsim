@@ -6,7 +6,7 @@ import { CesiumContainerComponent } from './components/map/cesium-container/cesi
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { DebugReceiverComponentComponent } from './components/debug-receiver/debug-receiver-component.component';
 import { SimulationModalComponent } from './components/simulation-modal/simulation-modal.component';
-import { EntityInfosComponent } from './components/entity-infos/entity-infos.component';
+import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-infos.component';
 
 @NgModule({
 	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, EntityInfosComponent],
