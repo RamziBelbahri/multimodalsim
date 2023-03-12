@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { DomElementSchemaRegistry } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { Cartesian2, Viewer } from 'cesium';
+import { Dictionary } from 'lodash';
 import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
@@ -77,8 +79,9 @@ export class EntityLabelHandlerService {
 // export declare class SidebarModule {
 // }
 
-	findClickedEntity (viewer: Viewer): void{
+	findClickedEntityId (viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
+			// event.preventDefault();
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 
@@ -92,6 +95,20 @@ export class EntityLabelHandlerService {
 		mouseHandler.setInputAction((movement: any) => {
 			this.currentMousePosition = movement.endPosition;
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+		return this.displayedEntity
 	}
 
+	// Obtenir le nombre de passagers dans un véhicule
+	getClickedEntityInfos(viewer: Viewer): Map<string, any> {
+		let entity: any | undefined = this.findClickedEntityId(viewer);
+
+		let entityInfos = new Map<string, any>();
+		entityInfos.set('position', entity.position)
+		if (entity.name == 'vehicle') {
+			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
+		}
+		console.log(entityInfos);
+		return entityInfos;
+	}
 }
