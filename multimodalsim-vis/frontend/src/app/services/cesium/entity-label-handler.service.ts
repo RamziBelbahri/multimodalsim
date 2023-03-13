@@ -86,8 +86,8 @@ export class EntityLabelHandlerService {
 
 		// Modifie la position de souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
-			this.currentMousePosition = movement.endPosition;
-		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+			this.currentMousePosition = movement.position;
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
 
 	// Obtenir le nombre de passagers dans un véhicule
@@ -101,8 +101,13 @@ export class EntityLabelHandlerService {
 			position = CesiumClass.cartesian3(entity.position['_value'].x, entity.position['_value'].y, entity.position['_value'].z);
 			passengers = this.stopHandler.getStopIdMapping().get(entity.id)?.getPassengers();
 		} else if (entity.name == 'vehicle') {
-			position = entity.position['_property']['_interpolationResult'];
+			position = CesiumClass.cartesian3(
+				entity.position['_property']['_interpolationResult'][0],
+				entity.position['_property']['_interpolationResult'][1],
+				entity.position['_property']['_interpolationResult'][2]
+			);
 			passengers = this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers();
+
 			/*entityInfos.set('position', entity.position['_property']['_interpolationResult']);
 			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
 			entityInfos.set('passengerList', this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers());*/
