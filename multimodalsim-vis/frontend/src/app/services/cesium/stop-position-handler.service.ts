@@ -12,7 +12,7 @@ import { StopLookupService } from '../util/stop-lookup.service';
 })
 export class StopPositionHandlerService {
 	private stopIdMapping;
-	boardingEventQueue;
+	private boardingEventQueue;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.stopIdMapping = new Map<string, Stop>();
