@@ -3,6 +3,7 @@ import { DomElementSchemaRegistry } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { Cartesian2, Viewer } from 'cesium';
 import { Dictionary } from 'lodash';
+import { Observable, ReplaySubject } from 'rxjs';
 import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
@@ -12,7 +13,10 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities = new Array<any>();
-	private displayedEntity = undefined;
+	displayedEntityInfos = new Map <string, any>();
+	private displayedEntityInfosSource = new ReplaySubject<Map<string, any>>;
+	currentEntityInfos = this.displayedEntityInfosSource.asObservable();
+
 
 	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
@@ -60,32 +64,22 @@ export class EntityLabelHandlerService {
 		return amount > 0 ? '{' + amount.toString() + '}' : '';
 	}
 
-	// /**
-//  * NgModule definition for the Sidebar component.
-//  */
-// import { NgModule } from '@angular/core';
-// import { BrowserModule } from '@angular/platform-browser';
-// import { EntityInfosComponent } from './entity-infos/entity-infos.component';
-// import { SidebarComponent } from './sidebar.component';
-
-
-// @NgModule({
-//     imports: [BrowserModule],
-//     exports: [SidebarComponent],
-//     declarations: [SidebarComponent, EntityInfosComponent],
-//     providers: [],
-//  })
- 
-// export declare class SidebarModule {
-// }
-
 	findClickedEntityId (viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
 			// event.preventDefault();
+			let displayedEntity:any;
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 
-				if (pickedObject) this.displayedEntity = pickedObject.id;
+				if (pickedObject) displayedEntity = pickedObject.id;
+
+				console.log('ssaa');
+				
+
+				if (displayedEntity.position) {
+					this.displayedEntityInfos = this.getClickedEntityInfos(displayedEntity);
+					this.setEntityInfos();
+				}
 			}
 		});
 
@@ -96,19 +90,22 @@ export class EntityLabelHandlerService {
 			this.currentMousePosition = movement.endPosition;
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-		return this.displayedEntity
 	}
 
 	// Obtenir le nombre de passagers dans un véhicule
-	getClickedEntityInfos(viewer: Viewer): Map<string, any> {
-		let entity: any | undefined = this.findClickedEntityId(viewer);
+	getClickedEntityInfos(displayedEntity: any): Map<string, any> {
+		const entity: any | undefined = displayedEntity;
 
-		let entityInfos = new Map<string, any>();
-		entityInfos.set('position', entity.position)
+		const entityInfos = new Map<string, any>();
+		entityInfos.set('position', entity.position);
 		if (entity.name == 'vehicle') {
 			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
 		}
 		console.log(entityInfos);
 		return entityInfos;
+	}
+
+	setEntityInfos():void{
+		this.displayedEntityInfosSource.next(this.displayedEntityInfos);
 	}
 }
