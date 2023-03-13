@@ -57,8 +57,8 @@ export class VehiclePositionHandlerService {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
-				semiMinorAxis: 300000,
-				semiMajorAxis: 300000,
+				semiMinorAxis: 30,
+				semiMajorAxis: 30,
 				height: 0,
 				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/bus.svg', transparent: true }),
 			},

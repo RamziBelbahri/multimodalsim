@@ -48,24 +48,24 @@ export class MessageQueueStompService {
 	}
 
 	private onReceivingEvent = (msg:IMessage) => {
-		const p = document.getElementById('received-text');
-		if(p) {
+		const receivedText = document.getElementById('received-text');
+		if(receivedText) {
 			try {
-				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+				receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
 			} catch {
-				p.innerText = msg.body;
+				receivedText.innerText = msg.body;
 				console.log(msg.body);
 			}
 		}
 	}
 
 	private onReceivingEventObservation = (msg:IMessage) => {
-		const p = document.getElementById('received-text');
-		if(p) {
+		const receivedText = document.getElementById('received-text');
+		if(receivedText) {
 			try {
-				p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
+				receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
 			} catch {
-				p.innerText = msg.body;
+				receivedText.innerText = msg.body;
 				console.log(msg.body);
 			}
 		}
