@@ -23,6 +23,10 @@ export class Stop {
 		}
 	}
 
+	getPassengers(): Array<string> {
+		return this.waitingPassengers;
+	}
+
 	getPassengerAmount(): number {
 		return this.waitingPassengers.length;
 	}
