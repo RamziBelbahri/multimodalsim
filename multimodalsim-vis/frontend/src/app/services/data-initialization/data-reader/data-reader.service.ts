@@ -29,8 +29,8 @@ export class DataReaderService {
 		this.csvInput = new Blob();
 	}
 
-	launchSimulation(viewer: Viewer): void {
-		this.entityDataHandlerService.runVehiculeSimulation(viewer);
+	launchSimulation(viewer: Viewer, isRealTime: boolean): void {
+		this.entityDataHandlerService.runVehiculeSimulation(viewer, isRealTime);
 	}
 
 	selectZip(event: Event): void {
