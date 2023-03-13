@@ -1,7 +1,7 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
+import { EntityInfos } from 'src/app/classes/data-classes/entity-info';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
@@ -25,32 +25,26 @@ export class SidebarComponent implements OnInit {
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
-	entityInfos = new Map<string, any>();
 	lat = 0;
 	lon = 0;
 	passengerAmount = 0;
 	passengerList = '';
-	
+
 	constructor(private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
-			//appel à au handler findClickedEntityId
+
 			this.entityHandler.findClickedEntityId(this.viewer);
-			this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>{
-				this.entityInfos = infos;
-				this.lat = infos.get('position')[0];
-				this.lon =infos.get('position')[1];
-				this.passengerAmount = infos.get('passengerAmount')? infos.get('passengerAmount'):'';
-				this.passengerList = infos.get('passengerList')? infos.get('passengerList'):'';
-				// console.log(this.lat);
-			}
-			);
-		}
-		//(this.viewer = viewer)
-		);
-		
+			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
+				this.lat = infos.position.x;
+				this.lon = infos.position.y;
+				this.passengerAmount = infos.passengers.length;
+				this.passengerList = infos.passengers.toString();
+			});
+		});
+
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
@@ -66,21 +60,11 @@ export class SidebarComponent implements OnInit {
 		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
-
 	}
-
-	// ngAfterViewInit(){
-	// 	this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>(this.entityInfos = infos));
-	// }
 
 	ngOnDestroy() {
 		this.viewerSubscription.unsubscribe();
 	}
-
-	// setClickedEntityInfos(){
-	//  	if(this.viewer) this.entityInfos = this.entityHandler.getClickedEntityInfos(this.viewer);
-	// 	console.log(this.entityInfos);
-	// }
 
 	open(): void {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';

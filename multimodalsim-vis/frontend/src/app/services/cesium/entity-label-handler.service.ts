@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DomElementSchemaRegistry } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { Cartesian2, Viewer } from 'cesium';
-import { Dictionary } from 'lodash';
-import { Observable, ReplaySubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
+import { EntityInfos } from 'src/app/classes/data-classes/entity-info';
+import { CesiumClass } from 'src/app/shared/cesium-class';
 import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
@@ -13,17 +13,17 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities = new Array<any>();
-	displayedEntityInfos = new Map <string, any>();
-	private displayedEntityInfosSource = new ReplaySubject<Map<string, any>>;
-	currentEntityInfos = this.displayedEntityInfosSource.asObservable();
+	private displayedEntityInfosSource = new ReplaySubject<EntityInfos>();
 
+	displayedEntityInfos: EntityInfos | undefined;
+	currentEntityInfos = this.displayedEntityInfosSource.asObservable();
 
 	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
 	}
 
 	// Active le handler qui s'occupe d'afficher le texte
-	initHandler(viewer: Viewer): void {
+	/*	initHandler(viewer: Viewer): void {
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
@@ -62,20 +62,17 @@ export class EntityLabelHandlerService {
 		}
 
 		return amount > 0 ? '{' + amount.toString() + '}' : '';
-	}
+	}*/
 
-	findClickedEntityId (viewer: Viewer) {
+	findClickedEntityId(viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
 			// event.preventDefault();
-			let displayedEntity:any;
+			let displayedEntity: any;
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 
 				if (pickedObject) {
 					displayedEntity = pickedObject.id;
-
-					// console.log('ssaa');
-				
 
 					if (displayedEntity.position) {
 						this.displayedEntityInfos = this.getClickedEntityInfos(displayedEntity);
@@ -91,31 +88,30 @@ export class EntityLabelHandlerService {
 		mouseHandler.setInputAction((movement: any) => {
 			this.currentMousePosition = movement.endPosition;
 		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
 	}
 
 	// Obtenir le nombre de passagers dans un véhicule
-	getClickedEntityInfos(displayedEntity: any): Map<string, any> {
+	getClickedEntityInfos(displayedEntity: any): EntityInfos {
 		const entity: any | undefined = displayedEntity;
-		const entityInfos = new Map<string, any>();
-		
-		if (entity.name == 'passenger') {
-			const position: Array<any> = [];
-			position.push(entity.position['_value'].x);
-			position.push(entity.position['_value'].y);
-			entityInfos.set('position', position);
-		}
-		else if (entity.name == 'vehicle') {
-			entityInfos.set('position', entity.position['_property']['_interpolationResult']);
-			console.log(entityInfos.get('position'));
+		//const entityInfos = new Map<string, any>();
+		let position = CesiumClass.cartesian3(0, 0, 0);
+		let passengers: Array<string> | undefined = [];
+
+		if (entity.name == 'stop') {
+			position = CesiumClass.cartesian3(entity.position['_value'].x, entity.position['_value'].y, entity.position['_value'].z);
+			passengers = this.stopHandler.getStopIdMapping().get(entity.id)?.getPassengers();
+		} else if (entity.name == 'vehicle') {
+			position = entity.position['_property']['_interpolationResult'];
+			passengers = this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers();
+			/*entityInfos.set('position', entity.position['_property']['_interpolationResult']);
 			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
-			entityInfos.set('passengerList', this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers());
+			entityInfos.set('passengerList', this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers());*/
 		}
-		// console.log(entityInfos);
-		return entityInfos;
+
+		return new EntityInfos(passengers ? passengers : [], position, entity.name, entity.id);
 	}
 
-	setEntityInfos():void{
-		this.displayedEntityInfosSource.next(this.displayedEntityInfos);
+	setEntityInfos(): void {
+		this.displayedEntityInfosSource.next(this.displayedEntityInfos as EntityInfos);
 	}
 }
