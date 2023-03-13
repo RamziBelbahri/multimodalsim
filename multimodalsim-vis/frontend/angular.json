@@ -26,7 +26,11 @@
                             "src/favicon.ico",
                             "src/assets"
                         ],
-                        "styles": ["node_modules/cesium/Build/Cesium/Widgets/widgets.css", "src/styles.css"],
+                        "styles": [
+                          "@angular/material/prebuilt-themes/deeppurple-amber.css",
+                          "node_modules/cesium/Build/Cesium/Widgets/widgets.css",
+                          "src/styles.css"
+                        ],
                         "scripts": ["node_modules/cesium/Build/Cesium/Cesium.js"]
                     },
                     "configurations": {
@@ -79,7 +83,10 @@
                         "polyfills": ["zone.js", "zone.js/testing"],
                         "tsConfig": "tsconfig.spec.json",
                         "assets": ["src/favicon.ico", "src/assets"],
-                        "styles": ["src/styles.css"],
+                        "styles": [
+                          "@angular/material/prebuilt-themes/deeppurple-amber.css",
+                          "src/styles.css"
+                        ],
                         "scripts": []
                     }
                 }

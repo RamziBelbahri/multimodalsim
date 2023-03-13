@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ParseResult } from 'ngx-papaparse';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
-import { papaParse } from 'src/app/helpers/parsers';
+import { papaParse, papaUnparse } from 'src/app/helpers/parsers';
 
 @Injectable({
 	providedIn: 'root',
@@ -50,5 +50,12 @@ export class SimulationParserService {
 			passengerData.push(passengerEvent);
 		}
 		return passengerData;
+	}
+
+	parseToFile(data: any[]): string {
+		const sdata = JSON.stringify(data);
+		const jdata = JSON.parse(sdata);
+		const vehiclesEventsCsv = papaUnparse(jdata);
+		return vehiclesEventsCsv;
 	}
 }

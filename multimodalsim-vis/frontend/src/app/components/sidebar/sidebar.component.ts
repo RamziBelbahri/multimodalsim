@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { SaveModalComponent } from '../save-modal/save-modal.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -15,6 +17,8 @@ export class SidebarComponent implements OnInit {
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
+
+	constructor(private dialog: MatDialog) {}
 
 	ngOnInit() {
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
@@ -66,5 +70,12 @@ export class SidebarComponent implements OnInit {
 	openSimulationModal(): void {
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+	}
+
+	openSaveModal(): void {
+		this.dialog.open(SaveModalComponent, {
+			height: '400px',
+			width: '600px',
+		});
 	}
 }

@@ -6,6 +6,8 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { VehiclePositionHandlerService } from '../cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 import { DateParserService } from '../util/date-parser.service';
+import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
+import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 
 @Injectable({
@@ -14,8 +16,9 @@ import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 export class EntityDataHandlerService {
 	private vehicleEvents: VehicleEvent[];
 	private passengerEvents: PassengerEvent[];
+	private stops: any[];
+	private eventObservations: EventObservation[];
 	private combined: EntityEvent[];
-	private eventObservations: [];
 	private eventQueue: Queue;
 	private simulationRunning: boolean;
 	private simulationCompleted: boolean;
@@ -24,12 +27,14 @@ export class EntityDataHandlerService {
 		private dateParser: DateParserService,
 		private vehicleHandler: VehiclePositionHandlerService,
 		private stopHandler: StopPositionHandlerService,
+		private dataSaverService: DataSaverService,
 		private boardingHandler: BoardingHandlerService
 	) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
-		this.combined = [];
+		this.stops = [];
 		this.eventObservations = [];
+		this.combined = [];
 		this.eventQueue = new Cesium.Queue();
 		this.simulationRunning = false;
 		this.simulationCompleted = false;
@@ -47,11 +52,15 @@ export class EntityDataHandlerService {
 		this.passengerEvents = passengerEvents;
 	}
 
-	public setEventObservations(eventObservations: []): void {
+	public setEventObservations(eventObservations: EventObservation[]): void {
 		this.eventObservations = eventObservations;
 	}
 
-	public getEventObservations(): [] {
+	public setStops(stops: any[]): void {
+		this.stops = stops;
+	}
+
+	public getEventObservations(): EventObservation[] {
 		return this.eventObservations;
 	}
 
@@ -117,9 +126,10 @@ export class EntityDataHandlerService {
 		clockState.shouldAnimate = true;
 		while (!this.simulationCompleted && i < this.combined.length) {
 			const currentEvent = this.combined[i];
-			this.eventQueue.enqueue(currentEvent);
 			if (this.simulationRunning) {
 				const event = this.eventQueue.dequeue();
+
+				this.eventQueue.enqueue(currentEvent);
 				if (event && event.eventType == 'VEHICLE') {
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 				} else if (event && event.eventType == 'PASSENGER') {
@@ -131,9 +141,14 @@ export class EntityDataHandlerService {
 		}
 		this.stopHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();
+		this.saveSimulationState();
 	}
 
 	private setSimulationState(isRunning: boolean): void {
 		this.simulationRunning = isRunning;
+	}
+
+	private saveSimulationState(): void {
+		this.dataSaverService.saveSimulationState(this.vehicleEvents, this.passengerEvents, this.eventObservations, this.stops);
 	}
 }
