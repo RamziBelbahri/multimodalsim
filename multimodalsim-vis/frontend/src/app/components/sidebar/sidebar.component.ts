@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
-import { EntityInfos } from 'src/app/classes/data-classes/entity-info';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SaveModalComponent } from '../save-modal/save-modal.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -30,7 +31,7 @@ export class SidebarComponent implements OnInit {
 	passengerAmount = 0;
 	passengerList = '';
 
-	constructor(private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
+	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -98,5 +99,12 @@ export class SidebarComponent implements OnInit {
 	openSimulationModal(): void {
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+	}
+
+	openSaveModal(): void {
+		this.dialog.open(SaveModalComponent, {
+			height: '400px',
+			width: '600px',
+		});
 	}
 }
