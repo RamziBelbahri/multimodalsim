@@ -32,7 +32,7 @@ export class MessageQueueStompService {
 	private onReceivingInfo = (msg:IMessage) => {
 		const p = document.getElementById('received-text');
 		if(p) {
-			p.innerText = JSON.stringify(msg.body);
+			p.innerText = JSON.stringify(Date.now() + ':\n' + msg.body);
 		}
 	}
 	private onConnect = () => {

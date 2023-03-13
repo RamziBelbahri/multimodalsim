@@ -148,7 +148,7 @@ export class EntityDataHandlerService {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 				console.log("passenger event arrived!", event.id);
 			}
-			if(event) {
+			if(event && i == 0) {
 				const start = this.dateParser.parseTimeFromString(this.combined[0].time);
 				const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
 				this.zoomTo(viewer, start, end);

@@ -22,22 +22,22 @@ if __name__ == '__main__':
 
     # Read input data from files with a DataReader. The DataReader returns a
     # list of Vehicle objects and a list of Trip objects.
-    gtfs_folder_path = "../multimodal-simulator/data/fixed_line/gtfs/gtfs/"
-    requests_file_path = "../multimodal-simulator/data/fixed_line/gtfs/requests_gtfs_v1.csv"
+    gtfs_folder_path = "../multimodal-simulator/data/20191101/gtfs/"
+    requests_file_path = "../multimodal-simulator/data/20191101/requests.csv"
     data_reader = GTFSReader(gtfs_folder_path, requests_file_path)
 
     # Set to None if coordinates of the vehicles are not available.
-    coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
-                            "/coordinates_30s.csv"
+    # coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
+    #                         "/coordinates_30s.csv"
     # coordinates = CoordinatesFromFile(coordinates_file_path)
-    coordinates = CoordinatesOSRM()
+    # coordinates = CoordinatesOSRM()
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
 
     # Generate the network from GTFS files.
-    g = data_reader.get_network_graph()
-    # g = nx.read_gpickle('path/to/gpickle')
+    # g = data_reader.get_network_graph()
+    g = nx.read_gpickle('../multimodal-simulator/data/20191101/bus_network_graph_20191101.txt')
 
     # Initialize the optimizer.
     splitter = MultimodalSplitter(g)
@@ -49,8 +49,7 @@ if __name__ == '__main__':
 
     # Initialize the simulation.
     simulation = Simulation(opt, trips, vehicles,
-                            environment_observer=environment_observer,
-                            coordinates=coordinates)
+                            environment_observer=environment_observer)
 
     # Execute the simulation.
     simulation.simulate()

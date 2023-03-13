@@ -2,7 +2,7 @@
     <a class="close-button" (click)="close()">&times;</a>
     <div class="sub-menu-button" (click)="openSimulationModal()">Charger Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu" id="sub-menu-param">
+    <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(0, parameterList.length)">Paramètres</div>
@@ -14,6 +14,9 @@
         <div class="sub-menu-option" *ngFor="let vis of visOptionList">{{vis}}</div>
     </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(2, manipOptionList.length)">Manipulation</div>
+    <div class="sub-menu-button" (click)="openUploadStopsFile()">
+        Upload le fichier des stops
+    </div>
     <div class="sub-menu" id="sub-menu-manip">
         <div class="sub-menu-option" *ngFor="let manip of manipOptionList">{{manip}}</div>
     </div>

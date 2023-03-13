@@ -67,4 +67,9 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
+
+	openUploadStopsFile():void {
+		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
+		(document.getElementById('stops-file-container') as HTMLElement).style.visibility = 'visible';
+	}
 }

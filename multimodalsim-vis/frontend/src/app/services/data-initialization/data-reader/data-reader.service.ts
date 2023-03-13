@@ -127,7 +127,7 @@ export class DataReaderService {
 		}
 	}
 
-	private parseStopsFile(stops: []): void {
+	public parseStopsFile(stops: []): void {
 		for (const line of stops) {
 			this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
 		}
