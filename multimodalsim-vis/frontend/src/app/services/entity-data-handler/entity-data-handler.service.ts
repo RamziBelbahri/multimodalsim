@@ -82,7 +82,7 @@ export class EntityDataHandlerService {
 		this.combined = vehiclesAndTrips;
 	}
 
-	runVehiculeSimulation(viewer: Viewer, isRealTime = true): void {
+	runVehiculeSimulation(viewer: Viewer, isRealTime: boolean): void {
 		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
 		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
 

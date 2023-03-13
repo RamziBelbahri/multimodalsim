@@ -39,7 +39,7 @@ export class SimulationModalComponent {
 	}
 
 	launchSimulation(): void {
-		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer);
+		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer, false);
 		this.closeModal();
 	}
 
