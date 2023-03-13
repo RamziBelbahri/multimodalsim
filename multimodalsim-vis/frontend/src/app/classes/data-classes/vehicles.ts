@@ -1,6 +1,6 @@
-import { Entity, SampledPositionProperty } from 'cesium';
+import { SampledPositionProperty } from 'cesium';
 
-export class Vehicle{
+export class Vehicle {
 	private onBoardPassengers = new Array<string>();
 
 	path: SampledPositionProperty;
@@ -15,7 +15,7 @@ export class Vehicle{
 		this.onBoardPassengers.push(id);
 	}
 
-	getOnBoardPassengers():Array<string>{
+	getOnBoardPassengers(): Array<string> {
 		return this.onBoardPassengers;
 	}
 

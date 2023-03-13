@@ -29,7 +29,7 @@ export class SidebarComponent implements OnInit {
 	lat = 0;
 	lon = 0;
 	passengerAmount = 0;
-	passengerList = '';
+	passengerList = new Array<string>();
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
@@ -42,7 +42,7 @@ export class SidebarComponent implements OnInit {
 				this.lat = infos.position.x;
 				this.lon = infos.position.y;
 				this.passengerAmount = infos.passengers.length;
-				this.passengerList = infos.passengers.toString();
+				this.passengerList = infos.passengers;
 			});
 		});
 

@@ -32,8 +32,8 @@
         Informations de l'entité <br><br>
         <div>lat:{{lat}}</div>
         <div>lon:{{lon}}</div>
-        <div>passengers Amount:</div>
-        <div>passengers list:</div>
+        <div>passengers Amount:{{passengerAmount}}</div>
+        <div *ngFor="let passenger of passengerList">{{passenger}}</div>
     </div>
 </div>
 
