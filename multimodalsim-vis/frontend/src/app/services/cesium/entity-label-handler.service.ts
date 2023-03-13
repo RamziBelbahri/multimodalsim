@@ -54,6 +54,6 @@ export class EntityLabelHandlerService {
 			amount = this.vehicleHandler.getPassengerAmount(entity.id);
 		}
 
-		return amount > 0 ? '{' + amount.toString() + '}' : '';
+		return amount > 0 ? '{' + amount.toString() + '}' : '{0}';
 	}
 }
