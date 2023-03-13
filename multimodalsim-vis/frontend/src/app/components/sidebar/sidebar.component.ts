@@ -19,6 +19,7 @@ export class SidebarComponent implements OnInit {
 
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
+	private entityInfosSubscription: Subscription = new Subscription();
 
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
@@ -47,18 +48,21 @@ export class SidebarComponent implements OnInit {
 
 		this.manipOptionList.push('Manipulations');
 
-		this.setClickedEntityInfos();
+	}
 
+	ngAfterViewInit(){
+		if (this.viewer) this.entityHandler.findClickedEntityId(this.viewer);
+		this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>(this.entityInfos = infos));
 	}
 
 	ngOnDestroy() {
 		this.viewerSubscription.unsubscribe();
 	}
 
-	setClickedEntityInfos(){
-	 	if(this.viewer) this.entityInfos = this.entityHandler.getClickedEntityInfos(this.viewer);
-		console.log(this.entityInfos);
-	}
+	// setClickedEntityInfos(){
+	//  	if(this.viewer) this.entityInfos = this.entityHandler.getClickedEntityInfos(this.viewer);
+	// 	console.log(this.entityInfos);
+	// }
 
 	open(): void {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';

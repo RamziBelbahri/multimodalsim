@@ -89,7 +89,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
 				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/bus.svg', transparent: true }),
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/filledBus.png', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
