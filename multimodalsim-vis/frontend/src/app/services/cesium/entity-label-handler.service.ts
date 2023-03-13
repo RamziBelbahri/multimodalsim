@@ -71,14 +71,16 @@ export class EntityLabelHandlerService {
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 
-				if (pickedObject) displayedEntity = pickedObject.id;
+				if (pickedObject) {
+					displayedEntity = pickedObject.id;
 
-				console.log('ssaa');
+					// console.log('ssaa');
 				
 
-				if (displayedEntity.position) {
-					this.displayedEntityInfos = this.getClickedEntityInfos(displayedEntity);
-					this.setEntityInfos();
+					if (displayedEntity.position) {
+						this.displayedEntityInfos = this.getClickedEntityInfos(displayedEntity);
+						this.setEntityInfos();
+					}
 				}
 			}
 		});
@@ -95,13 +97,21 @@ export class EntityLabelHandlerService {
 	// Obtenir le nombre de passagers dans un véhicule
 	getClickedEntityInfos(displayedEntity: any): Map<string, any> {
 		const entity: any | undefined = displayedEntity;
-
 		const entityInfos = new Map<string, any>();
-		entityInfos.set('position', entity.position);
-		if (entity.name == 'vehicle') {
-			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
+		
+		if (entity.name == 'passenger') {
+			const position: Array<any> = [];
+			position.push(entity.position['_value'].x);
+			position.push(entity.position['_value'].y);
+			entityInfos.set('position', position);
 		}
-		console.log(entityInfos);
+		else if (entity.name == 'vehicle') {
+			entityInfos.set('position', entity.position['_property']['_interpolationResult']);
+			console.log(entityInfos.get('position'));
+			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
+			entityInfos.set('passengerList', this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers());
+		}
+		// console.log(entityInfos);
 		return entityInfos;
 	}
 
