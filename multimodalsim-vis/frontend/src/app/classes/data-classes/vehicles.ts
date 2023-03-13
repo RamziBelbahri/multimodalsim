@@ -15,6 +15,10 @@ export class Vehicle{
 		this.onBoardPassengers.push(id);
 	}
 
+	getOnBoardPassengers():Array<string>{
+		return this.onBoardPassengers;
+	}
+
 	removePassenger(id: string): void {
 		const index = this.onBoardPassengers.indexOf(id);
 		if (index > -1) {

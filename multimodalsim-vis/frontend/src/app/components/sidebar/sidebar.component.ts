@@ -26,11 +26,30 @@ export class SidebarComponent implements OnInit {
 	manipOptionList: Array<string> = new Array<string>();
 
 	entityInfos = new Map<string, any>();
+	lat = 0;
+	lon = 0;
+	passengerAmount = 0;
+	passengerList = '';
 	
 	constructor(private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
-		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
+		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
+			this.viewer = viewer;
+			//appel à au handler findClickedEntityId
+			this.entityHandler.findClickedEntityId(this.viewer);
+			this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>{
+				this.entityInfos = infos;
+				this.lat = infos.get('position')[0];
+				this.lon =infos.get('position')[1];
+				this.passengerAmount = infos.get('passengerAmount')? infos.get('passengerAmount'):'';
+				this.passengerList = infos.get('passengerList')? infos.get('passengerList'):'';
+				// console.log(this.lat);
+			}
+			);
+		}
+		//(this.viewer = viewer)
+		);
 		
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
@@ -50,10 +69,9 @@ export class SidebarComponent implements OnInit {
 
 	}
 
-	ngAfterViewInit(){
-		if (this.viewer) this.entityHandler.findClickedEntityId(this.viewer);
-		this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>(this.entityInfos = infos));
-	}
+	// ngAfterViewInit(){
+	// 	this.entityInfosSubscription =  this.entityHandler.currentEntityInfos.subscribe((infos)=>(this.entityInfos = infos));
+	// }
 
 	ngOnDestroy() {
 		this.viewerSubscription.unsubscribe();

@@ -16,7 +16,7 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
 	}
 
-	getVehicleIdMapping() {
+	getVehicleIdMapping(): Map<string, Vehicle>{
 		return this.vehicleIdMapping;
 	}
 	
