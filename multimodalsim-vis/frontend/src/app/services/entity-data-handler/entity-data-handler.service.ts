@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Queue, Viewer } from 'cesium';
+import { JulianDate, Queue, Viewer } from 'cesium';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
@@ -69,17 +69,21 @@ export class EntityDataHandlerService {
 		});
 		this.combined = vehiclesAndTrips;
 	}
-
-	runVehiculeSimulation(viewer: Viewer, isRealTime = true): void {
-		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
-		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
-
+	private zoomTo(viewer:Viewer, start:JulianDate, end:JulianDate):void {
 		viewer.clock.startTime = start.clone();
 		viewer.clock.stopTime = end.clone();
 		viewer.clock.currentTime = start.clone();
 		viewer.timeline.zoomTo(start, end);
-
-		isRealTime ? this.runRealTimeSimulation(viewer) : this.runFullSimulation(viewer);
+	}
+	runVehiculeSimulation(viewer: Viewer, isRealTime = true): void {
+		if(isRealTime) {
+			this.runRealTimeSimulation(viewer);
+			return;
+		}
+		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
+		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+		this.zoomTo(viewer, start, end);
+		this.runFullSimulation(viewer);
 	}
 
 	private runFullSimulation(viewer: Viewer): void {
@@ -121,7 +125,12 @@ export class EntityDataHandlerService {
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
 		clockState.shouldAnimate = true;
 		while (!this.simulationCompleted) {
+			if(i >= this.combined.length) {
+				console.log('waiting for new event...')
+				await new Promise(resolve => this.pauseEventEmitter.once('newevent', resolve));
+			}
 			const event = this.combined[i];
+			console.log(event)
 			// this.eventQueue.enqueue(currentEvent);
 
 			if(!this.simulationRunning) {
@@ -133,14 +142,21 @@ export class EntityDataHandlerService {
 			// const event = this.eventQueue.dequeue();
 			if (event && event.eventType == 'VEHICLE') {
 				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+				console.log("vehicle event arrived!", event.id);
+				console.log("sim completed", this.simulationCompleted)
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
+				console.log("passenger event arrived!", event.id);
 			}
+			if(event) {
+				const start = this.dateParser.parseTimeFromString(this.combined[0].time);
+				const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+				this.zoomTo(viewer, start, end);
+			}
+			console.log(this.combined.length, i)
 			// }
 			i++;
-			if(i >= this.combined.length) {
-				await new Promise(resolve => this.pauseEventEmitter.once('newevent', resolve));
-			}
+
 		}
 		this.stopHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();

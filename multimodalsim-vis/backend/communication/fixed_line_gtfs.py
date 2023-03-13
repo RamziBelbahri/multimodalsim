@@ -18,7 +18,7 @@ from frontend_observer import FrontendEnvironmentObserver
 from frontend_visualizer import FrontendVisualizer
 if __name__ == '__main__':
     # To modify the log level (at INFO, by default)
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.INFO)
 
     # Read input data from files with a DataReader. The DataReader returns a
     # list of Vehicle objects and a list of Trip objects.
@@ -29,8 +29,8 @@ if __name__ == '__main__':
     # Set to None if coordinates of the vehicles are not available.
     coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
                             "/coordinates_30s.csv"
-    coordinates = CoordinatesFromFile(coordinates_file_path)
-    # coordinates = CoordinatesOSRM()
+    # coordinates = CoordinatesFromFile(coordinates_file_path)
+    coordinates = CoordinatesOSRM()
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()

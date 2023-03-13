@@ -17,7 +17,7 @@ export class MessageQueueStompService {
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService,
 		socketAddress:string=ConnectionCredentials.WEBSOCKET,
-		debug=true
+		debug=false
 	) {
 		if(MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
@@ -113,6 +113,7 @@ export class MessageQueueStompService {
 			this.eventLookup.set(previousEvent.id, entityEvent);
 			this.entityDataHandlerService.combined.push(previousEvent);
 			this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+			console.log("emitted signal new event!")
 			// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
 		} else {
 			this.eventLookup.set(entityEvent.id, entityEvent);
@@ -120,11 +121,24 @@ export class MessageQueueStompService {
 	}
 
 	private onReceivingEntityEvent = (msg:IMessage) => {
-		console.log(msg.body == 'SIMULATION_COMPLETED')
-		console.log(msg.body === 'SIMULATION_COMPLETED')
 		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
 			console.log("================================", msg.body);
 			this.entityDataHandlerService.simulationCompleted = true;
+			const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
+			leftOverEntityEvents.sort(
+				(a:EntityEvent,	b:EntityEvent) => {
+					return Date.parse(a.time) - Date.parse(b.time)
+				}
+			)
+			for(let leftOverEntityEvent of leftOverEntityEvents) {
+				if(leftOverEntityEvent.eventType == 'PASSENGER') {
+					(leftOverEntityEvent as PassengerEvent).duration = '0 days 00:00:00';
+				} else if(leftOverEntityEvent.eventType == 'VEHICLE') {
+					(leftOverEntityEvent as VehicleEvent).duration = '0 days 00:00:00';
+				}
+				this.entityDataHandlerService.combined.push(leftOverEntityEvent);
+				// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+			}
 			return;
 		}
 		if(msg.body === 'None') {
@@ -145,20 +159,6 @@ export class MessageQueueStompService {
 				event['next_legs'],
 				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
-			// if(this.eventLookup.has(entityEvent.id)) {
-			// 	const previousEvent = this.eventLookup.get(entityEvent.id) as PassengerEvent;
-			// 	previousEvent.duration = this.dateParserService.substractDateString(entityEvent.time, previousEvent.time);
-			// 	// TODO make it insert at the right place
-			// 	this.entityDataHandlerService.passengerEvents.push(previousEvent);
-			// 	this.eventLookup.set(previousEvent.id, entityEvent);
-			// 	// are these really necessary????
-			// 	this.entityDataHandlerService.combined.push(previousEvent);
-			// 	this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
-			// 	// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
-			// } else {
-			// 	this.eventLookup.set(entityEvent.id, entityEvent);
-			// }
-			this.sendPreviousEventToSimulator(entityEvent);
 		} else {
 			entityEvent = new VehicleEvent(
 				event['id'],
@@ -175,22 +175,8 @@ export class MessageQueueStompService {
 				event['stop_lat'],
 				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
-			// if(this.eventLookup.has(entityEvent.id)) {
-			// 	const previousEvent = this.eventLookup.get(entityEvent.id) as VehicleEvent;
-			// 	previousEvent.duration = this.dateParserService.substractDateString(entityEvent.time, previousEvent.time);
-			// 	// TODO make it insert at the right place
-			// 	this.entityDataHandlerService.vehicleEvents.push(previousEvent);
-			// 	this.eventLookup.set(previousEvent.id, entityEvent);
-			// 	// are these really necessary????
-			// 	this.entityDataHandlerService.combined.push(previousEvent);
-			// 	// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
-			// 	this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
-			// } else {
-			// 	this.eventLookup.set(entityEvent.id, entityEvent);
-			// }
-			this.sendPreviousEventToSimulator(entityEvent);
 		}
-
+		this.sendPreviousEventToSimulator(entityEvent);
 	}
 
 	getClient():CompatClient {
