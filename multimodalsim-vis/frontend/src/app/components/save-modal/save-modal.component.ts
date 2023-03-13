@@ -1,7 +1,4 @@
 import { Component } from '@angular/core';
-import { Viewer } from 'cesium';
-import { Subscription } from 'rxjs';
-import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
 import { MatDialogRef } from '@angular/material/dialog';
 
@@ -11,7 +8,6 @@ import { MatDialogRef } from '@angular/material/dialog';
 	styleUrls: ['./save-modal.component.css'],
 })
 export class SaveModalComponent {
-	private viewerSubscription: Subscription = new Subscription();
 
 	constructor(private dataSaverService: DataSaverService, private dialogRef: MatDialogRef<SaveModalComponent>) {}
 
