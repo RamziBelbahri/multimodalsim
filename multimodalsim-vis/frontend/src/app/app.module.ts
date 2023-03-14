@@ -8,11 +8,12 @@ import { DebugReceiverComponentComponent } from './components/debug-receiver/deb
 import { SimulationModalComponent } from './components/simulation-modal/simulation-modal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
 	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent],
-	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule],
-	providers: [],
+	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule, MatProgressSpinnerModule],
+	providers: [MatProgressSpinner],
 	bootstrap: [AppComponent],
 })
 export class AppModule {}
