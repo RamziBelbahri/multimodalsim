@@ -3,7 +3,7 @@ import { DataReaderService } from 'src/app/services/data-initialization/data-rea
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
-import { MatProgressSpinner, MatProgressSpinnerModule, ProgressSpinnerMode } from '@angular/material/progress-spinner';
+import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 
 @Component({
 	selector: 'app-simulation-modal',
