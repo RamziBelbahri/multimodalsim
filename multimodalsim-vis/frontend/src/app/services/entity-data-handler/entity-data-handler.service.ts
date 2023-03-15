@@ -108,6 +108,7 @@ export class EntityDataHandlerService {
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
 		this.boardingHandler.initBoarding(viewer);
+		this.saveSimulationState();
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
