@@ -9,9 +9,10 @@ import { SimulationModalComponent } from './components/simulation-modal/simulati
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { SaveModalComponent } from './components/save-modal/save-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule, MatProgressSpinnerModule],
 	providers: [MatProgressSpinner],
 	bootstrap: [AppComponent],
