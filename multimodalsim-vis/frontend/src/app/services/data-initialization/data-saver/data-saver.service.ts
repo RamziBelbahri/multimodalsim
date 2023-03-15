@@ -21,15 +21,14 @@ export class DataSaverService {
 		this.eventObservations = [];
 	}
 
-	saveAsZip(): void {
+	async saveAsZip(): Promise<void> {
 		const zipper: JSZip = new JSZip();
 		zipper.file(FileType.VEHICLES_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.vehicleEvents));
-		zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME,this.parser.parseToFile(this.passengerEvents));
-		zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME,this.parser.parseToFile(this.eventObservations) );
-		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME,this.parser.parseToFile(this.stops), );
-		zipper.generateAsync({ type: 'blob' }).then(function (content) {
-			saveAs(content, 'simulation.zip');
-		});
+		zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.passengerEvents));
+		zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.eventObservations));
+		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
+		const zipfile = await zipper.generateAsync({ type: 'blob' });
+		saveAs(zipfile, 'simulation.zip');
 	}
 
 	saveSimulationState(vehicleEvents: VehicleEvent[], passengerEvents: PassengerEvent[], eventObservations: EventObservation[], stops: any[]): void {
