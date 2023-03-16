@@ -1,20 +1,20 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CommunicationService {
-	private readonly apiUrl = 'http://localhost:8000/api/';
+	private readonly APIURL = 'http://localhost:8000/api/';
 	constructor(private http: HttpClient) {}
 
 	getStatus() {
-		return this.http.get(this.apiUrl + 'status').pipe(catchError(this.handleError));
+		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
 	}
 	startSimulation() {
-		return this.http.get(this.apiUrl + 'start-simulation').pipe(catchError(this.handleError));
+		return this.http.get(this.APIURL + 'start-simulation').pipe(catchError(this.handleError));
 	}
 
 	private handleError(error: HttpErrorResponse) {
