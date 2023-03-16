@@ -21,7 +21,7 @@ export class EntityDataHandlerService {
 	private simulationRunning: boolean;
 	public simulationCompleted: boolean;
 	public pauseEventEmitter = new EventEmitter();
-
+	
 	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
@@ -129,32 +129,28 @@ export class EntityDataHandlerService {
 				console.log('waiting for new event...')
 				await new Promise(resolve => this.pauseEventEmitter.once('newevent', resolve));
 			}
+			const currentCesiumTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime() / 1000;
 			const event = this.combined[i];
-			console.log(event)
-			// this.eventQueue.enqueue(currentEvent);
+			const eventTime = +Date.parse(event.time).toFixed(0) / 1000;
+			console.log(currentCesiumTime, eventTime)
 
+			// console.log(event)
 			if(!this.simulationRunning) {
 				await new Promise(resolve => this.pauseEventEmitter.once('unpause', resolve));
 			}
 
-
-			// if (this.simulationRunning) {
-			// const event = this.eventQueue.dequeue();
 			if (event && event.eventType == 'VEHICLE') {
 				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				console.log("vehicle event arrived!", event.id);
-				console.log("sim completed", this.simulationCompleted)
+				// console.log("vehicle event arrived!", event.id);
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
-				console.log("passenger event arrived!", event.id);
+				// console.log("passenger event arrived!", event.id);
 			}
 			if(event && i == 0) {
 				const start = this.dateParser.parseTimeFromString(this.combined[0].time);
 				const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
 				this.zoomTo(viewer, start, end);
 			}
-			console.log(this.combined.length, i)
-			// }
 			i++;
 
 		}
