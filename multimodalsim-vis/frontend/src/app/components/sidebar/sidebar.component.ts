@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 
 @Component({
@@ -18,7 +19,7 @@ export class SidebarComponent implements OnInit {
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
-	constructor(private dialog: MatDialog) {}
+	constructor(private dialog: MatDialog, private commService: CommunicationService) {}
 
 	ngOnInit() {
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
@@ -76,6 +77,12 @@ export class SidebarComponent implements OnInit {
 		this.dialog.open(SaveModalComponent, {
 			height: '400px',
 			width: '600px',
+		});
+	}
+
+	launchSimulation(): void {
+		this.commService.startSimulation().subscribe((res) => {
+			console.log(res);
 		});
 	}
 }
