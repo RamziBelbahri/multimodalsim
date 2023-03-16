@@ -13,6 +13,9 @@ export class CommunicationService {
 	getStatus() {
 		return this.http.get(this.apiUrl + 'status').pipe(catchError(this.handleError));
 	}
+	startSimulation() {
+		return this.http.get(this.apiUrl + 'start-simulation').pipe(catchError(this.handleError));
+	}
 
 	private handleError(error: HttpErrorResponse) {
 		if (error.status === 0) {

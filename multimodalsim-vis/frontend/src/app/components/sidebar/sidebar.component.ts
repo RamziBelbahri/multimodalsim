@@ -81,7 +81,7 @@ export class SidebarComponent implements OnInit {
 	}
 
 	launchSimulation(): void {
-		this.commService.getStatus().subscribe((res) => {
+		this.commService.startSimulation().subscribe((res) => {
 			console.log(res);
 		});
 	}
