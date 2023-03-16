@@ -31,10 +31,19 @@ app.get("/api/status", (req: Request, res: Response) =>  {
 });
 
 app.get('/api/start-simulation', (req: Request, res: Response) => {
-	spawn('../../venv/Scripts/activate');
-	const runSim = spawn('python ', ['-m', '../fixed_line_gtfs.py']);
+	const VENV_PYTHON_PATH = '../../venv/Scripts/python';
+	const runSim = spawn(VENV_PYTHON_PATH, ['../fixed_line_gtfs.py']);
 	
+	runSim.on('spawn', () => {
+		console.log('Started runSim:');
+	  });
+
+	runSim.on('error', (err) => {
+		console.error('Exited runSim with error:', err.message);
+	  });
+
 	runSim.stdout.on('data', (data) => {
+		console.log('Running');
 		console.log(`stdout: ${data}`);
 	});
 	
