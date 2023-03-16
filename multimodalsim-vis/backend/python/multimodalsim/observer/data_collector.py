@@ -167,7 +167,7 @@ class StandardDataCollector(DataCollector):
     def __collect_events_data(self):
 
         event_name = self.__current_event.name \
-            if self.__current_event is néot None else None
+            if self.__current_event is not None else None
 
         obs_dict = {"name": event_name,
                     "time": self.__time,

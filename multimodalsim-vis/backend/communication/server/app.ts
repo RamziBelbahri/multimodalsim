@@ -31,6 +31,7 @@ app.get("/api/status", (req: Request, res: Response) =>  {
 });
 
 app.get('/api/start-simulation', (req: Request, res: Response) => {
+	spawn('../../venv/Scripts/activate');
 	const runSim = spawn('python ', ['-m', '../fixed_line_gtfs.py']);
 	
 	runSim.stdout.on('data', (data) => {
