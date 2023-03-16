@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Viewer } from 'cesium';
+import { Clock, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
@@ -8,6 +8,8 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 	providedIn: 'root',
 })
 export class BoardingHandlerService {
+	private readonly SPEED_MULTIPLIER_LIMIT = 100;
+
 	private lastEvent: BoardingEvent | undefined;
 
 	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
@@ -18,6 +20,8 @@ export class BoardingHandlerService {
 	initBoarding(viewer: Viewer): void {
 		viewer.clock.onTick.addEventListener((clock) => {
 			const currentTime = clock.currentTime;
+
+			this.limitSimulationSpeed(clock);
 
 			if (!this.lastEvent) {
 				this.lastEvent = this.stopHandler.boardingEventPop();
@@ -40,5 +44,13 @@ export class BoardingHandlerService {
 				}
 			}
 		});
+	}
+
+	private limitSimulationSpeed(clock: Clock): void {
+		if (clock.multiplier > this.SPEED_MULTIPLIER_LIMIT) {
+			clock.multiplier = this.SPEED_MULTIPLIER_LIMIT;
+		} else if (clock.multiplier < -this.SPEED_MULTIPLIER_LIMIT) {
+			clock.multiplier = -this.SPEED_MULTIPLIER_LIMIT;
+		}
 	}
 }
