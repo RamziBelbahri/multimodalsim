@@ -10,7 +10,7 @@ import multimodalsim.simulator.passenger_event
 import multimodalsim.simulator.vehicle_event
 from multimodalsim.config.data_collector_config import DataCollectorConfig
 from multimodalsim.simulator.event import ActionEvent
-from multimodalsim.simulator.status import PassengersStatus
+from multimodalsim.state_machine.status import PassengersStatus
 from multimodalsim.observer.data_collector import DataCollector
 from active_mq_controller import ActiveMQController
 from connection_credentials import ConnectionCredentials
