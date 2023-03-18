@@ -83,8 +83,9 @@ export class EntityDataHandlerService {
 	}
 
 	runVehiculeSimulation(viewer: Viewer, isRealTime: boolean): void {
-		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
-		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+		const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time);
+
+		const end = this.dateParser.parseTimeFromSeconds(this.combined[this.combined.length - 1].time);
 
 		viewer.clock.startTime = start.clone();
 		viewer.clock.stopTime = end.clone();
