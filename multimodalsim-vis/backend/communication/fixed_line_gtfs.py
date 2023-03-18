@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
     #                         "/coordinates_30s.csv"
     # coordinates = CoordinatesFromFile(coordinates_file_path)
-    # coordinates = CoordinatesOSRM()
+    coordinates = CoordinatesOSRM()
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
