@@ -124,6 +124,7 @@ export class EntityDataHandlerService {
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
 		clockState.shouldAnimate = true;
+		const vehicle_debug:VehicleEvent[] =[]; 
 		while (!this.simulationCompleted) {
 			if(i >= this.combined.length) {
 				console.log('waiting for new event...')
@@ -131,9 +132,10 @@ export class EntityDataHandlerService {
 			}
 			const currentCesiumTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime() / 1000;
 			const event = this.combined[i];
-			const eventTime = +Date.parse(event.time).toFixed(0) / 1000;
-			console.log(currentCesiumTime, eventTime)
-
+			console.log(new Date(event.time).getTime() > new Date(viewer.clockViewModel.currentTime.toString()).getTime())
+			// const eventTime = +Date.parse(event.time).toFixed(0) / 1000;
+			// console.log(currentCesiumTime, eventTime)
+			
 			// console.log(event)
 			if(!this.simulationRunning) {
 				await new Promise(resolve => this.pauseEventEmitter.once('unpause', resolve));
@@ -141,10 +143,17 @@ export class EntityDataHandlerService {
 
 			if (event && event.eventType == 'VEHICLE') {
 				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+				vehicle_debug.push(event as VehicleEvent);
 				// console.log("vehicle event arrived!", event.id);
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 				// console.log("passenger event arrived!", event.id);
+			}
+
+			for(let k = 0; k < vehicle_debug.length - 2; k ++) {
+				if(new Date(vehicle_debug[k].time).getTime() > new Date(vehicle_debug[k+1].time).getTime()) {
+					alert('out of order')
+				}
 			}
 			if(event && i == 0) {
 				const start = this.dateParser.parseTimeFromString(this.combined[0].time);
