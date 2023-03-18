@@ -70,8 +70,10 @@ export class VehiclePositionHandlerService {
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
-		const startTime = this.dateParser.parseTimeFromString(vehicleEvent.time);
+		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
+
+		//console.log(Cesium.JulianDate.toDate(endTime));
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
