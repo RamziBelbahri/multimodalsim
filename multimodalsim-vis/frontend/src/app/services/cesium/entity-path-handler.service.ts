@@ -1,23 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Cartesian2, Cartesian3, Viewer } from 'cesium';
-import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 import * as polylineEncoder from '@mapbox/polyline';
 
 @Injectable({
 	providedIn: 'root',
 })
-export class EntityLabelHandlerService {
+export class EntityPathHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities;
-	private a = true;
+	private isLeftClicked = false;
 
-	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
+	constructor(private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
 	}
 
-	// Active le handler qui s'occupe d'afficher le texte
+	// Active le handler qui s'occupe d'afficher le path
 	initHandler(viewer: Viewer): void {
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
@@ -26,8 +25,8 @@ export class EntityLabelHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if (entity.name == 'vehicle' && this.a) {
-						this.a = false;
+					if (entity.name == 'vehicle' && this.isLeftClicked) {
+						this.isLeftClicked = false;
 						const polylines = this.vehicleHandler.getPolylines(entity.id);
 						const positions = new Array<Cartesian3>();
 
@@ -39,9 +38,7 @@ export class EntityLabelHandlerService {
 							}
 						}
 
-						console.log(positions);
-
-						viewer.entities.add({
+						const line = viewer.entities.add({
 							polyline: {
 								positions: positions,
 								width: 5,
@@ -49,39 +46,24 @@ export class EntityLabelHandlerService {
 							},
 						});
 
-						//console.log(paths);
+						this.lastEntities.push(line);
 					}
-					/*if (entity.label) {
-						entity.label.text = new Cesium.ConstantProperty(this.createText(entity));
-						this.lastEntities.push(entity);
-					}*/
-				} /* else if (this.lastEntities.length > 0) {
-					this.lastEntities.forEach((element: any) => {
-						element.label.text = new Cesium.ConstantProperty('');
-					});
-				}*/
+				}
 			}
 		});
 
 		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
-		// Modifie la position de souris pour pouvoir pick une entité
+		// Modifie la position de la souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
+			if (this.lastEntities.length > 0) {
+				this.lastEntities.forEach((element: any) => {
+					viewer.entities.remove(element);
+				});
+			}
+
 			this.currentMousePosition = movement.position;
-			this.a = true;
+			this.isLeftClicked = true;
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
-
-	// Créé une string avec le nombre de passagers selon l'entité
-	/*private createText(entity: any): string {
-		let amount = 0;
-
-		if (entity.name == 'stop') {
-			amount = this.stopHandler.getPassengerAmount(entity.id);
-		} else if (entity.name == 'vehicle') {
-			amount = this.vehicleHandler.getPassengerAmount(entity.id);
-		}
-
-		return amount > 0 ? '{' + amount.toString() + '}' : '{0}';
-	}*/
 }
