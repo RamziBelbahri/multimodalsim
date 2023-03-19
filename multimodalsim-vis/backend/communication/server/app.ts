@@ -31,8 +31,8 @@ app.get("/api/status", (req: Request, res: Response) =>  {
 });
 let runSim:ChildProcessWithoutNullStreams|undefined;
 app.get('/api/start-simulation', (req: Request, res: Response) => {
-	const VENV_PYTHON_PATH = '../../venv/Scripts/python';
-	runSim = spawn('bash');
+	const scriptCommand = `python -m communication fixed --gtfs --gtfs-folder "data/20191101/gtfs/" -r "data/20191101/requests.csv" --multimodal --log-level INFO -g "data/20191101/bus_network_graph_20191101.txt" --osrm`
+	runSim = spawn(scriptCommand, [], {cwd:"../../", shell: true});
 
 	runSim.on('spawn', () => {
 		console.log('Started runSim:');
@@ -49,11 +49,7 @@ app.get('/api/start-simulation', (req: Request, res: Response) => {
 	runSim.stderr.on('data', (err) => {
 		console.log(`${err}`);
 	} )
-	runSim.stdin.write('cd ../..\n');
-	runSim.stdin.write('source venv/bin/activate\n');
-	runSim.stdin.write('cd communication\n');
-	runSim.stdin.write('py -m fixed_line_gtfs\n');
-	runSim.stdin.end();
+
 	res.status(200).json({ status: "RUNNING" });
 });
 
@@ -63,7 +59,7 @@ app.get('/api/pause', (req:Request, res:Response) => {
 	}
 })
 
-app.get('/api/pause', (req:Request, res:Response) => {
+app.get('/api/continue', (req:Request, res:Response) => {
 	if(runSim) {
 		runSim.kill('SIGCONT');
 	}
