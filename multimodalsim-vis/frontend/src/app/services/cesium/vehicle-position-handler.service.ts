@@ -11,9 +11,11 @@ import { StopLookupService } from '../util/stop-lookup.service';
 })
 export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
+	private pathIdMapping;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
+		this.pathIdMapping = new Map<string, string>();
 	}
 
 	// Compile les chemins des véhicules avant leur création
@@ -28,6 +30,10 @@ export class VehiclePositionHandlerService {
 				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			}
 			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
+		}
+
+		if (!this.pathIdMapping.has(vehicleId)) {
+			this.pathIdMapping.set(vehicleId, vehicleEvent.polylines);
 		}
 
 		switch (vehicleEvent.status) {
@@ -65,6 +71,24 @@ export class VehiclePositionHandlerService {
 
 	removePassenger(passengerid: string, vehicleId: string): void {
 		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
+	}
+
+	// Ce n'est pas le parsing le plus propre, mais cette fonction retourne seulement les polylines de la string Polylines
+	getPolylines(id: string): Array<string> {
+		const rawString = this.pathIdMapping.get(id);
+		const polylines = new Array<string>();
+
+		if (rawString) {
+			const rawStringArray = rawString.split('\'');
+
+			for (let i = 0; i < rawStringArray.length; i++) {
+				if ((i - 3) % 4 == 0) {
+					polylines.push(rawStringArray[i]);
+				}
+			}
+		}
+
+		return polylines;
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
