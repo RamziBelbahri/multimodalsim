@@ -3,4 +3,5 @@ export interface EntityEvent {
 	time: string;
 	status: string;
 	readonly eventType: string;
+	duration:string;
 }

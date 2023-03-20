@@ -9,11 +9,15 @@ import { Queue } from 'queue-typescript';
 
 // uses STOMP with active MQ
 export class MessageQueueStompService {
-	// public socketAddress:string;
 	public static client:CompatClient;
 	public static service:MessageQueueStompService;
 	public static readonly DURATION_WAIT_NEXT = 'DURATION_WAIT_NEXT';
+
+	// probably gonna have to replace this one
 	private eventLookup:Map<string, EntityEvent> = new Map<string, EntityEvent>();
+
+	private eventQueue:Queue<EntityEvent> = new Queue<EntityEvent>();
+
 	private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService,
@@ -99,26 +103,37 @@ export class MessageQueueStompService {
 	// }
 
 	private sendPreviousEventToSimulator = (entityEvent:EntityEvent) => {
-		const eventType:string = entityEvent.eventType;
-		if(this.eventLookup.has(entityEvent.id)) {
-			const previousEvent = eventType == 'PASSENGER' ?
-				this.eventLookup.get(entityEvent.id) as PassengerEvent :
-				this.eventLookup.get(entityEvent.id) as VehicleEvent;
-			previousEvent.duration = this.dateParserService.substractDateString(entityEvent.time, previousEvent.time);
-			
-			// TODO make it insert at the right place
-			eventType == 'PASSENGER' ?
-			 	this.entityDataHandlerService.passengerEvents.push(previousEvent as PassengerEvent) :
-				this.entityDataHandlerService.vehicleEvents.push(previousEvent as VehicleEvent);
-			
-			this.eventLookup.set(previousEvent.id, entityEvent);
-			this.entityDataHandlerService.combined.push(previousEvent);
-			this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
-			console.log("emitted signal new event!")
-			// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
-		} else {
-			this.eventLookup.set(entityEvent.id, entityEvent);
+		// const eventType:string = entityEvent.eventType;
+		// if(this.eventLookup.has(entityEvent.id)) {
+		// const previousEvent = eventType == 'PASSENGER' ?
+		// 	this.eventLookup.get(entityEvent.id) as PassengerEvent :
+		// 	this.eventLookup.get(entityEvent.id) as VehicleEvent;
+
+		// previousEvent.duration = this.dateParserService.substractDateString(entityEvent.time, previousEvent.time);
+		
+		// // TODO make it insert at the right place
+		// eventType == 'PASSENGER' ?
+		// 	this.entityDataHandlerService.passengerEvents.push(previousEvent as PassengerEvent) :
+		// 	this.entityDataHandlerService.vehicleEvents.push(previousEvent as VehicleEvent);
+		
+		// this.eventLookup.set(previousEvent.id, entityEvent);
+		// this.entityDataHandlerService.combined.push(previousEvent);
+		// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+		// console.log("emitted signal new event!")
+		// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
+		// } else {
+		// 	this.eventLookup.set(entityEvent.id, entityEvent);
+		// }
+		for(let previousEntityEvent of this.eventQueue) {
+			const sameEvent = previousEntityEvent.id == entityEvent.id;
+			const waitingNextEvent = previousEntityEvent.time == MessageQueueStompService.DURATION_WAIT_NEXT;
+			if(sameEvent && waitingNextEvent) {
+				previousEntityEvent.duration = this.dateParserService.substractDateString(
+					entityEvent.time, previousEntityEvent.time
+				)
+			}
 		}
+
 	}
 
 	private onReceivingEntityEvent = (msg:IMessage) => {
