@@ -27,16 +27,12 @@ export class SidebarComponent implements OnInit {
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
-<<<<<<< HEAD
 	lat = 0;
 	lon = 0;
 	passengerAmount = 0;
 	passengerList = new Array<string>();
 
-	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
-=======
-	constructor(private dialog: MatDialog, private commService: CommunicationService) {}
->>>>>>> 20a9e6805780fbd66101e0ef77087b4322d928b7
+	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {

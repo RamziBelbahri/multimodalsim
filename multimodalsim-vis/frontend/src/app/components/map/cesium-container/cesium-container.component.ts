@@ -24,13 +24,9 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		);
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
-<<<<<<< HEAD
-		//this.labelHandler.initHandler(this.viewer);
-=======
 		this.pathHandler.initHandler(this.viewer);
 
 		this.viewer.animation.viewModel.setShuttleRingTicks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]);
->>>>>>> 20a9e6805780fbd66101e0ef77087b4322d928b7
 
 		// S'enregistrer sur le service qui partage le viewer entre les components.
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
