@@ -60,11 +60,25 @@ app.get('/api/start-simulation', (req: Request, res: Response) => {
 app.get('/api/pause', (req:Request, res:Response) => {
 	if(runSim) {
 		runSim.kill('SIGTSTP');
+		// runSim.stdin.write(
+		// 	'sudo docker pause CONTAINER_NAME\n'
+		// )
+		// runSim.stdin.write(
+		// 	'your password\n'
+		// )
+		// runSim.stdin.end()
 	}
 })
 
 app.get('/api/pause', (req:Request, res:Response) => {
 	if(runSim) {
 		runSim.kill('SIGCONT');
+		// runSim.stdin.write (
+		// 	'sudo docker unpause CONTAINER_NAME\n'
+		// )
+		// runSim.stdin.write(
+		// 	'your password\n'
+		// )
+		// runSim.stdin.end()
 	}
 })
