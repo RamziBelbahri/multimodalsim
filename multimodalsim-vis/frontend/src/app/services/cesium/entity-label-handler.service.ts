@@ -93,7 +93,6 @@ export class EntityLabelHandlerService {
 	// Obtenir le nombre de passagers dans un véhicule
 	getClickedEntityInfos(displayedEntity: any): EntityInfos {
 		const entity: any | undefined = displayedEntity;
-		//const entityInfos = new Map<string, any>();
 		let position = CesiumClass.cartesian3(0, 0, 0);
 		let passengers: Array<string> | undefined = [];
 
@@ -108,9 +107,6 @@ export class EntityLabelHandlerService {
 			);
 			passengers = this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers();
 
-			/*entityInfos.set('position', entity.position['_property']['_interpolationResult']);
-			entityInfos.set('passengerAmount', this.vehicleHandler.getPassengerAmount(entity.id));
-			entityInfos.set('passengerList', this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers());*/
 		}
 
 		return new EntityInfos(passengers ? passengers : [], position, entity.name, entity.id);

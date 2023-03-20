@@ -7,9 +7,9 @@ export class EntityInfos {
 	id: string;
 
 	constructor(passengers: Array<string>, position: Cartesian3, type: string, id: string) {
-		this.position = position;
-		this.id = id;
 		this.passengers = passengers;
+		this.position = position;
 		this.type = type;
+		this.id = id;
 	}
 }
