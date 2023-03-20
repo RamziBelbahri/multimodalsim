@@ -26,7 +26,6 @@ export class SidebarComponent implements OnInit {
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
-
 	lat = 0;
 	lon = 0;
 	passengerAmount = 0;
