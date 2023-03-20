@@ -35,6 +35,7 @@ export class SimulationParserService {
 				line.cumulative_distance,
 				line.longitude,
 				line.latitude,
+				line.polylines,
 				line.duration
 			);
 			vehicleData.push(vehicleEvent);
