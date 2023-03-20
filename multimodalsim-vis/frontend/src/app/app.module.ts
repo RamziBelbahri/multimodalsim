@@ -13,15 +13,9 @@ import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 
 @NgModule({
-<<<<<<< HEAD
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, EntityInfosComponent],
-	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule],
-	providers: [],
-=======
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, EntityInfosComponent, SaveModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule],
 	providers: [MatProgressSpinner],
->>>>>>> 20a9e6805780fbd66101e0ef77087b4322d928b7
 	bootstrap: [AppComponent],
 })
 export class AppModule {}
