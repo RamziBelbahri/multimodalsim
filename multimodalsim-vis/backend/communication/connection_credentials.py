@@ -6,5 +6,5 @@ class ConnectionCredentials:
     EVENTS_OBSERVATION_QUEUE    = '/queue/events_observation'
     USERNAME                    = 'admin'
     PASSWORD                    = 'admin'
-    HOST                        = '0.0.0.0'
+    HOST                        = '127.0.0.1'
     PORT                        = 61613
