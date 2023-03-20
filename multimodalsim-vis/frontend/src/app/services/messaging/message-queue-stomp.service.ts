@@ -124,6 +124,7 @@ export class MessageQueueStompService {
 		// } else {
 		// 	this.eventLookup.set(entityEvent.id, entityEvent);
 		// }
+		let entityEventToSend:EntityEvent
 		for(let previousEntityEvent of this.eventQueue) {
 			const sameEvent = previousEntityEvent.id == entityEvent.id;
 			const waitingNextEvent = previousEntityEvent.time == MessageQueueStompService.DURATION_WAIT_NEXT;
@@ -131,6 +132,7 @@ export class MessageQueueStompService {
 				previousEntityEvent.duration = this.dateParserService.substractDateString(
 					entityEvent.time, previousEntityEvent.time
 				)
+				break;
 			}
 		}
 
