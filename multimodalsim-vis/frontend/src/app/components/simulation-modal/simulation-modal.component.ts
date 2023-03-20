@@ -3,6 +3,7 @@ import { DataReaderService } from 'src/app/services/data-initialization/data-rea
 import { Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
+import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -12,9 +13,13 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 export class SimulationModalComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
+	mode: ProgressSpinnerMode;
+	value: number;
 
-	constructor(private dataReaderService: DataReaderService, private viewerSharer: ViewerSharingService) {}
-
+	constructor(private dataReaderService: DataReaderService, private viewerSharer: ViewerSharingService) {
+		this.mode = 'determinate';
+		this.value = 0;
+	}
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
 	}
@@ -31,11 +36,14 @@ export class SimulationModalComponent {
 		this.dataReaderService.selectZip(event);
 	}
 
-	readContent(): void {
+	async readContent(): Promise<void> {
+		this.mode = 'indeterminate';
 		const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
 		if (csvInput.value != '') this.dataReaderService.readCSV();
 		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
-		if (zipInput.value != '') this.dataReaderService.readZipContent();
+		if (zipInput.value != '') await this.dataReaderService.readZipContent();
+		this.mode = 'determinate';
+		this.value = 100;
 	}
 
 	launchSimulation(): void {
