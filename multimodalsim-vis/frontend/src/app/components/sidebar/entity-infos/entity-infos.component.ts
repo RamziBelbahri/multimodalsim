@@ -8,7 +8,7 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 @Component({
 	selector: 'app-entity-infos',
 	templateUrl: './entity-infos.component.html',
-	styleUrls: ['./entity-infos.component.css']
+	styleUrls: ['./entity-infos.component.css'],
 })
 export class EntityInfosComponent {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
@@ -32,13 +32,13 @@ export class EntityInfosComponent {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
 
-			this.entityHandler.findClickedEntityId(this.viewer);
+			/*this.entityHandler.findClickedEntityId(this.viewer);
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				this.lat = infos.position.x;
 				this.lon = infos.position.y;
 				this.passengerAmount = infos.passengers.length;
 				this.passengerList = infos.passengers;
-			});
+			});*/
 		});
 
 		// this.passengerList.push('Paramètre 1');
@@ -57,5 +57,4 @@ export class EntityInfosComponent {
 	close(): void {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '0px';
 	}
-
 }

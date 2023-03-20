@@ -22,49 +22,7 @@ export class EntityLabelHandlerService {
 		this.lastEntities = new Array<any>();
 	}
 
-	// Active le handler qui s'occupe d'afficher le texte
-	/*	initHandler(viewer: Viewer): void {
-		viewer.scene.preRender.addEventListener(() => {
-			if (this.currentMousePosition) {
-				const pickedObject = viewer.scene.pick(this.currentMousePosition);
-
-				if (pickedObject) {
-					const entity = pickedObject.id;
-
-					if (entity.label) {
-						entity.label.text = new Cesium.ConstantProperty(this.createText(entity));
-						this.lastEntities.push(entity);
-					}
-				} else if (this.lastEntities.length > 0) {
-					this.lastEntities.forEach((element: any) => {
-						element.label.text = new Cesium.ConstantProperty('');
-					});
-				}
-			}
-		});
-
-		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
-
-		// Modifie la position de souris pour pouvoir pick une entité
-		mouseHandler.setInputAction((movement: any) => {
-			this.currentMousePosition = movement.endPosition;
-		}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-	}
-
-	// Créé une string avec le nombre de passagers selon l'entité
-	private createText(entity: any): string {
-		let amount = 0;
-
-		if (entity.name == 'stop') {
-			amount = this.stopHandler.getPassengerAmount(entity.id);
-		} else if (entity.name == 'vehicle') {
-			amount = this.vehicleHandler.getPassengerAmount(entity.id);
-		}
-
-		return amount > 0 ? '{' + amount.toString() + '}' : '';
-	}*/
-
-	findClickedEntityId(viewer: Viewer) {
+	initHandler(viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
 			// event.preventDefault();
 			let displayedEntity: any;
@@ -91,7 +49,7 @@ export class EntityLabelHandlerService {
 	}
 
 	// Obtenir le nombre de passagers dans un véhicule
-	getClickedEntityInfos(displayedEntity: any): EntityInfos {
+	private getClickedEntityInfos(displayedEntity: any): EntityInfos {
 		const entity: any | undefined = displayedEntity;
 		let position = CesiumClass.cartesian3(0, 0, 0);
 		let passengers: Array<string> | undefined = [];
@@ -106,13 +64,12 @@ export class EntityLabelHandlerService {
 				entity.position['_property']['_interpolationResult'][2]
 			);
 			passengers = this.vehicleHandler.getVehicleIdMapping().get(entity.id)?.getOnBoardPassengers();
-
 		}
 
 		return new EntityInfos(passengers ? passengers : [], position, entity.name, entity.id);
 	}
 
-	setEntityInfos(): void {
+	private setEntityInfos(): void {
 		this.displayedEntityInfosSource.next(this.displayedEntityInfos as EntityInfos);
 	}
 }
