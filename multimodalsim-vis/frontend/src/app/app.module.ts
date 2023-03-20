@@ -13,7 +13,7 @@ import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, EntityInfosComponent, SaveModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule],
 	providers: [MatProgressSpinner],
 	bootstrap: [AppComponent],

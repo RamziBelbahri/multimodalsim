@@ -1,4 +1,4 @@
-.sidebar {
+.entity-infos-sidebar {
 	height: 50%;
 	width: 0px;
 	position: fixed;
@@ -111,10 +111,10 @@
 
 /* Au cas ou l'écran est plus petit que l'écran ordinaire d'un ordinateur.*/
 @media screen and (max-height: 450px) {
-	.sidebar {
+	.entity-infos-sidebar {
 		padding-top: 15px;
 	}
-	.sidebar a {
+	.entity-infos-sidebar a {
 		font-size: 18px;
 	}
 }
