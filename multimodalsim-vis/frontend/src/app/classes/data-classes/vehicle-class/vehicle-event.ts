@@ -13,6 +13,7 @@ export class VehicleEvent implements EntityEvent {
 	cumulative_distance: number;
 	longitude: number;
 	latitude: number;
+	polylines: string;
 	duration: string;
 	readonly eventType: string = 'VEHICLE';
 
@@ -29,6 +30,7 @@ export class VehicleEvent implements EntityEvent {
 		cumulative_distance: number,
 		longitude: number,
 		latitude: number,
+		polylines: string,
 		duration: string
 	) {
 		this.id = id;
@@ -43,6 +45,7 @@ export class VehicleEvent implements EntityEvent {
 		this.cumulative_distance = cumulative_distance;
 		this.longitude = longitude;
 		this.latitude = latitude;
-		this.duration = duration == null ? '0 days 00:00:00' : duration;
+		this.polylines = polylines;
+		this.duration = duration == null ? '0' : duration;
 	}
 }

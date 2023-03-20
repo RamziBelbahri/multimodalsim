@@ -11,9 +11,11 @@ import { StopLookupService } from '../util/stop-lookup.service';
 })
 export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
+	private pathIdMapping;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
+		this.pathIdMapping = new Map<string, string>();
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle>{
@@ -32,6 +34,10 @@ export class VehiclePositionHandlerService {
 				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			}
 			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
+		}
+
+		if (!this.pathIdMapping.has(vehicleId)) {
+			this.pathIdMapping.set(vehicleId, vehicleEvent.polylines);
 		}
 
 		switch (vehicleEvent.status) {
@@ -71,11 +77,31 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
 	}
 
+	// Ce n'est pas le parsing le plus propre, mais cette fonction retourne seulement les polylines de la string Polylines
+	getPolylines(id: string): Array<string> {
+		const rawString = this.pathIdMapping.get(id);
+		const polylines = new Array<string>();
+
+		if (rawString) {
+			const rawStringArray = rawString.split('\'');
+
+			for (let i = 0; i < rawStringArray.length; i++) {
+				if ((i - 3) % 4 == 0) {
+					polylines.push(rawStringArray[i]);
+				}
+			}
+		}
+
+		return polylines;
+	}
+
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
-		const startTime = this.dateParser.parseTimeFromString(vehicleEvent.time);
+		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
+
+		//console.log(Cesium.JulianDate.toDate(endTime));
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);

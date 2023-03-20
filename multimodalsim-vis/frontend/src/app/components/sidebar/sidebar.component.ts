@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { MatDialog } from '@angular/material/dialog';
+import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 
 @Component({
@@ -26,12 +27,16 @@ export class SidebarComponent implements OnInit {
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
+<<<<<<< HEAD
 	lat = 0;
 	lon = 0;
 	passengerAmount = 0;
 	passengerList = new Array<string>();
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
+=======
+	constructor(private dialog: MatDialog, private commService: CommunicationService) {}
+>>>>>>> 20a9e6805780fbd66101e0ef77087b4322d928b7
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -105,6 +110,12 @@ export class SidebarComponent implements OnInit {
 		this.dialog.open(SaveModalComponent, {
 			height: '400px',
 			width: '600px',
+		});
+	}
+
+	launchSimulation(): void {
+		this.commService.startSimulation().subscribe((res) => {
+			console.log(res);
 		});
 	}
 }

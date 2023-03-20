@@ -83,8 +83,9 @@ export class EntityDataHandlerService {
 	}
 
 	runVehiculeSimulation(viewer: Viewer, isRealTime: boolean): void {
-		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
-		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+		const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time);
+
+		const end = this.dateParser.parseTimeFromSeconds(this.combined[this.combined.length - 1].time);
 
 		viewer.clock.startTime = start.clone();
 		viewer.clock.stopTime = end.clone();
@@ -108,6 +109,7 @@ export class EntityDataHandlerService {
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
 		this.boardingHandler.initBoarding(viewer);
+		this.saveSimulationState();
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
