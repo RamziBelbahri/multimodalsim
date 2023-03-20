@@ -38,7 +38,7 @@ export class SidebarComponent implements OnInit {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
 
-			this.entityHandler.findClickedEntityId(this.viewer);
+			this.entityHandler.initHandler(this.viewer);
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				this.lat = infos.position.x;
 				this.lon = infos.position.y;
