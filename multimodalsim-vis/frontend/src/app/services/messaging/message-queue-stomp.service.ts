@@ -5,6 +5,7 @@ import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 import {ConnectionCredentials} from './connection-constants';
+import { Queue } from 'queue-typescript';
 
 // uses STOMP with active MQ
 export class MessageQueueStompService {
