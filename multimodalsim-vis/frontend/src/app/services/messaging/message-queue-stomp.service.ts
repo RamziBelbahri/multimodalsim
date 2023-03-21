@@ -102,7 +102,7 @@ export class MessageQueueStompService {
 	// 	}
 	// }
 
-	private sendPreviousEventToSimulator = (entityEvent:EntityEvent) => {
+	// private sendPreviousEventToSimulator = (entityEvent:EntityEvent) => {
 		// const eventType:string = entityEvent.eventType;
 		// if(this.eventLookup.has(entityEvent.id)) {
 		// const previousEvent = eventType == 'PASSENGER' ?
@@ -124,40 +124,24 @@ export class MessageQueueStompService {
 		// } else {
 		// 	this.eventLookup.set(entityEvent.id, entityEvent);
 		// }
-		let entityEventToSend:EntityEvent
-		for(let previousEntityEvent of this.eventQueue) {
-			const sameEvent = previousEntityEvent.id == entityEvent.id;
-			const waitingNextEvent = previousEntityEvent.time == MessageQueueStompService.DURATION_WAIT_NEXT;
-			if(sameEvent && waitingNextEvent) {
-				previousEntityEvent.duration = this.dateParserService.substractDateString(
-					entityEvent.time, previousEntityEvent.time
-				)
-				break;
-			}
-		}
-
-	}
+		// let entityEventToSend:EntityEvent
+	// }
 
 	private onReceivingEntityEvent = (msg:IMessage) => {
 		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
-			console.log("================================", msg.body);
-			this.entityDataHandlerService.simulationCompleted = true;
-			const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
-			leftOverEntityEvents.sort(
-				(a:EntityEvent,	b:EntityEvent) => {
-					return Date.parse(a.time) - Date.parse(b.time)
-				}
-			)
-			for(let leftOverEntityEvent of leftOverEntityEvents) {
-				if(leftOverEntityEvent.eventType == 'PASSENGER') {
-					(leftOverEntityEvent as PassengerEvent).duration = '0 days 00:00:00';
-				} else if(leftOverEntityEvent.eventType == 'VEHICLE') {
-					(leftOverEntityEvent as VehicleEvent).duration = '0 days 00:00:00';
-				}
-				this.entityDataHandlerService.combined.push(leftOverEntityEvent);
-				// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
-			}
-			return;
+			// console.log("================================", msg.body);
+			// this.entityDataHandlerService.simulationCompleted = true;
+			// const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
+			// leftOverEntityEvents.sort(
+			// 	(a:EntityEvent,	b:EntityEvent) => {
+			// 		return Date.parse(a.time) - Date.parse(b.time)
+			// 	}
+			// )
+			// for(let leftOverEntityEvent of leftOverEntityEvents) {
+			// 	leftOverEntityEvent.duration = '0 days 00:00:00';
+			// 	// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+			// }
+			// return;
 		}
 		if(msg.body === 'None') {
 			console.log(msg.body);
@@ -175,7 +159,7 @@ export class MessageQueueStompService {
 				event['previous_legs'],
 				event['current_leg'],
 				event['next_legs'],
-				MessageQueueStompService.DURATION_WAIT_NEXT
+				event['duration']
 			)
 		} else {
 			entityEvent = new VehicleEvent(
@@ -191,10 +175,17 @@ export class MessageQueueStompService {
 				event['cumulative_distance'],
 				event['stop_lon'],
 				event['stop_lat'],
-				MessageQueueStompService.DURATION_WAIT_NEXT
+				event['duration']
 			)
 		}
-		this.sendPreviousEventToSimulator(entityEvent);
+		entityEvent.eventType == 'PASSENGER' ?
+			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
+			this.entityDataHandlerService.vehicleEvents.push(entityEvent as VehicleEvent);
+		if (event['duration'] != '0 days 00:00:00')
+			console.log(event['duration'])
+		this.entityDataHandlerService.combined.push(entityEvent);
+		this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+
 	}
 
 	getClient():CompatClient {
