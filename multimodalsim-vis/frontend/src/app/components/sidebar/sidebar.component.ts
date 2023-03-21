@@ -21,15 +21,10 @@ export class SidebarComponent implements OnInit {
 
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
-	private entityInfosSubscription: Subscription = new Subscription();
 
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
-	lat = 0;
-	lon = 0;
-	passengerAmount = 0;
-	passengerList = new Array<string>();
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
 
@@ -38,12 +33,6 @@ export class SidebarComponent implements OnInit {
 			this.viewer = viewer;
 
 			this.entityHandler.initHandler(this.viewer);
-			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
-				this.lat = infos.position.x;
-				this.lon = infos.position.y;
-				this.passengerAmount = infos.passengers.length;
-				this.passengerList = infos.passengers;
-			});
 		});
 
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
