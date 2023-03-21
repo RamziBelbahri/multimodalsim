@@ -58,6 +58,10 @@ export class StopPositionHandlerService {
 		});
 	}
 
+	getStopIdMapping(): Map<string, Stop> {
+		return this.stopIdMapping;
+	}
+
 	// Obtenir le nombre de passagers à un arrêt
 	getPassengerAmount(id: string): number {
 		let result = 0;
