@@ -1,14 +1,14 @@
 from multimodalsim.observer.visualizer import Visualizer
-from active_mq_controller import ActiveMQController
+from communication.active_mq_controller import ActiveMQController
+from communication.connection_credentials import ConnectionCredentials
+from communication.log_levels import LogLevels
 import json
-from log_levels import LogLevels
 import logging
-DEBUG = False
 import pprint
-from connection_credentials import ConnectionCredentials
+DEBUG = False
 
 logger = logging.getLogger(__name__)
-logger.disabled = True
+# logger.disabled = True
 
 class FrontendVisualizer(Visualizer):
 
@@ -23,6 +23,7 @@ class FrontendVisualizer(Visualizer):
 
     def visualize_environment(self, env, current_event=None, event_index=None,
                               event_priority=None):
+
 
         if self.__last_time is None or env.current_time != self.__last_time:
             body = "current_time:{}".format(env.current_time)
