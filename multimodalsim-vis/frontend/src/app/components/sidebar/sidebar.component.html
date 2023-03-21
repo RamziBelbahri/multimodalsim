@@ -25,11 +25,20 @@
     <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
         Lancer la simulation
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch" (click)="pauseSimulation()">
+    <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
         Pauser la simulation
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch" (click)="continueSimulation()">
+    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
         Continuer la simulation
+    <br>
+    <br>
+    <br>
+    <div class="sub-menu-button" id="entity-infos">
+        Informations de l'entité <br><br>
+        <div>lat:{{lat}}</div>
+        <div>lon:{{lon}}</div>
+        <div>passengers Amount:{{passengerAmount}}</div>
+        <div *ngFor="let passenger of passengerList">{{passenger}}</div>
     </div>
 </div>
 

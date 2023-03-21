@@ -34,7 +34,7 @@ export class StopPositionHandlerService {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
 		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
-		const time = this.dateParser.parseTimeFromString(passengerEvent.time);
+		const time = this.dateParser.parseTimeFromSeconds(passengerEvent.time);
 
 		if (stop || PassengersStatus.ONBOARD) {
 			switch (passengerEvent.status) {
@@ -56,6 +56,10 @@ export class StopPositionHandlerService {
 		this.stopIdMapping.forEach((stop: Stop, id: string) => {
 			this.spawnEntity(id, stop, viewer);
 		});
+	}
+
+	getStopIdMapping(): Map<string, Stop> {
+		return this.stopIdMapping;
 	}
 
 	// Obtenir le nombre de passagers à un arrêt

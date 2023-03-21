@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { EntityLabelHandlerService } from './entity-label-handler.service';
+import { EntityPathHandlerService } from './entity-path-handler.service';
 
 describe('EntityLabelHandlerService', () => {
-	let service: EntityLabelHandlerService;
+	let service: EntityPathHandlerService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({});
-		service = TestBed.inject(EntityLabelHandlerService);
+		service = TestBed.inject(EntityPathHandlerService);
 	});
 
 	it('should be created', () => {
