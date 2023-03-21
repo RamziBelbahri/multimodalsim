@@ -18,6 +18,10 @@ export class VehiclePositionHandlerService {
 		this.pathIdMapping = new Map<string, string>();
 	}
 
+	getVehicleIdMapping(): Map<string, Vehicle>{
+		return this.vehicleIdMapping;
+	}
+	
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
@@ -111,7 +115,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: 30,
 				semiMajorAxis: 30,
 				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/bus.svg', transparent: true }),
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/filledBus.png', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
