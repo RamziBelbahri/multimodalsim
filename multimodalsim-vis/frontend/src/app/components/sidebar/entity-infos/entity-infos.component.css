@@ -1,38 +1,37 @@
 .entity-infos-sidebar {
 	height: 50%;
-	width: 0px;
+	width: 25em;
 	position: fixed;
 	z-index: 1;
-	top: 0;
-	left: 0;
+	bottom: 0;
+	right: 0;
 	background-color: white;
+	border-style: solid;
+	border-top-width: 30px;
+	/* border-top-color:lightskyblue; */
+	border-color:lightskyblue;
 	color: black;
-	overflow-x: hidden;
-	padding-top: 60px;
+	overflow-x:visible;
+	padding-bottom: 60px;
 	transition: 0.5s;
 }
 
-.sub-menu-button {
+#entity-infos {
 	display: block;
 	width: 90%;
-	height: 30px;
-	margin-left: 2%;
+	margin-left: 5%;
 	margin-bottom: 5px;
 	padding: 8px 8px 8px 8px;
-	border: black;
-	border-radius: 20px;
-	border-style: solid;
-	border-width: 2px;
 	color: #5c5c5c;
-	background-color: #e7e7e7;
+	background-color: whitesmoke;
 	cursor: pointer;
 	font-size: 25px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	text-align: center;
+	/* text-align: center; */
 	transition: 0.3s;
 }
 
-.sub-menu-button:hover {
+/* .sub-menu-button:hover {
 	color: black;
 	background-color: #dadada;
 }
@@ -47,9 +46,9 @@
 	margin-right: 2%;
 	border-radius: 20px;
 	pointer-events: none;
-}
+} */
 
-.sub-menu-option {
+/* .sub-menu-option {
 	display: block;
 	position: relative;
 	top: 5px;
@@ -74,47 +73,43 @@
 .sub-menu-option:hover {
 	color: black;
 	background-color: #dadada;
-}
+} */
 
-.close-button {
+#close {
 	color: #5c5c5c;
 	cursor: pointer;
 	position: absolute;
-	top: 0;
-	right: 25px;
+	top: -25px;
+	left: 0;
 	font-size: 36px;
-	margin-left: 50px;
+	/* margin-left: 50px; */
 }
 
-.close-button:hover {
+.close:hover {
 	color: black;
 }
 
-#open-button {
-	padding-left: 4px;
-	padding-right: 4px;
-	padding-top: 2px;
-	padding-bottom: 2px;
+#open {
 	position: absolute;
-	left: 16px;
-	font-size: 32px;
-	border-radius: 5px;
-	opacity: 0.4;
-	background-color: none;
-	cursor: pointer;
+	left: 1850px;
+	top: 365px;
+	font-size: 40px;
+	opacity: 0.8;
+	background-color: grey;
+	cursor:grab;
 }
 
-#open-button:hover {
-	opacity: 0.7;
+#open:hover {
+	opacity: 1;
 	background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* Au cas ou l'écran est plus petit que l'écran ordinaire d'un ordinateur.*/
-@media screen and (max-height: 450px) {
+/* @media screen and (max-height: 450px) {
 	.entity-infos-sidebar {
-		padding-top: 15px;
+		padding-bottom: 15px;
 	}
 	.entity-infos-sidebar a {
 		font-size: 18px;
-	}
-}
+	} 
+} */

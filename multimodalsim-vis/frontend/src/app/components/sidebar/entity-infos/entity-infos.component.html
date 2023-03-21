@@ -1,12 +1,12 @@
 <div id="entity-infos-menu" class="entity-infos-sidebar">
-    <a class="close-button" (click)="close()">&times;</a>
+    <a id="close" (click)="close()">&times;</a>
     <div class="sub-menu-button" id="entity-infos">
         Informations de l'entité <br><br>
         <div class="sub-menu" id="sub-menu-lat">lat:{{lat}}</div>
         <div class="sub-menu" id="sub-menu-lon">lon:{{lon}}</div>
         <div class="sub-menu" id="sub-menu-pass-amount">passengers Amount:{{passengerAmount}}</div>
-        <div class="sub-menu" id="sub-menu-pass-list" *ngFor="let passenger of passengerList">{{passenger}}</div>
+        <div class="sub-menu" id="sub-menu-pass-list" *ngFor="let passenger of passengerList">{{passengerList}}</div>
     </div>
 </div>
 
-<i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
+<i id="open" class="fas fa-bars" aria-hidden="true" (click)="open()"></i>
