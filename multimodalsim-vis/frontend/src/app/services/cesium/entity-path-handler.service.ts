@@ -31,7 +31,8 @@ export class EntityPathHandlerService {
 						const positions = new Array<Cartesian3>();
 
 						for (let i = 0; i < polylines.length; i++) {
-							const points = polylineEncoder.decode(polylines[i]);
+							const polyline = this.removeRepeatedEscapeChar(polylines[i]);
+							const points = polylineEncoder.decode(polyline);
 
 							for (let j = 0; j < points.length; j++) {
 								positions.push(Cesium.Cartesian3.fromDegrees(points[j][1], points[j][0]));
@@ -65,5 +66,15 @@ export class EntityPathHandlerService {
 			this.currentMousePosition = movement.position;
 			this.isLeftClicked = true;
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	}
+
+	private removeRepeatedEscapeChar(polyline: string): string {
+		let result = polyline;
+
+		if (polyline.includes('\\')) {
+			result = polyline.replace('\\\\', '\\');
+		}
+
+		return result;
 	}
 }
