@@ -26,11 +26,11 @@ export class EntityPathHandlerService {
 
 					if (entity.name == 'vehicle' && this.isLeftClicked) {
 						this.isLeftClicked = false;
-						const positions = this.vehicleHandler.getPolylines(entity.id);
+						const section = this.vehicleHandler.getPolylines(entity.id);
 
 						const line = viewer.entities.add({
 							polyline: {
-								positions: positions,
+								positions: section.positions,
 								width: 5,
 								material: Cesium.Color.RED,
 							},

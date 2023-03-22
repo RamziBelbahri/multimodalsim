@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3, SampledPositionProperty, Viewer } from 'cesium';
+import { PolylineSection } from 'src/app/classes/data-classes/polyline-section';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
@@ -16,7 +17,7 @@ export class VehiclePositionHandlerService {
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
-		this.pathIdMapping = new Map<string, string>();
+		this.pathIdMapping = new Map<string, PolylineSection>();
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle> {
@@ -38,7 +39,7 @@ export class VehiclePositionHandlerService {
 		}
 
 		if (!this.pathIdMapping.has(vehicleId)) {
-			this.pathIdMapping.set(vehicleId, vehicleEvent.polylines);
+			this.pathIdMapping.set(vehicleId, this.polylineDecoder.parsePolyline(vehicleEvent.polylines));
 		}
 
 		switch (vehicleEvent.status) {
@@ -78,14 +79,10 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
 	}
 
-	// Ce n'est pas le parsing le plus propre, mais cette fonction retourne seulement les polylines de la string Polylines
-	getPolylines(id: string): Array<Cartesian3> {
-		const rawString = this.pathIdMapping.get(id);
-		let result = new Array<Cartesian3>();
+	getPolylines(id: string): PolylineSection {
+		const section = this.pathIdMapping.get(id);
 
-		if (rawString) result = this.polylineDecoder.parsePolyline(rawString);
-
-		return result;
+		return section ? section : new PolylineSection();
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
@@ -93,8 +90,6 @@ export class VehiclePositionHandlerService {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
 		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
-
-		//console.log(Cesium.JulianDate.toDate(endTime));
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
