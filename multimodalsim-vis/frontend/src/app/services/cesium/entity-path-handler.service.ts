@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { Cartesian2, Viewer } from 'cesium';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
-import * as polylineEncoder from '@mapbox/polyline';
 
 @Injectable({
 	providedIn: 'root',
@@ -27,17 +26,7 @@ export class EntityPathHandlerService {
 
 					if (entity.name == 'vehicle' && this.isLeftClicked) {
 						this.isLeftClicked = false;
-						const polylines = this.vehicleHandler.getPolylines(entity.id);
-						const positions = new Array<Cartesian3>();
-
-						for (let i = 0; i < polylines.length; i++) {
-							const polyline = this.removeRepeatedEscapeChar(polylines[i]);
-							const points = polylineEncoder.decode(polyline);
-
-							for (let j = 0; j < points.length; j++) {
-								positions.push(Cesium.Cartesian3.fromDegrees(points[j][1], points[j][0]));
-							}
-						}
+						const positions = this.vehicleHandler.getPolylines(entity.id);
 
 						const line = viewer.entities.add({
 							polyline: {

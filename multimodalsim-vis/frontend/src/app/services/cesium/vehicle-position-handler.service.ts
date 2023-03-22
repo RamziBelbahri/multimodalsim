@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { SampledPositionProperty, Viewer } from 'cesium';
+import { Cartesian3, SampledPositionProperty, Viewer } from 'cesium';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
 import { DateParserService } from '../util/date-parser.service';
+import { PolylineDecoderService } from '../util/polyline-decoder.service';
 import { StopLookupService } from '../util/stop-lookup.service';
 
 @Injectable({
@@ -13,15 +14,15 @@ export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
 	private pathIdMapping;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
 		this.pathIdMapping = new Map<string, string>();
 	}
 
-	getVehicleIdMapping(): Map<string, Vehicle>{
+	getVehicleIdMapping(): Map<string, Vehicle> {
 		return this.vehicleIdMapping;
 	}
-	
+
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
@@ -78,21 +79,13 @@ export class VehiclePositionHandlerService {
 	}
 
 	// Ce n'est pas le parsing le plus propre, mais cette fonction retourne seulement les polylines de la string Polylines
-	getPolylines(id: string): Array<string> {
+	getPolylines(id: string): Array<Cartesian3> {
 		const rawString = this.pathIdMapping.get(id);
-		const polylines = new Array<string>();
+		let result = new Array<Cartesian3>();
 
-		if (rawString) {
-			const rawStringArray = rawString.split('\'');
+		if (rawString) result = this.polylineDecoder.parsePolyline(rawString);
 
-			for (let i = 0; i < rawStringArray.length; i++) {
-				if ((i - 3) % 4 == 0) {
-					polylines.push(rawStringArray[i]);
-				}
-			}
-		}
-
-		return polylines;
+		return result;
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
