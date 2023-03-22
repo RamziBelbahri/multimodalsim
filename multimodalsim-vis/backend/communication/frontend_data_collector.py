@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 from datetime import datetime
-
+from multimodalsim.simulator.request import Trip
 import multimodalsim.simulator.request
 import multimodalsim.simulator.vehicle
 import multimodalsim.simulator.passenger_event
@@ -15,9 +15,13 @@ from multimodalsim.observer.data_collector import DataCollector
 from active_mq_controller import ActiveMQController
 from connection_credentials import ConnectionCredentials
 from multimodalsim.observer.data_collector import DataContainer
-
+from multimodalsim.simulator.vehicle import Route, Stop
+from multimodalsim.state_machine.status import VehicleStatus
 logger = logging.getLogger(__name__)
 
+N_SECONDS_DAY       = 24*60*60
+N_SECONDS_HOUR      = 60*60
+N_SECONDS_MINUTE    = 60
 
 class FrontendDataCollector(DataCollector):
 
@@ -73,7 +77,19 @@ class FrontendDataCollector(DataCollector):
         self.__data_container.set_columns("events",
                                           config.get_events_columns())
 
-    def __collect_vehicles_data(self, route):
+    def __get_duration(self, duration_in_seconds:int):
+        # duration_in_seconds = # en secondes
+        days    = int(duration_in_seconds / N_SECONDS_DAY)
+        hours   = int((duration_in_seconds - days * N_SECONDS_DAY) / N_SECONDS_HOUR)
+        minutes = int((duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR)/60)
+        seconds = int(duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR - minutes * N_SECONDS_MINUTE)
+        duration = str(days) + ' days ' + \
+            (str(hours)     if len(str(hours))      >= 2 else ('0' + str(hours)  )) + ':' + \
+            (str(minutes)   if len(str(minutes))    >= 2 else ('0' + str(minutes))) + ':' + \
+            (str(seconds)   if len(str(seconds))    >= 2 else ('0' + str(seconds)))
+        return duration
+
+    def __collect_vehicles_data(self, route:Route):
 
         previous_stops = [str(stop.location) for stop
                           in route.previous_stops]
@@ -82,6 +98,29 @@ class FrontendDataCollector(DataCollector):
         next_stops = [str(stop.location) for stop
                       in route.next_stops]
 
+        # if route.current_stop != None:
+        #     print(route.current_stop)    
+        # try:
+        #     duration = self.__get_duration(route.next_stops[0].arrival_time - route.current_stop.departure_time)
+        #     print(duration)
+        # except Exception as e:
+        #     duration = '0 days 00:00:00'
+        #     import pprint
+        #     pprint.pprint(route.__dict__)
+            # input()
+        # ENROUTE
+        # route.current stop.departure_time
+        # route.next stops[0].arrival_time
+        
+        
+        # ALIGHTING --> instantanee
+        # diff entre arrival time et departure du meme stop (current stop)
+        
+        # BOARDING --> instantaneous
+        # diff entre arrival time et departure du meme stop (current stop)
+
+        # idle
+        
         assigned_legs = [leg.id for leg in route.assigned_legs]
         onboard_legs = [leg.id for leg in route.onboard_legs]
         alighted_legs = [leg.id for leg in route.alighted_legs]
@@ -106,14 +145,16 @@ class FrontendDataCollector(DataCollector):
                     "cumulative_distance": cumulative_distance,
                     "stop_lon": stop_lon,
                     "stop_lat": stop_lat}
-
+        
         self.__data_container.add_observation(
             "vehicles", obs_dict, "id",
             no_rep_on_keys=["id", "time"])
         obs_dict['event_type'] = 'VEHICLE'
+        # obs_dict["duration"] = duration
+        # if route.current_stop != None:
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
-    def __collect_trips_data(self, trip):
+    def __collect_trips_data(self, trip:Trip):
 
         assigned_vehicle_id = self.__get_assigned_vehicle_id(trip)
         current_location = self.__get_current_location(trip)
@@ -128,7 +169,10 @@ class FrontendDataCollector(DataCollector):
         next_legs = [(str(leg.origin), str(leg.destination)) for leg
                      in trip.next_legs] \
             if trip.next_legs is not None else None
-
+        # try:
+        #     duration = self.__get_duration(trip.next_legs[0].alighting_time - trip.current_leg.boarding_time)
+        # except:
+        #     duration = '0 days 00:00:00'
         obs_dict = {"id": trip.id,
                     "time": self.__time,
                     "status": trip.status,
@@ -141,6 +185,7 @@ class FrontendDataCollector(DataCollector):
                                               no_rep_on_keys=["id",
                                                               "time"])
         obs_dict['event_type'] = 'PASSENGER'
+        # obs_dict["duration"] = duration
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __get_assigned_vehicle_id(self, trip):
