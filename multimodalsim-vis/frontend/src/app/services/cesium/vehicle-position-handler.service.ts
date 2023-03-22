@@ -30,6 +30,8 @@ export class VehiclePositionHandlerService {
 			this.setNextStop(vehicleEvent, Number(vehicleEvent.next_stop.toString().split('\'')[1]));
 			break;
 		case VehicleStatus.IDLE:
+		case VehicleStatus.ALIGHTING:
+		case VehicleStatus.BOARDING:
 			this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			break;
 		}

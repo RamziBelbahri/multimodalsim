@@ -6,6 +6,10 @@ import { EntityDataHandlerService } from '../entity-data-handler/entity-data-han
 import { DateParserService } from '../util/date-parser.service';
 import {ConnectionCredentials} from './connection-constants';
 import { Queue } from 'queue-typescript';
+import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
+import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
+import { FlowControl } from '../entity-data-handler/flow-control';
+var LinkedList = require('dbly-linked-list')
 
 // uses STOMP with active MQ
 export class MessageQueueStompService {
@@ -16,7 +20,7 @@ export class MessageQueueStompService {
 	// probably gonna have to replace this one
 	private eventLookup:Map<string, EntityEvent> = new Map<string, EntityEvent>();
 
-	private eventQueue:Queue<EntityEvent> = new Queue<EntityEvent>();
+	private eventQueue = new LinkedList();
 
 	private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
@@ -118,7 +122,7 @@ export class MessageQueueStompService {
 		
 		// this.eventLookup.set(previousEvent.id, entityEvent);
 		// this.entityDataHandlerService.combined.push(previousEvent);
-		// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+		// this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
 		// console.log("emitted signal new event!")
 		// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
 		// } else {
@@ -126,22 +130,23 @@ export class MessageQueueStompService {
 		// }
 		// let entityEventToSend:EntityEvent
 	// }
-
+	private static I = 0;
 	private onReceivingEntityEvent = (msg:IMessage) => {
 		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
-			// console.log("================================", msg.body);
-			// this.entityDataHandlerService.simulationCompleted = true;
-			// const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
-			// leftOverEntityEvents.sort(
-			// 	(a:EntityEvent,	b:EntityEvent) => {
-			// 		return Date.parse(a.time) - Date.parse(b.time)
-			// 	}
-			// )
-			// for(let leftOverEntityEvent of leftOverEntityEvents) {
-			// 	leftOverEntityEvent.duration = '0 days 00:00:00';
-			// 	// this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
-			// }
-			// return;
+			console.log("================================", msg.body);
+			this.entityDataHandlerService.simulationCompleted = true;
+			const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
+			leftOverEntityEvents.sort(
+				(a:EntityEvent,	b:EntityEvent) => {
+					return Date.parse(a.time) - Date.parse(b.time)
+				}
+			)
+			for(let leftOverEntityEvent of leftOverEntityEvents) {
+				leftOverEntityEvent.duration = '0 days 00:00:00';
+				this.entityDataHandlerService.combined.push(leftOverEntityEvent);
+			}
+			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
+			return;
 		}
 		if(msg.body === 'None') {
 			console.log(msg.body);
@@ -159,7 +164,8 @@ export class MessageQueueStompService {
 				event['previous_legs'],
 				event['current_leg'],
 				event['next_legs'],
-				event['duration']
+				// event['duration']
+				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
 		} else {
 			entityEvent = new VehicleEvent(
@@ -175,16 +181,64 @@ export class MessageQueueStompService {
 				event['cumulative_distance'],
 				event['stop_lon'],
 				event['stop_lat'],
-				event['duration']
+				// event['duration']
+				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
 		}
 		entityEvent.eventType == 'PASSENGER' ?
 			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
 			this.entityDataHandlerService.vehicleEvents.push(entityEvent as VehicleEvent);
-		if (event['duration'] != '0 days 00:00:00')
-			console.log(event['duration'])
-		this.entityDataHandlerService.combined.push(entityEvent);
-		this.entityDataHandlerService.pauseEventEmitter.emit('newevent');
+		// if (event['duration'] != '0 days 00:00:00')
+			// console.log(event['duration'])
+		// this.entityDataHandlerService.combined.push(entityEvent);
+		this.eventQueue.insert(event);
+		if(event['status'] == VehicleStatus.RELEASE 
+			|| event['status'] == VehicleStatus.COMPLETE 
+			|| event['status'] == PassengersStatus.RELEASE
+			|| event['status'] == PassengersStatus.COMPLETE) {
+			this.entityDataHandlerService.combined.push(event);
+			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
+		}
+		else {
+
+			try {
+				this.eventQueue.forEach( (waitingEventNode:any) => {
+					const waitingEvent = waitingEventNode.getData();
+					const sameEntity = waitingEvent.id == event.id;
+					const noDuration = waitingEvent.duration == MessageQueueStompService.DURATION_WAIT_NEXT
+					if(noDuration)
+						console.log(waitingEvent.id, waitingEvent.duration)
+					if( sameEntity && noDuration ) {
+						waitingEvent.duration = this.dateParserService.substractDateString(event.time, waitingEvent.time);
+						this.eventQueue.interruptEnumeration();
+					}
+				}, false)
+				const toSend:EntityEvent[] = [];
+				const currentTime = this.eventQueue.getHeadNode().getData().time;
+				// console
+				this.eventQueue.forEach((waitingEventNode:any) => {
+					const waitingEvent = waitingEventNode.getData();
+					if(waitingEvent.time == currentTime) {
+						toSend.push(waitingEvent);
+					} else {
+						this.eventQueue.interruptEnumeration();
+					}
+				}, false)
+				if(toSend.length > 0) {
+					for(const eventToSend of toSend) {
+						this.eventQueue.removeNode(eventToSend);
+						this.entityDataHandlerService.combined.push(eventToSend);
+						eventToSend.eventType == 'PASSENGER' ? 
+							this.entityDataHandlerService.passengerEvents.push(eventToSend as PassengerEvent) :
+							this.entityDataHandlerService.vehicleEvents.push(eventToSend as VehicleEvent);
+
+					}
+				}
+				this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
+			} catch(e) {
+				console.log(e)
+			}
+		}
 
 	}
 
