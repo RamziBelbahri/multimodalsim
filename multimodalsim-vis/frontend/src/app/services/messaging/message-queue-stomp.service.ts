@@ -19,7 +19,12 @@ export class MessageQueueStompService {
 
 	// probably gonna have to replace this one
 	private eventLookup:Map<string, EntityEvent> = new Map<string, EntityEvent>();
-
+	private static EVENTS_BEGIN_END = new Set<String>([
+		VehicleStatus.RELEASE,
+		VehicleStatus.COMPLETE,
+		PassengersStatus.RELEASE,
+		PassengersStatus.COMPLETE
+	])
 	private eventQueue = new LinkedList();
 
 	private dateParserService:DateParserService = new DateParserService();
@@ -131,9 +136,9 @@ export class MessageQueueStompService {
 		// let entityEventToSend:EntityEvent
 	// }
 	private static I = 0;
-	private onReceivingEntityEvent = (msg:IMessage) => {
-		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
-			console.log("================================", msg.body);
+
+	private sendRemainingEventsToCesium = (msg:IMessage) => {
+		console.log("================================", msg.body);
 			this.entityDataHandlerService.simulationCompleted = true;
 			const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
 			leftOverEntityEvents.sort(
@@ -146,16 +151,11 @@ export class MessageQueueStompService {
 				this.entityDataHandlerService.combined.push(leftOverEntityEvent);
 			}
 			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-			return;
-		}
-		if(msg.body === 'None') {
-			console.log(msg.body);
-			return;
-		}
-		const event = JSON.parse(msg.body)
-		var entityEvent: PassengerEvent | VehicleEvent;
+	}
+
+	private eventJSONToObject = (event:any):VehicleEvent|PassengerEvent => {
 		if(event['event_type'] == 'PASSENGER') {
-			entityEvent = new PassengerEvent(
+			return new PassengerEvent(
 				event['id'],
 				event['time'],
 				event['status'],
@@ -168,7 +168,7 @@ export class MessageQueueStompService {
 				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
 		} else {
-			entityEvent = new VehicleEvent(
+			return new VehicleEvent(
 				event['id'],
 				event['time'],
 				event['status'],
@@ -185,56 +185,66 @@ export class MessageQueueStompService {
 				MessageQueueStompService.DURATION_WAIT_NEXT
 			)
 		}
+	}
+
+	private onReceivingEntityEvent = (msg:IMessage) => {
+		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
+			this.sendRemainingEventsToCesium(msg);
+			return;
+		}
+		if(msg.body === 'None') {
+			console.log(msg.body);
+			return;
+		}
+		const event = JSON.parse(msg.body)
+		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(event);
+
 		entityEvent.eventType == 'PASSENGER' ?
 			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
 			this.entityDataHandlerService.vehicleEvents.push(entityEvent as VehicleEvent);
-		// if (event['duration'] != '0 days 00:00:00')
-			// console.log(event['duration'])
-		// this.entityDataHandlerService.combined.push(entityEvent);
-		this.eventQueue.insert(event);
-		if(event['status'] == VehicleStatus.RELEASE 
-			|| event['status'] == VehicleStatus.COMPLETE 
-			|| event['status'] == PassengersStatus.RELEASE
-			|| event['status'] == PassengersStatus.COMPLETE) {
-			this.entityDataHandlerService.combined.push(event);
+
+		if(MessageQueueStompService.EVENTS_BEGIN_END.has(event['status'])) {
+			event['duration'] = '0 days 00:00:00'
+			this.entityDataHandlerService.combined.push(entityEvent);
 			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
 		}
 		else {
-
 			try {
-				this.eventQueue.forEach( (waitingEventNode:any) => {
-					const waitingEvent = waitingEventNode.getData();
-					const sameEntity = waitingEvent.id == event.id;
-					const noDuration = waitingEvent.duration == MessageQueueStompService.DURATION_WAIT_NEXT
-					if(noDuration)
-						console.log(waitingEvent.id, waitingEvent.duration)
-					if( sameEntity && noDuration ) {
-						waitingEvent.duration = this.dateParserService.substractDateString(event.time, waitingEvent.time);
-						this.eventQueue.interruptEnumeration();
-					}
-				}, false)
-				const toSend:EntityEvent[] = [];
-				const currentTime = this.eventQueue.getHeadNode().getData().time;
-				// console
-				this.eventQueue.forEach((waitingEventNode:any) => {
-					const waitingEvent = waitingEventNode.getData();
-					if(waitingEvent.time == currentTime) {
-						toSend.push(waitingEvent);
-					} else {
-						this.eventQueue.interruptEnumeration();
-					}
-				}, false)
-				if(toSend.length > 0) {
-					for(const eventToSend of toSend) {
-						this.eventQueue.removeNode(eventToSend);
-						this.entityDataHandlerService.combined.push(eventToSend);
-						eventToSend.eventType == 'PASSENGER' ? 
-							this.entityDataHandlerService.passengerEvents.push(eventToSend as PassengerEvent) :
-							this.entityDataHandlerService.vehicleEvents.push(eventToSend as VehicleEvent);
+				if(this.eventQueue.getSize() > 0) {
+					const eventQueue = this.eventQueue;
+					this.eventQueue.forEach( (waitingEventNode:any) => {
+						const waitingEvent = waitingEventNode.getData();
+						const sameEntity = waitingEvent.id == entityEvent.id;
+						const noDuration = waitingEvent.duration == MessageQueueStompService.DURATION_WAIT_NEXT
+						if( sameEntity && noDuration ) {
+							waitingEvent.duration = this.dateParserService.substractDateString(entityEvent.time, waitingEvent.time);
+							eventQueue.interruptEnumeration();
+						}
+					}, false)
+					const toSend:EntityEvent[] = [];
+					const currentTime = this.eventQueue.getHeadNode().getData().time;
+					this.eventQueue.forEach((waitingEventNode:any) => {
+						const waitingEvent = waitingEventNode.getData();
+						if(waitingEvent.time == currentTime && waitingEvent.duration != MessageQueueStompService.DURATION_WAIT_NEXT) {
+							toSend.push(waitingEvent);
+						} else if(waitingEvent.time != currentTime) {
+							eventQueue.interruptEnumeration();
+						}
+					}, false)
+					if(toSend.length > 0) {
+						for(const eventToSend of toSend) {
+							this.eventQueue.removeNode(eventToSend);
+							this.entityDataHandlerService.combined.push(eventToSend);
+							eventToSend.eventType == 'PASSENGER' ? 
+								this.entityDataHandlerService.passengerEvents.push(eventToSend as PassengerEvent) :
+								this.entityDataHandlerService.vehicleEvents.push(eventToSend as VehicleEvent);
 
+						}
+						this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
 					}
+					console.log(toSend)
 				}
-				this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
+				this.eventQueue.insert(entityEvent);
 			} catch(e) {
 				console.log(e)
 			}

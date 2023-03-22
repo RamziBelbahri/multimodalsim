@@ -40,8 +40,8 @@ export class DateParserService {
 	}
 
 	substractDateString(currentTime:string, previousTime:string):string {
-		const currentTimeInSeconds:number = +Date.parse(currentTime).toFixed(0);
-		const previousTimeInSeconds:number = +Date.parse(previousTime).toFixed(0);
+		const currentTimeInSeconds:number = +Date.parse(currentTime).toFixed(0) 	/ 1000;
+		const previousTimeInSeconds:number = +Date.parse(previousTime).toFixed(0)	/ 1000;
 
 		const duration = currentTimeInSeconds - previousTimeInSeconds;
 		const days  = Math.floor(duration / (24*60*60))

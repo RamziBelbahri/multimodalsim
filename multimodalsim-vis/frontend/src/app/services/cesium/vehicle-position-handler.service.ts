@@ -27,6 +27,7 @@ export class VehiclePositionHandlerService {
 
 		switch (vehicleEvent.status) {
 		case VehicleStatus.ENROUTE:
+			console.log("vehicleEvent.next_stop",vehicleEvent.next_stop)
 			this.setNextStop(vehicleEvent, Number(vehicleEvent.next_stop.toString().split('\'')[1]));
 			break;
 		case VehicleStatus.IDLE:
