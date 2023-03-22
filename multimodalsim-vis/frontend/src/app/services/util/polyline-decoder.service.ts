@@ -1,23 +1,37 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3 } from 'cesium';
 import * as polylineEncoder from '@mapbox/polyline';
+import { PolylineSection } from 'src/app/classes/data-classes/polyline-section';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class PolylineDecoderService {
 	// Prend la string complète de la polyline et retourne une liste de positions
-	parsePolyline(rawString: string): Array<Cartesian3> {
+	parsePolyline(rawString: string): PolylineSection {
 		const polylines = new Array<string>();
+		const times = new Array<Array<number>>();
 		const rawStringArray = rawString.split('\'');
 
 		for (let i = 0; i < rawStringArray.length; i++) {
 			if ((i - 3) % 4 == 0) {
 				polylines.push(rawStringArray[i]);
+			} else if ((i - 4) % 4 == 0 && i != 0) {
+				const timesString = rawStringArray[i].substring(3, rawStringArray[i].length - 4);
+
+				times.push(
+					timesString.split(',').map((item) => {
+						return Number(item);
+					})
+				);
 			}
 		}
 
-		return this.decodePolyline(polylines);
+		const section = new PolylineSection();
+		section.positions = this.decodePolyline(polylines);
+		section.times = times;
+
+		return section;
 	}
 
 	// Utilise un décodeur pour décrypter une polyline
