@@ -1,11 +1,13 @@
 import { Cartesian3 } from 'cesium';
 
-export class PolylineSection {
-	positions: Array<Cartesian3>;
+export class TimedPolyline {
+	positions: Array<Array<Cartesian3>>;
 	times: Array<Array<number>>;
+	lastSectionCompiled: number;
 
 	constructor() {
-		this.positions = new Array<Cartesian3>();
+		this.positions = new Array<Array<Cartesian3>>();
 		this.times = new Array<Array<number>>();
+		this.lastSectionCompiled = 0;
 	}
 }

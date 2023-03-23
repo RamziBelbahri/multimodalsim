@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Cartesian3 } from 'cesium';
 import * as polylineEncoder from '@mapbox/polyline';
-import { PolylineSection } from 'src/app/classes/data-classes/polyline-section';
+import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class PolylineDecoderService {
 	// Prend la string complète de la polyline et retourne une liste de positions
-	parsePolyline(rawString: string): PolylineSection {
+	parsePolyline(rawString: string): TimedPolyline {
 		const polylines = new Array<string>();
 		const times = new Array<Array<number>>();
 		const rawStringArray = rawString.split('\'');
@@ -27,24 +27,28 @@ export class PolylineDecoderService {
 			}
 		}
 
-		const section = new PolylineSection();
-		section.positions = this.decodePolyline(polylines);
-		section.times = times;
+		const polyline = new TimedPolyline();
+		polyline.positions = this.decodePolyline(polylines);
+		polyline.times = times;
 
-		return section;
+		return polyline;
 	}
 
 	// Utilise un décodeur pour décrypter une polyline
-	private decodePolyline(polylines: Array<string>): Array<Cartesian3> {
-		const positions = new Array<Cartesian3>();
+	private decodePolyline(polylines: Array<string>): Array<Array<Cartesian3>> {
+		const positions = new Array<Array<Cartesian3>>();
 
 		for (let i = 0; i < polylines.length; i++) {
 			const polyline = this.removeRepeatedEscapeChar(polylines[i]);
+
 			const points = polylineEncoder.decode(polyline);
+			const sectionPositions = new Array<Cartesian3>();
 
 			for (let j = 0; j < points.length; j++) {
-				positions.push(Cesium.Cartesian3.fromDegrees(points[j][1], points[j][0]));
+				sectionPositions.push(Cesium.Cartesian3.fromDegrees(points[j][1], points[j][0]));
 			}
+
+			positions.push(sectionPositions);
 		}
 
 		return positions;
@@ -55,7 +59,7 @@ export class PolylineDecoderService {
 		let result = polyline;
 
 		if (polyline.includes('\\')) {
-			result = polyline.replace('\\\\', '\\');
+			result = polyline.replaceAll('\\\\', '\\');
 		}
 
 		return result;

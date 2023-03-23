@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, SampledPositionProperty, Viewer } from 'cesium';
-import { PolylineSection } from 'src/app/classes/data-classes/polyline-section';
+import { SampledPositionProperty, Viewer } from 'cesium';
+import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
@@ -17,7 +17,7 @@ export class VehiclePositionHandlerService {
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
-		this.pathIdMapping = new Map<string, PolylineSection>();
+		this.pathIdMapping = new Map<string, TimedPolyline>();
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle> {
@@ -31,10 +31,6 @@ export class VehiclePositionHandlerService {
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
 
-			// Donner une valeur non nulle afin de ne pas causer d'erreur si le véhicule ne se déplace jamais.
-			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
-				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
-			}
 			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
 		}
 
@@ -44,10 +40,10 @@ export class VehiclePositionHandlerService {
 
 		switch (vehicleEvent.status) {
 		case VehicleStatus.ENROUTE:
-			this.setNextStop(vehicleEvent, Number(vehicleEvent.next_stops.toString().split('\'')[1]));
+			this.setNextLeg(vehicleEvent);
 			break;
 		case VehicleStatus.IDLE:
-			this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
+			this.setIdleStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			break;
 		}
 	}
@@ -79,14 +75,42 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
 	}
 
-	getPolylines(id: string): PolylineSection {
+	getPolylines(id: string): TimedPolyline {
 		const section = this.pathIdMapping.get(id);
 
-		return section ? section : new PolylineSection();
+		return section ? section : new TimedPolyline();
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
-	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
+	private setNextLeg(vehicleEvent: VehicleEvent): void {
+		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
+		const polyline = this.pathIdMapping.get(vehicleEvent.id.toString()) as TimedPolyline;
+
+		if (polyline.positions[polyline.lastSectionCompiled] && VehicleEvent) {
+			let time = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
+
+			for (let i = 0; i < polyline.positions[polyline.lastSectionCompiled].length; i++) {
+				//if (vehicleEvent.id == '2790287') console.log(time, polyline.positions[polyline.lastSectionCompiled][i]);
+				vehicle.path.addSample(time, polyline.positions[polyline.lastSectionCompiled][i]);
+
+				if (i >= polyline.times[polyline.lastSectionCompiled].length) {
+					break;
+				}
+
+				const sectionTime = polyline.times[polyline.lastSectionCompiled][i] * Number(vehicleEvent.duration);
+				time = this.dateParser.addDuration(time, sectionTime.toString());
+			}
+
+			polyline.lastSectionCompiled++;
+
+			//vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
+			this.pathIdMapping.set(vehicleEvent.id.toString(), polyline);
+			this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
+		}
+	}
+
+	// Ajout un temps d'arrêt quand le bus doit idle
+	private setIdleStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
 		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);

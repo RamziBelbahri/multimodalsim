@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { Cartesian2, Viewer } from 'cesium';
+import { Cartesian2, Cartesian3, Viewer } from 'cesium';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
 @Injectable({
@@ -30,7 +30,7 @@ export class EntityPathHandlerService {
 
 						const line = viewer.entities.add({
 							polyline: {
-								positions: section.positions,
+								positions: this.compileSections(section.positions),
 								width: 5,
 								material: Cesium.Color.RED,
 							},
@@ -57,13 +57,11 @@ export class EntityPathHandlerService {
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
 
-	private removeRepeatedEscapeChar(polyline: string): string {
-		let result = polyline;
-
-		if (polyline.includes('\\')) {
-			result = polyline.replace('\\\\', '\\');
+	private compileSections(positions: Array<Array<Cartesian3>>): Array<Cartesian3> {
+		let result = new Array<Cartesian3>();
+		for (const array of positions) {
+			result = result.concat(array);
 		}
-
 		return result;
 	}
 }
