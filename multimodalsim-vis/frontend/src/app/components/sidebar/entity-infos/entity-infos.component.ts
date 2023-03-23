@@ -32,7 +32,6 @@ export class EntityInfosComponent {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
 
-			this.entityHandler.getClickedEntityInfos(this.viewer);
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				this.lat = infos.position.x;
 				this.lon = infos.position.y;
@@ -47,10 +46,10 @@ export class EntityInfosComponent {
 	}
 
 	open(): void {
-		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '340px';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
-		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0px';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
 	}
 }

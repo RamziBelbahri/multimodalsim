@@ -2,11 +2,14 @@
     <a id="close" (click)="close()">&times;</a>
     <div class="sub-menu-button" id="entity-infos">
         Informations de l'entité <br><br>
-        <div class="sub-menu" id="sub-menu-lat">lat:{{lat}}</div>
-        <div class="sub-menu" id="sub-menu-lon">lon:{{lon}}</div>
-        <div class="sub-menu" id="sub-menu-pass-amount">passengers Amount:{{passengerAmount}}</div>
-        <div class="sub-menu" id="sub-menu-pass-list" *ngFor="let passenger of passengerList">{{passengerList}}</div>
+        <div >lat:{{lat}}</div>
+        <div >lon:{{lon}}</div>
+        <div >Nombre de passagers:{{passengerAmount}}</div>
+        <div *ngFor="let passenger of passengerList">{{passenger}}</div>
     </div>
 </div>
 
-<i id="open" class="fas fa-bars" aria-hidden="true" (click)="open()"></i>
+<mat-button-toggle id="open" (click)="open()">
+    <mat-icon>infos</mat-icon>
+</mat-button-toggle>
+<!-- <i id="open" class="fas fa-bars" aria-hidden="true" (click)="open()"></i> -->

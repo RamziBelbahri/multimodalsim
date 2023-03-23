@@ -49,7 +49,7 @@ export class EntityLabelHandlerService {
 	}
 
 	// Obtenir le nombre de passagers dans un véhicule
-	getClickedEntityInfos(displayedEntity: any): EntityInfos {
+	private getClickedEntityInfos(displayedEntity: any): EntityInfos {
 		const entity: any | undefined = displayedEntity;
 		let position = CesiumClass.cartesian3(0, 0, 0);
 		let passengers: Array<string> | undefined = [];
