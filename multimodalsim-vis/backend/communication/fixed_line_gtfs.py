@@ -1,4 +1,6 @@
 import logging  # Required to modify the log level
+from active_mq_controller import ActiveMQController
+from connection_credentials import ConnectionCredentials  # Required to modify the log level
 
 from multimodalsim.observer.environment_observer import \
     StandardEnvironmentObserver
@@ -36,8 +38,8 @@ if __name__ == '__main__':
     trips = data_reader.get_trips()
 
     # Generate the network from GTFS files.
-    g = data_reader.get_network_graph()
-    # g = nx.read_gpickle('path/to/gpickle')
+    # g = data_reader.get_network_graph()
+    g = nx.read_gpickle('../data/20191101/bus_network_graph_20191101.txt')
 
     # Initialize the optimizer.
     splitter = MultimodalSplitter(g)
@@ -54,3 +56,4 @@ if __name__ == '__main__':
 
     # Execute the simulation.
     simulation.simulate()
+    ActiveMQController().getConnection().send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)
