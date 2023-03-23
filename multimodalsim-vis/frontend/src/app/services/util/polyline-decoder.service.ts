@@ -29,7 +29,7 @@ export class PolylineDecoderService {
 
 		const polyline = new TimedPolyline();
 		polyline.positions = this.decodePolyline(polylines);
-		polyline.times = times;
+		polyline.sectionTimes = times;
 
 		return polyline;
 	}

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { SampledPositionProperty, Viewer } from 'cesium';
+import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
 import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
@@ -88,22 +88,20 @@ export class VehiclePositionHandlerService {
 
 		if (polyline.positions[polyline.lastSectionCompiled] && VehicleEvent) {
 			let time = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
+			polyline.times.push(new Array<JulianDate>());
 
 			for (let i = 0; i < polyline.positions[polyline.lastSectionCompiled].length; i++) {
-				//if (vehicleEvent.id == '2790287') console.log(time, polyline.positions[polyline.lastSectionCompiled][i]);
 				vehicle.path.addSample(time, polyline.positions[polyline.lastSectionCompiled][i]);
+				polyline.times[polyline.lastSectionCompiled].push(time);
 
-				if (i >= polyline.times[polyline.lastSectionCompiled].length) {
-					break;
-				}
+				if (i >= polyline.sectionTimes[polyline.lastSectionCompiled].length) break;
 
-				const sectionTime = polyline.times[polyline.lastSectionCompiled][i] * Number(vehicleEvent.duration);
+				const sectionTime = polyline.sectionTimes[polyline.lastSectionCompiled][i] * Number(vehicleEvent.duration);
 				time = this.dateParser.addDuration(time, sectionTime.toString());
 			}
 
 			polyline.lastSectionCompiled++;
 
-			//vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 			this.pathIdMapping.set(vehicleEvent.id.toString(), polyline);
 			this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
 		}
