@@ -7,3 +7,7 @@
 # 5. Optionnel (installer activemq): pip install stomp.py si nécessaire
 # 6. Optionnel (lancer activemq):  docker run -it --ulimit nofile=122880:122880 -m 3G -p 61616:61616 -p 61614:61614 -p 61613:61613 -p 8161:8161 rmohr/activemq
 # 7. Finalement, aller dans backend/communication et lancer la commande: python fixed_line_gtfs.py
+#(optionnels:
+# py -m pip install networkx==2.8.8
+# pip install stomp.py
+#)

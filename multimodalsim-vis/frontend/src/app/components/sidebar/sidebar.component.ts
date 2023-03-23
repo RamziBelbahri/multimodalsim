@@ -102,4 +102,16 @@ export class SidebarComponent implements OnInit {
 			console.log(res);
 		});
 	}
+
+	pauseSimulation(): void {
+		this.commService.pauseSimulation().subscribe((res) => {
+			console.log(res);
+		});
+	}
+
+	continueSimulation(): void {
+		this.commService.continueSimulation().subscribe((res) => {
+			console.log(res);
+		});
+	}
 }
