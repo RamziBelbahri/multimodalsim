@@ -98,13 +98,13 @@ class FrontendDataCollector(DataCollector):
         next_stops = [str(stop.location) for stop
                       in route.next_stops]
 
-        # if route.current_stop != None:
-        #     print(route.current_stop)    
-        # try:
-        #     duration = self.__get_duration(route.next_stops[0].arrival_time - route.current_stop.departure_time)
-        #     print(duration)
-        # except Exception as e:
-        #     duration = '0 days 00:00:00'
+        if route.current_stop != None:
+            print(route.current_stop)    
+        try:
+            duration = self.__get_duration(route.next_stops[0].arrival_time - route.current_stop.departure_time)
+            print(duration)
+        except Exception as e:
+            duration = '0 days 00:00:00'
         #     import pprint
         #     pprint.pprint(route.__dict__)
             # input()
@@ -150,8 +150,8 @@ class FrontendDataCollector(DataCollector):
             "vehicles", obs_dict, "id",
             no_rep_on_keys=["id", "time"])
         obs_dict['event_type'] = 'VEHICLE'
-        # obs_dict["duration"] = duration
-        # if route.current_stop != None:
+        if route.status == VehicleStatus.ENROUTE:
+            obs_dict["duration"] = duration
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __collect_trips_data(self, trip:Trip):
@@ -186,6 +186,9 @@ class FrontendDataCollector(DataCollector):
                                                               "time"])
         obs_dict['event_type'] = 'PASSENGER'
         # obs_dict["duration"] = duration
+        # if(trip.status == PassengersStatus.ONBOARD):
+        #     obs_dict['duration'] = self.__get_duration(trip.next_legs[0])
+        
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __get_assigned_vehicle_id(self, trip):
