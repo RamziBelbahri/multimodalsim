@@ -9,7 +9,7 @@ import { StopPositionHandlerService } from '../cesium/stop-position-handler.serv
 import { DateParserService } from '../util/date-parser.service';
 import { EventEmitter } from 'events';
 import { FlowControl } from './flow-control';
-const DEBUG = false
+const DEBUG = true
 
 @Injectable({
 	providedIn: 'root',
@@ -149,6 +149,7 @@ export class EntityDataHandlerService {
 				this.zoomTo(viewer, start, end);
 			}
 			i++;
+			console.log('inside event loop', i)
 			if(i == 1000 && DEBUG){
 				this.saveVehicleEventsAsCSV();
 			} 

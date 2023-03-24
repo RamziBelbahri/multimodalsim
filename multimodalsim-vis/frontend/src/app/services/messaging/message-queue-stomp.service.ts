@@ -17,16 +17,34 @@ export class MessageQueueStompService {
 	public static service:MessageQueueStompService;
 	public static readonly DURATION_WAIT_NEXT = 'DURATION_WAIT_NEXT';
 
-	// probably gonna have to replace this one
-	private eventLookup:Map<string, EntityEvent> = new Map<string, EntityEvent>();
-	private static EVENTS_BEGIN_END = new Set<String>([
+	/*
+	id --> entityEnvents associated with this id
+	*/
+	private currentTimeStampEventLookup:Map<string, EntityEvent[]> = new Map<string, EntityEvent[]>();
+	private nextTimeStampEventLookup:Map<string, EntityEvent[]> = new Map<string, EntityEvent[]>();
+	private currentTimeStamp:string|undefined;
+	private nextTimeStamp:string|undefined;
+
+	// if the event has these status, make sure that they are still at the same stop
+	private static readonly USE_CURRENT_STOP:Set<string> = new Set([
+		PassengersStatus.ASSIGNED,
+		PassengersStatus.READY,
+		VehicleStatus.ALIGHTING,
+		VehicleStatus.BOARDING,
+		VehicleStatus.IDLE,
+		PassengersStatus.ONBOARD
+	])
+	// we know these events have zero duration
+	private static readonly ALWAYS_ZERO_DURATION:Set<string> = new Set([
+		PassengersStatus.RELEASE,
+		PassengersStatus.COMPLETE,
 		VehicleStatus.RELEASE,
 		VehicleStatus.COMPLETE,
-		PassengersStatus.RELEASE,
-		PassengersStatus.COMPLETE
 	])
-	private eventQueue = new LinkedList();
-
+	// MOVING --> use the time it takes to get to the next stop
+	private static readonly USE_NEXT_STOP:Set<string> = new Set([
+		VehicleStatus.ENROUTE,
+	])
 	private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService,
@@ -85,74 +103,6 @@ export class MessageQueueStompService {
 		}
 	}
 
-	// private onReceivingTripEvent = (msg:IMessage) => {
-	// 	const p = document.getElementById('received-text');
-	// 	if(p) {
-	// 		try {
-	// 			p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
-	// 		} catch {
-	// 			p.innerText = msg.body;
-	// 			console.log('==========================================');
-	// 			console.log(msg.body);
-	// 		}
-	// 	}
-	// }
-
-	// private onReceivingVehicleEvent = (msg:IMessage) => {
-	// 	const p = document.getElementById('received-text');
-	// 	if(p) {
-	// 		try {
-	// 			p.innerText = JSON.stringify(JSON.parse(msg.body),undefined, 2);
-	// 		} catch {
-	// 			p.innerText = msg.body;
-	// 			console.log('==========================================');
-	// 			console.log(msg.body);
-	// 		}
-	// 	}
-	// }
-
-	// private sendPreviousEventToSimulator = (entityEvent:EntityEvent) => {
-		// const eventType:string = entityEvent.eventType;
-		// if(this.eventLookup.has(entityEvent.id)) {
-		// const previousEvent = eventType == 'PASSENGER' ?
-		// 	this.eventLookup.get(entityEvent.id) as PassengerEvent :
-		// 	this.eventLookup.get(entityEvent.id) as VehicleEvent;
-
-		// previousEvent.duration = this.dateParserService.substractDateString(entityEvent.time, previousEvent.time);
-		
-		// // TODO make it insert at the right place
-		// eventType == 'PASSENGER' ?
-		// 	this.entityDataHandlerService.passengerEvents.push(previousEvent as PassengerEvent) :
-		// 	this.entityDataHandlerService.vehicleEvents.push(previousEvent as VehicleEvent);
-		
-		// this.eventLookup.set(previousEvent.id, entityEvent);
-		// this.entityDataHandlerService.combined.push(previousEvent);
-		// this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-		// console.log("emitted signal new event!")
-		// this.entityDataHandlerService.eventQueue.enqueue(previousEvent);
-		// } else {
-		// 	this.eventLookup.set(entityEvent.id, entityEvent);
-		// }
-		// let entityEventToSend:EntityEvent
-	// }
-	private static I = 0;
-
-	private sendRemainingEventsToCesium = (msg:IMessage) => {
-		console.log("================================", msg.body);
-			this.entityDataHandlerService.simulationCompleted = true;
-			const leftOverEntityEvents:Array<EntityEvent> = Array.from(this.eventLookup.values());
-			leftOverEntityEvents.sort(
-				(a:EntityEvent,	b:EntityEvent) => {
-					return Date.parse(a.time) - Date.parse(b.time)
-				}
-			)
-			for(let leftOverEntityEvent of leftOverEntityEvents) {
-				leftOverEntityEvent.duration = '0 days 00:00:00';
-				this.entityDataHandlerService.combined.push(leftOverEntityEvent);
-			}
-			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-	}
-
 	private eventJSONToObject = (event:any):VehicleEvent|PassengerEvent => {
 		if(event['event_type'] == 'PASSENGER') {
 			return new PassengerEvent(
@@ -187,9 +137,12 @@ export class MessageQueueStompService {
 		}
 	}
 
+	// private combineEvents = () => {}
+	// private createEvents = () => {}
+
 	private onReceivingEntityEvent = (msg:IMessage) => {
 		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
-			this.sendRemainingEventsToCesium(msg);
+			// this.sendRemainingEventsToCesium(msg);
 			return;
 		}
 		if(msg.body === 'None') {
@@ -203,55 +156,126 @@ export class MessageQueueStompService {
 			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
 			this.entityDataHandlerService.vehicleEvents.push(entityEvent as VehicleEvent);
 
-		if(MessageQueueStompService.EVENTS_BEGIN_END.has(event['status'])) {
-			event['duration'] = '0 days 00:00:00'
-			this.entityDataHandlerService.combined.push(entityEvent);
-			this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-		}
-		else {
-			try {
-				if(this.eventQueue.getSize() > 0) {
-					const eventQueue = this.eventQueue;
-					this.eventQueue.forEach( (waitingEventNode:any) => {
-						const waitingEvent = waitingEventNode.getData();
-						const sameEntity = waitingEvent.id == entityEvent.id;
-						const noDuration = waitingEvent.duration == MessageQueueStompService.DURATION_WAIT_NEXT
-						if( sameEntity && noDuration ) {
-							waitingEvent.duration = this.dateParserService.substractDateString(entityEvent.time, waitingEvent.time);
-							eventQueue.interruptEnumeration();
-						}
-					}, false)
-					const toSend:EntityEvent[] = [];
-					const currentTime = this.eventQueue.getHeadNode().getData().time;
-					this.eventQueue.forEach((waitingEventNode:any) => {
-						const waitingEvent = waitingEventNode.getData();
-						if(waitingEvent.time == currentTime && waitingEvent.duration != MessageQueueStompService.DURATION_WAIT_NEXT) {
-							toSend.push(waitingEvent);
-						} else if(waitingEvent.time != currentTime) {
-							eventQueue.interruptEnumeration();
-						}
-					}, false)
-					if(toSend.length > 0) {
-						for(const eventToSend of toSend) {
-							this.eventQueue.removeNode(eventToSend);
-							this.entityDataHandlerService.combined.push(eventToSend);
-							eventToSend.eventType == 'PASSENGER' ? 
-								this.entityDataHandlerService.passengerEvents.push(eventToSend as PassengerEvent) :
-								this.entityDataHandlerService.vehicleEvents.push(eventToSend as VehicleEvent);
+		const firstTimeNextTimeStamp = this.currentTimeStamp != undefined 							// current time set
+			&& (new Date(entityEvent.time).getTime() > new Date(this.currentTimeStamp).getTime())	// bigger than current time
+			&& this.nextTimeStamp == undefined;														// next time stamp not set
 
-						}
-						this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-					}
-					console.log(toSend)
-				}
-				this.eventQueue.insert(entityEvent);
-			} catch(e) {
-				console.log(e)
+		const nextTimestampOver = this.nextTimeStamp != undefined ?
+			(new Date(entityEvent.time).getTime() > new Date(this.nextTimeStamp).getTime()) : false;
+		// if (nextTimestampOver){
+		// 	console.log(entityEvent.time, this.nextTimeStamp, this.currentTimeStamp)
+		// }
+		// set current timestamp	
+		if(this.currentTimeStamp == undefined) {
+			this.currentTimeStamp = entityEvent.time;
+		}
+		// next timestamp can only be set if current time stamp has already been set
+		if(firstTimeNextTimeStamp) {
+			this.nextTimeStamp = entityEvent.time;
+		}
+		// event arrive at current time
+		if(entityEvent.time == this.currentTimeStamp) {
+			if(!this.currentTimeStampEventLookup.has(entityEvent.id)) {
+				// if not already in lookup, add it
+				this.currentTimeStampEventLookup.set(entityEvent.id, [entityEvent]);
+			} else {
+				// else, an event for this bus/passenger already arrived and we append it
+				this.currentTimeStampEventLookup.get(entityEvent.id)?.push(entityEvent);
 			}
 		}
-
+		// if next timestamp, put it in lookup
+		if(entityEvent.time == this.nextTimeStamp) {
+			if(!this.nextTimeStampEventLookup.has(entityEvent.id)) {
+				// if not already in lookup, add it
+				this.nextTimeStampEventLookup.set(entityEvent.id, [entityEvent]);
+			} else {
+				// else, an event for this bus/passenger already arrived and we append it
+				this.nextTimeStampEventLookup.get(entityEvent.id)?.push(entityEvent);
+			}
+		}
+		if(nextTimestampOver) {
+			// combine
+			this.sendCurrentTimeStamp(event);
+			this.currentTimeStamp = this.nextTimeStamp;
+			this.nextTimeStamp = entityEvent.time;
+			this.currentTimeStampEventLookup = this.nextTimeStampEventLookup;
+			this.nextTimeStampEventLookup = new Map<string, EntityEvent[]>();
+			this.nextTimeStampEventLookup.set(
+				entityEvent.id,
+				[entityEvent]
+			)
+		}
 	}
 
+	private sendCurrentTimeStamp = (event:any) => {
+		console.log(
+			this.currentTimeStampEventLookup.size,
+			this.nextTimeStampEventLookup.size
+		)
+		for(let key of this.currentTimeStampEventLookup.keys()) {
+			const value = this.currentTimeStampEventLookup.get(key);
+			// ============================== this is just to make typescript compile ============================== 
+			if(value == undefined) {
+				continue;
+			}
+			// ============================== this is just to make typescript compile ============================== 
+
+			const toSend:EntityEvent[] = [];
+			if(value.length > 1) { // <---- pretty sure this almost never runs
+				// if 2 events for the same entity arrived in the same timestamp, the duration is zero
+				for(let i = 0; i < value.length - 1; i++) {
+					value[i].duration = '0 days 00:00:00';
+					toSend.push(value[i]);
+				}
+				// only the last event of each timestamp remains
+				this.currentTimeStampEventLookup.set(key, [value[value.length - 1]])
+			}
+			const tmp = this.currentTimeStampEventLookup.get(key);
+			const currentEvent = tmp ? tmp[0] : undefined;
+			// if there is no events in the next timestamp
+			if (!this.nextTimeStampEventLookup.has(key) && currentEvent) {
+				// RELEASE, COMPLETE: duration is always 0
+				if(MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
+					currentEvent.duration = '0 days 00:00:00';
+					toSend.push(currentEvent);
+				// if it's idle, alighting, etc. just duplicate an event with the same status
+				// it will look like this:
+				// backend simulator:
+				// T = 1: IDLE --------------------------------------------------------------- T = 5: ENROUTE
+				// T = 1: IDLE ------ T = 2: IDLE ------ T = 3: IDLE ------ T = 4: IDLE ------ T = 5: ENROUTE
+				} else if(MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status)) {
+					const createdEvent = currentEvent.eventType == 'PASSENGER' ?
+						{...(currentEvent)} as PassengerEvent: {...(currentEvent) as VehicleEvent};
+					if(this.nextTimeStamp) {
+						createdEvent.time = this.nextTimeStamp;
+					} 
+					this.nextTimeStampEventLookup.set(
+						currentEvent.id,
+						[createdEvent]
+					);
+				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
+				} else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
+					currentEvent.duration = event['durarion'];
+					toSend.push(currentEvent);
+				}
+			}
+			const nextEvents = this.nextTimeStampEventLookup.get(key);
+			if(nextEvents && currentEvent) {
+				const nextEvent = nextEvents[0];
+				const eventToSend = currentEvent;
+				eventToSend.duration = this.dateParserService.substractDateString(nextEvent.time, eventToSend.time);
+				toSend.push(eventToSend);
+			}
+			for(let event of toSend) {
+				this.entityDataHandlerService.combined.push(event);
+			}
+		}
+		this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
+	} 
+
+	private sendNextTimeStamp = () => {
+
+	}
 	getClient():CompatClient {
 		return MessageQueueStompService.client;
 	}
