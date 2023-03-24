@@ -5,11 +5,11 @@ import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 import {ConnectionCredentials} from './connection-constants';
-import { Queue } from 'queue-typescript';
+// import { Queue } from 'queue-typescript';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { FlowControl } from '../entity-data-handler/flow-control';
-var LinkedList = require('dbly-linked-list')
+// var LinkedList = require('dbly-linked-list')
 
 // uses STOMP with active MQ
 export class MessageQueueStompService {
@@ -29,10 +29,10 @@ export class MessageQueueStompService {
 	private static readonly USE_CURRENT_STOP:Set<string> = new Set([
 		PassengersStatus.ASSIGNED,
 		PassengersStatus.READY,
-		VehicleStatus.ALIGHTING,
-		VehicleStatus.BOARDING,
-		VehicleStatus.IDLE,
-		PassengersStatus.ONBOARD
+		PassengersStatus.ONBOARD,
+		VehicleStatus.ALIGHTING,	// time to departure time
+		VehicleStatus.BOARDING,		// time to departure time
+		VehicleStatus.IDLE,			// time to departure time
 	])
 	// we know these events have zero duration
 	private static readonly ALWAYS_ZERO_DURATION:Set<string> = new Set([
@@ -236,6 +236,9 @@ export class MessageQueueStompService {
 				if(MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
 					currentEvent.duration = '0 days 00:00:00';
 					toSend.push(currentEvent);
+					if(currentEvent.status == VehicleStatus.COMPLETE || currentEvent.status == PassengersStatus.COMPLETE) {
+						this.currentTimeStampEventLookup.delete(currentEvent.id)
+					}
 				// if it's idle, alighting, etc. just duplicate an event with the same status
 				// it will look like this:
 				// backend simulator:
