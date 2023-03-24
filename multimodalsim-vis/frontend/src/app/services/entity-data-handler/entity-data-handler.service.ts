@@ -138,7 +138,11 @@ export class EntityDataHandlerService {
 			}
 
 			if (event && event.eventType == 'VEHICLE') {
-				this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+				try {
+					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
+				} catch {
+					console.log(event)
+				}
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}

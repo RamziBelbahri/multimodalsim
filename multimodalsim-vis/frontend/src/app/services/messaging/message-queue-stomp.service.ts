@@ -114,8 +114,7 @@ export class MessageQueueStompService {
 				event['previous_legs'],
 				event['current_leg'],
 				event['next_legs'],
-				// event['duration']
-				MessageQueueStompService.DURATION_WAIT_NEXT
+				event['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:event['duration']
 			)
 		} else {
 			return new VehicleEvent(
@@ -131,8 +130,7 @@ export class MessageQueueStompService {
 				event['cumulative_distance'],
 				event['stop_lon'],
 				event['stop_lat'],
-				// event['duration']
-				MessageQueueStompService.DURATION_WAIT_NEXT
+				event['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:event['duration']
 			)
 		}
 	}
@@ -208,10 +206,10 @@ export class MessageQueueStompService {
 	}
 
 	private sendCurrentTimeStamp = (event:any) => {
-		console.log(
-			this.currentTimeStampEventLookup.size,
-			this.nextTimeStampEventLookup.size
-		)
+		// console.log(
+		// 	this.currentTimeStampEventLookup.size,
+		// 	this.nextTimeStampEventLookup.size
+		// )
 		for(let key of this.currentTimeStampEventLookup.keys()) {
 			const value = this.currentTimeStampEventLookup.get(key);
 			// ============================== this is just to make typescript compile ============================== 
@@ -255,7 +253,11 @@ export class MessageQueueStompService {
 					);
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
 				} else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
-					currentEvent.duration = event['durarion'];
+					// currentEvent.duration = ;
+					// if(event['duration'] == undefined) {
+					// 	console.log(event)
+					// 	alert
+					// }
 					toSend.push(currentEvent);
 				}
 			}
