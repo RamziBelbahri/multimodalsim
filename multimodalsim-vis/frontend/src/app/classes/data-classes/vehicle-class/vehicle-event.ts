@@ -4,7 +4,7 @@ import { EntityEvent } from '../entity/entity-event';
 
 export class VehicleEvent implements EntityEvent {
 	id: string;
-	time: string;
+	time: number;
 	status: string;
 	previous_stop: string[];
 	current_stop: string;
@@ -21,7 +21,7 @@ export class VehicleEvent implements EntityEvent {
 
 	constructor(
 		id: string,
-		time: string,
+		time: number,
 		status: string,
 		previous_stop: string[],
 		current_stop: string,

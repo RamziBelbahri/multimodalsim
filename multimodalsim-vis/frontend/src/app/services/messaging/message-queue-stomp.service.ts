@@ -22,8 +22,8 @@ export class MessageQueueStompService {
 	*/
 	private currentTimeStampEventLookup:Map<string, EntityEvent[]> = new Map<string, EntityEvent[]>();
 	private nextTimeStampEventLookup:Map<string, EntityEvent[]> = new Map<string, EntityEvent[]>();
-	private currentTimeStamp:string|undefined;
-	private nextTimeStamp:string|undefined;
+	private currentTimeStamp:number|undefined;
+	private nextTimeStamp:number|undefined;
 
 	// if the event has these status, make sure that they are still at the same stop
 	private static readonly USE_CURRENT_STOP:Set<string> = new Set([
@@ -268,7 +268,7 @@ export class MessageQueueStompService {
 			if(nextEvents && currentEvent) {
 				const nextEvent = nextEvents[0];
 				const eventToSend = currentEvent;
-				eventToSend.duration = this.dateParserService.substractDateString(nextEvent.time, eventToSend.time);
+				eventToSend.duration = this.dateParserService.toDateString(nextEvent.time - eventToSend.time);
 				toSend.push(eventToSend);
 			}
 			for(let event of toSend) {

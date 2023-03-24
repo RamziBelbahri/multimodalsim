@@ -9,7 +9,7 @@ import { StopPositionHandlerService } from '../cesium/stop-position-handler.serv
 import { DateParserService } from '../util/date-parser.service';
 import { EventEmitter } from 'events';
 import { FlowControl } from './flow-control';
-const DEBUG = true
+const DEBUG = false;
 
 @Injectable({
 	providedIn: 'root',
@@ -58,8 +58,8 @@ export class EntityDataHandlerService {
 		return this.combined;
 	}
 	public static compare = (firstEvent: VehicleEvent | PassengerEvent, secondEvent: VehicleEvent | PassengerEvent) => {
-		const first_time: number = Date.parse(firstEvent.time);
-		const second_time: number = Date.parse(secondEvent.time);
+		const first_time: number = firstEvent.time;
+		const second_time: number = secondEvent.time;
 		if (first_time > second_time) return 1;
 		if (first_time < second_time) return -1;
 		return 0;
@@ -83,8 +83,8 @@ export class EntityDataHandlerService {
 			this.runRealTimeSimulation(viewer);
 			return;
 		}
-		const start = this.dateParser.parseTimeFromString(this.combined[0].time);
-		const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+		const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time);
+		const end = this.dateParser.parseTimeFromSeconds(this.combined[this.combined.length - 1].time);
 		this.zoomTo(viewer, start, end);
 		this.runFullSimulation(viewer);
 	}
@@ -127,6 +127,10 @@ export class EntityDataHandlerService {
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
 		clockState.shouldAnimate = true;
+
+		// test
+		// viewer.allowDataSourcesToSuspendAnimation = false;
+		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
 			if(i >= this.combined.length) {
 				// console.log('waiting for new event...')
@@ -148,17 +152,16 @@ export class EntityDataHandlerService {
 			}
 
 			if(event && i == 0) {
-				const start = this.dateParser.parseTimeFromString(this.combined[0].time);
-				const end = this.dateParser.parseTimeFromString(this.combined[this.combined.length - 1].time);
+				const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time);
+				const end = this.dateParser.addDuration(start, '1 days 00:00:00');
 				this.zoomTo(viewer, start, end);
 			}
 			i++;
-			console.log('inside event loop', i)
+			// console.log('inside event loop', i)
 			if(i == 1000 && DEBUG){
 				this.saveVehicleEventsAsCSV();
 			} 
 		}
-		this.stopHandler.loadSpawnEvents(viewer);
 		onPlaySubscription.dispose();
 	}
 

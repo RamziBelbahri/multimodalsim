@@ -26,26 +26,32 @@ export class StopPositionHandlerService {
 
 	// Ajoute les moments ou les passagers sont présents à un arrêt
 	compileEvent(passengerEvent: PassengerEvent): void {
-		const stopId = passengerEvent.current_location.toString();
-		const stop = this.stopIdMapping.get(stopId);
-
-		if (stop) {
-			switch (passengerEvent.status) {
-			case PassengersStatus.RELEASE:
-				stop.addPassengerStart(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-				this.stopIdMapping.set(stopId, stop);
-				break;
-			case PassengersStatus.ONBOARD:
-				stop.setPassengerEnd(passengerEvent.id, this.dateParser.parseTimeFromString(passengerEvent.time));
-				this.stopIdMapping.set(stopId, stop);
-				break;
+		// console.log(passengerEvent)
+		try {
+			const stopId = passengerEvent.current_location.toString();
+			const stop = this.stopIdMapping.get(stopId);
+			// console.log(stop)
+			if (stop) {
+				switch (passengerEvent.status) {
+				case PassengersStatus.RELEASE:
+					stop.addPassengerStart(passengerEvent.id, this.dateParser.parseTimeFromSeconds(passengerEvent.time));
+					this.stopIdMapping.set(stopId, stop);
+					break;
+				case PassengersStatus.ONBOARD:
+					stop.setPassengerEnd(passengerEvent.id, this.dateParser.parseTimeFromSeconds(passengerEvent.time));
+					this.stopIdMapping.set(stopId, stop);
+					break;
+				}
 			}
+		} catch(e) {
+			console.log(e)
 		}
 	}
 
 	// Charge tous les arrêts qui contiennent des passagers
 	loadSpawnEvents(viewer: Viewer): void {
 		this.stopIdMapping.forEach((stop: Stop, id: string) => {
+			// console.log(id)
 			this.spawnEntity(id, stop, viewer);
 		});
 	}

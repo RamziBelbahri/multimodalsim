@@ -48,7 +48,7 @@ export class VehiclePositionHandlerService {
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const positionProperty = this.pathIdMapping.get(vehicleEvent.id) as SampledPositionProperty;
-		const startTime = this.dateParser.parseTimeFromString(vehicleEvent.time);
+		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
 
 		positionProperty.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));

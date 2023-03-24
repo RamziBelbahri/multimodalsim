@@ -10,14 +10,9 @@ export class DateParserService {
 	private readonly TIMEZONE_SHIFT = -5;
 
 	// Prend une date en string et la retourne en julian date (utilisé par Césium).
-	parseTimeFromString(time: string): JulianDate {
-		const dateSplit = time.split(' ');
-		const date = new Date(dateSplit[0]);
-		const timeSplit = dateSplit[1].split(':');
-
-		date.setHours(Number(timeSplit[0]) + this.TIMEZONE_SHIFT);
-		date.setMinutes(Number(timeSplit[1]));
-		date.setSeconds(Number(timeSplit[2]));
+	parseTimeFromSeconds(time: number): JulianDate {
+		const date = new Date(0);
+		date.setSeconds(Number(time));
 
 		return Cesium.JulianDate.fromDate(date);
 	}
@@ -39,11 +34,12 @@ export class DateParserService {
 		return newTime;
 	}
 
-	substractDateString(currentTime:string, previousTime:string):string {
-		const currentTimeInSeconds:number = +Date.parse(currentTime).toFixed(0) 	/ 1000;
-		const previousTimeInSeconds:number = +Date.parse(previousTime).toFixed(0)	/ 1000;
+	// temporary
+	toDateString(duration:number):string {
+		// const currentTimeInSeconds:number = +Date.parse(currentTime).toFixed(0) 	/ 1000;
+		// const previousTimeInSeconds:number = +Date.parse(previousTime).toFixed(0)	/ 1000;
 
-		const duration = currentTimeInSeconds - previousTimeInSeconds;
+		// const duration = currentTime - previousTime;
 		const days  = Math.floor(duration / (24*60*60))
 		const hours = Math.floor((duration - days * (24*60*60)) / (60*60))
 		const minutes = Math.floor(

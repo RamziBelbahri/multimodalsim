@@ -2,7 +2,7 @@ import { EntityEvent } from '../entity/entity-event';
 
 export class PassengerEvent implements EntityEvent {
 	id: string;
-	time: string;
+	time: number;
 	status: string;
 	assigned_vehicle: number | undefined;
 	current_location: number[] | number;
@@ -14,7 +14,7 @@ export class PassengerEvent implements EntityEvent {
 
 	constructor(
 		id: string,
-		time: string,
+		time: number,
 		status: string,
 		assigned_vehicle: number | undefined,
 		current_location: number[],
