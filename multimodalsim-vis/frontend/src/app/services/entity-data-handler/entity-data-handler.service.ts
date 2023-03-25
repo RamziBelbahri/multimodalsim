@@ -126,7 +126,7 @@ export class EntityDataHandlerService {
 		});
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
-		clockState.shouldAnimate = true;
+		// clockState.shouldAnimate = true;
 
 		// test
 		// viewer.allowDataSourcesToSuspendAnimation = false;

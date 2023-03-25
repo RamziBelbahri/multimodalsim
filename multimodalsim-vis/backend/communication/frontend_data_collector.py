@@ -84,7 +84,7 @@ class FrontendDataCollector(DataCollector):
         self.__data_container.set_columns("events",
                                           config.get_events_columns())
 
-    def __collect_vehicles_data(self, route):
+    def __collect_vehicles_data(self, route:multimodalsim.simulator.vehicle.Route):
 
         previous_stops = [str(stop.location) for stop
                           in route.previous_stops]
@@ -93,13 +93,16 @@ class FrontendDataCollector(DataCollector):
         next_stops = [str(stop.location) for stop
                       in route.next_stops]
 
-        if route.current_stop != None:
-            print(route.current_stop)    
-        try:
-            duration = self.__get_duration(route.next_stops[0].arrival_time - route.current_stop.departure_time)
-            print(duration)
-        except Exception as e:
-            duration = '0 days 00:00:00'
+        # if route.current_stop != None:
+        #     print(route.current_stop)    
+        # try:
+            
+        #     # print("duration inside try",route.status, duration)
+        # except Exception as e:
+        #     if route.status == VehicleStatus.ENROUTE:
+        #         print(e)
+        #         duration = '0 days 00:00:00'
+                
 
         assigned_legs = [leg.id for leg in route.assigned_legs]
         onboard_legs = [leg.id for leg in route.onboard_legs]
@@ -145,6 +148,8 @@ class FrontendDataCollector(DataCollector):
         self.__update_trip_cumulative_distance_by_vehicle(route.vehicle)
         obs_dict['event_type'] = 'VEHICLE'
         if route.status == VehicleStatus.ENROUTE:
+            duration = self.__get_duration(route.next_stops[0].arrival_time - route.previous_stops[-1].departure_time)
+            print("duration", route.status, duration)
             obs_dict["duration"] = duration
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 

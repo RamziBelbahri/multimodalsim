@@ -103,34 +103,37 @@ export class MessageQueueStompService {
 		}
 	}
 
-	private eventJSONToObject = (event:any):VehicleEvent|PassengerEvent => {
-		if(event['event_type'] == 'PASSENGER') {
+	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
+		if(eventJson['status'] == VehicleStatus.ENROUTE) {
+			console.log(eventJson['duration'])
+		}
+		if(eventJson['event_type'] == 'PASSENGER') {
 			return new PassengerEvent(
-				event['id'],
-				event['time'],
-				event['status'],
-				event['assigned_vehicle'],
-				event['current_location'],
-				event['previous_legs'],
-				event['current_leg'],
-				event['next_legs'],
-				event['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:event['duration']
+				eventJson['id'],
+				eventJson['time'],
+				eventJson['status'],
+				eventJson['assigned_vehicle'],
+				eventJson['current_location'],
+				eventJson['previous_legs'],
+				eventJson['current_leg'],
+				eventJson['next_legs'],
+				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
 			)
 		} else {
 			return new VehicleEvent(
-				event['id'],
-				event['time'],
-				event['status'],
-				event['previous_stops'],
-				event['current_stop'],
-				event['next_stops'],
-				event['assigned_legs'],
-				event['onboard_legs'],
-				event['alighted_legs'],
-				event['cumulative_distance'],
-				event['stop_lon'],
-				event['stop_lat'],
-				event['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:event['duration']
+				eventJson['id'],
+				eventJson['time'],
+				eventJson['status'],
+				eventJson['previous_stops'],
+				eventJson['current_stop'],
+				eventJson['next_stops'],
+				eventJson['assigned_legs'],
+				eventJson['onboard_legs'],
+				eventJson['alighted_legs'],
+				eventJson['cumulative_distance'],
+				eventJson['stop_lon'],
+				eventJson['stop_lat'],
+				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
 			)
 		}
 	}
@@ -147,8 +150,8 @@ export class MessageQueueStompService {
 			console.log(msg.body);
 			return;
 		}
-		const event = JSON.parse(msg.body)
-		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(event);
+		const eventJson = JSON.parse(msg.body)
+		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
 
 		entityEvent.eventType == 'PASSENGER' ?
 			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
@@ -193,7 +196,7 @@ export class MessageQueueStompService {
 		}
 		if(nextTimestampOver) {
 			// combine
-			this.sendCurrentTimeStamp(event);
+			this.sendCurrentTimeStamp();
 			this.currentTimeStamp = this.nextTimeStamp;
 			this.nextTimeStamp = entityEvent.time;
 			this.currentTimeStampEventLookup = this.nextTimeStampEventLookup;
@@ -205,7 +208,7 @@ export class MessageQueueStompService {
 		}
 	}
 
-	private sendCurrentTimeStamp = (event:any) => {
+	private sendCurrentTimeStamp = () => {
 		// console.log(
 		// 	this.currentTimeStampEventLookup.size,
 		// 	this.nextTimeStampEventLookup.size
@@ -219,6 +222,7 @@ export class MessageQueueStompService {
 			// ============================== this is just to make typescript compile ============================== 
 
 			const toSend:EntityEvent[] = [];
+			// if there is already the next event in the same timestamp, use the one in current timestamp
 			if(value.length > 1) { // <---- pretty sure this almost never runs
 				// if 2 events for the same entity arrived in the same timestamp, the duration is zero
 				for(let i = 0; i < value.length - 1; i++) {
@@ -228,49 +232,56 @@ export class MessageQueueStompService {
 				// only the last event of each timestamp remains
 				this.currentTimeStampEventLookup.set(key, [value[value.length - 1]])
 			}
-			const tmp = this.currentTimeStampEventLookup.get(key);
-			const currentEvent = tmp ? tmp[0] : undefined;
-			// if there is no events in the next timestamp
-			if (!this.nextTimeStampEventLookup.has(key) && currentEvent) {
-				// RELEASE, COMPLETE: duration is always 0
-				if(MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
+
+			const tmp_currentEvent = this.currentTimeStampEventLookup.get(key);
+			const currentEvent = tmp_currentEvent ? tmp_currentEvent[0] : undefined;
+			if(currentEvent?.status == VehicleStatus.ENROUTE) {
+				console.log(currentEvent.status);
+			}
+
+			// if the next timestamp has this event, use the next timestamp
+			if(currentEvent && this.nextTimeStampEventLookup.has(currentEvent.id)) {
+				const tmp_nextEvent = this.nextTimeStampEventLookup.get(currentEvent.id);
+				const nextEvent = tmp_nextEvent ? tmp_nextEvent[0] : undefined;
+				if(currentEvent && nextEvent) { // <---------- pretty much guaranteed to be true
+					currentEvent.duration = this.dateParserService.toDateString(nextEvent.time - currentEvent.time);
+					toSend.push(currentEvent);
+					this.currentTimeStampEventLookup.delete(key);
+				}
+			}
+			// if there is no events in the next timestamp, create an event in the next timestamp
+			else if (!this.nextTimeStampEventLookup.has(key) && currentEvent) {
+				// RELEASE and COMPLETE are guaranteed to have a duration of zero
+				if(currentEvent && MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
 					currentEvent.duration = '0 days 00:00:00';
 					toSend.push(currentEvent);
-					if(currentEvent.status == VehicleStatus.COMPLETE || currentEvent.status == PassengersStatus.COMPLETE) {
-						this.currentTimeStampEventLookup.delete(currentEvent.id)
-					}
+				}
+				// RELEASE, COMPLETE: duration is always 0
 				// if it's idle, alighting, etc. just duplicate an event with the same status
 				// it will look like this:
-				// backend simulator:
-				// T = 1: IDLE --------------------------------------------------------------- T = 5: ENROUTE
-				// T = 1: IDLE ------ T = 2: IDLE ------ T = 3: IDLE ------ T = 4: IDLE ------ T = 5: ENROUTE
-				} else if(MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status)) {
+				// backend  : T = 1: IDLE --------------------------------------------------------------- T = 5: ENROUTE
+				// frontend : T = 1: IDLE ------ T = 2: IDLE ------ T = 3: IDLE ------ T = 4: IDLE ------ T = 5: ENROUTE
+				else if(MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status)) {
 					const createdEvent = currentEvent.eventType == 'PASSENGER' ?
 						{...(currentEvent)} as PassengerEvent: {...(currentEvent) as VehicleEvent};
 					if(this.nextTimeStamp) {
 						createdEvent.time = this.nextTimeStamp;
 					} 
+					// put an artificial event in the next time stamp
 					this.nextTimeStampEventLookup.set(
 						currentEvent.id,
 						[createdEvent]
 					);
+					currentEvent.duration = this.dateParserService.toDateString(createdEvent.time - currentEvent.time);
+					toSend.push(currentEvent);
+				}
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
-				} else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
-					// currentEvent.duration = ;
-					// if(event['duration'] == undefined) {
-					// 	console.log(event)
-					// 	alert
-					// }
+				else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
+					console.log(currentEvent.duration);
 					toSend.push(currentEvent);
 				}
 			}
-			const nextEvents = this.nextTimeStampEventLookup.get(key);
-			if(nextEvents && currentEvent) {
-				const nextEvent = nextEvents[0];
-				const eventToSend = currentEvent;
-				eventToSend.duration = this.dateParserService.toDateString(nextEvent.time - eventToSend.time);
-				toSend.push(eventToSend);
-			}
+			
 			for(let event of toSend) {
 				this.entityDataHandlerService.combined.push(event);
 			}
@@ -278,9 +289,6 @@ export class MessageQueueStompService {
 		this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
 	} 
 
-	private sendNextTimeStamp = () => {
-
-	}
 	getClient():CompatClient {
 		return MessageQueueStompService.client;
 	}

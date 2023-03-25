@@ -16,8 +16,12 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		if (!this.pathIdMapping.has(vehicleEvent.id)) {
-			this.pathIdMapping.set(vehicleEvent.id, new Cesium.SampledPositionProperty());
-
+			const sampledPosition = new Cesium.SampledPositionProperty();
+			this.pathIdMapping.set(vehicleEvent.id, sampledPosition);
+			sampledPosition.setInterpolationOptions({
+				interpolationDegree: 1,
+				interpolationAlgorithm: Cesium.LinearApproximation,
+			});
 			// Donner une valeur non nulle afin de ne pas causer d'erreur si le véhicule ne se déplace jamais.
 			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
 				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
@@ -48,6 +52,7 @@ export class VehiclePositionHandlerService {
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const positionProperty = this.pathIdMapping.get(vehicleEvent.id) as SampledPositionProperty;
+		// positionProperty
 		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
 		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
 
