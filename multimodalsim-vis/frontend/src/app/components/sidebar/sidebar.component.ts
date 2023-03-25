@@ -23,7 +23,6 @@ export class SidebarComponent implements OnInit {
 	private viewerSubscription: Subscription = new Subscription();
 
 	parameterList: Array<string> = new Array<string>();
-	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
@@ -42,12 +41,6 @@ export class SidebarComponent implements OnInit {
 		this.parameterList.push('Paramètre 1');
 		this.parameterList.push('Paramètre 2');
 		this.parameterList.push('Paramètre 3');
-
-		this.visOptionList.push('Temps d\'attente moyen');
-		this.visOptionList.push('Temps de parcours moyen');
-		this.visOptionList.push('Nombre de lignes d\'autobus');
-		this.visOptionList.push('Nombre de types de transport');
-		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
 	}
@@ -95,6 +88,10 @@ export class SidebarComponent implements OnInit {
 			height: '400px',
 			width: '600px',
 		});
+	}
+
+	openStats(): void {
+		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
 	}
 
 	launchSimulation(): void {

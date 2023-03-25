@@ -1,6 +1,6 @@
 .entity-infos-sidebar {
 	height: 50%;
-	width: 25em;
+	width: 0em;
 	position: fixed;
 	z-index: 1;
 	bottom: 2em;
@@ -8,9 +8,9 @@
 	background-color: white;
 	border-top-style: solid;
 	border-top-width: 30px;
-	border-top-color:lightskyblue;
+	border-top-color: lightskyblue;
 	color: black;
-	overflow-x:visible;
+	overflow-x: visible;
 	padding-bottom: 60px;
 	transition: 0.5s;
 }
@@ -50,7 +50,7 @@
 	opacity: 0.8;
 	color: blue;
 	size: 800x;
-	cursor:grab;
+	cursor: grab;
 }
 
 #open:hover {

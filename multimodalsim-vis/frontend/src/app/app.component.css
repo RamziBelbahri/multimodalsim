@@ -1,75 +1,75 @@
 #ng-sidebar-container {
-    height: 100%;
-    width: 20%;
-    background-color: grey;
+	height: 100%;
+	width: 20%;
+	background-color: grey;
 }
 
 .visualization {
-    margin-top: 2em;
-    display: block;
-    text-align: center;
-    color: blue;
-    font-weight: bold;
+	margin-top: 2em;
+	display: block;
+	text-align: center;
+	color: blue;
+	font-weight: bold;
 }
 
 #page {
-    height: 45em;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    border-radius: 6px;
+	height: 45em;
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	border-radius: 6px;
 }
 
 #page-container {
-    z-index: 4;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    display: block;
-    top: 0;
-    left: 0;
-    background-color: black;
-    opacity: 0.4;
+	z-index: 4;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	display: block;
+	top: 0;
+	left: 0;
+	background-color: black;
+	opacity: 0.4;
 	overflow-x: hidden;
-    visibility: hidden;
+	visibility: hidden;
 }
 
-#modal-container {
+.modal {
 	height: 70%;
 	width: 50%;
-    position: fixed;
-    top: 15%;
-    left: 25%;
+	position: fixed;
+	top: 15%;
+	left: 25%;
 	z-index: 5;
 	background-color: white;
-    border-color: black;
-    border-radius: 5px;
-    border-width: 10px;
-    border: solid;
+	border-color: black;
+	border-radius: 5px;
+	border-width: 10px;
+	border: solid;
 	color: black;
 	overflow-x: hidden;
-    visibility: hidden;
+	visibility: hidden;
 }
 
 .cesium {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    z-index: 1;
-    display: block;
-    position: relative;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	z-index: 1;
+	display: block;
+	position: relative;
 }
 
 .sidebarContainer {
-    padding-left: 10px;
-    padding-top: 10px;
-    z-index: 2;
-    position: absolute;
+	padding-left: 10px;
+	padding-top: 10px;
+	z-index: 2;
+	position: absolute;
 }
 
 .entityInfosContainer {
-    padding-right: 10px;
-    padding-bottom: 70px;
-    z-index: 8;
-    position: absolute;
+	padding-right: 10px;
+	padding-bottom: 70px;
+	z-index: 8;
+	position: absolute;
 }
