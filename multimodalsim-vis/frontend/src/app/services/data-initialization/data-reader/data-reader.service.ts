@@ -29,8 +29,8 @@ export class DataReaderService {
 		this.csvInput = new Blob();
 	}
 
-	launchSimulation(viewer: Viewer): void {
-		this.entityDataHandlerService.runVehiculeSimulation(viewer);
+	launchSimulation(viewer: Viewer, isRealTime: boolean): void {
+		this.entityDataHandlerService.runVehiculeSimulation(viewer, isRealTime);
 	}
 
 	selectZip(event: Event): void {
@@ -43,21 +43,16 @@ export class DataReaderService {
 		this.csvInput = (target.files as FileList)[0];
 	}
 
-	readZipContent(): void {
+	async readZipContent(): Promise<void> {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
-			this.zipper
-				.loadAsync(file)
-				.then((zip: JSZip) => {
-					this.readFiles(zip);
-				})
-				.then(() => {
-					if (this.zipInput) this.zipInput.files = null;
-				});
+			const zip = await this.zipper.loadAsync(file);
+			await this.readFiles(zip);
+			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
 
-	private readFiles(zip: JSZip): void {
+	private async readFiles(zip: JSZip): Promise<void> {
 		if (zip.files) {
 			for (const filePath in zip.files) {
 				let extension: string;
@@ -71,7 +66,7 @@ export class DataReaderService {
 				switch (extension) {
 				case 'csv':
 				case 'txt':
-					this.readCSV(filePath, zip);
+					await this.readCSV(filePath, zip);
 					break;
 				case '\'':
 					this.readDirectory(zip, filePath);
@@ -83,14 +78,10 @@ export class DataReaderService {
 		}
 	}
 
-	readCSV(filePath?: string, zip?: JSZip): void {
+	async readCSV(filePath?: string, zip?: JSZip): Promise<void> {
 		if (zip && filePath) {
-			zip
-				.file(filePath)
-				?.async('text')
-				.then((txt: string) => {
-					this.readFileData(txt, filePath);
-				});
+			const txt = await zip.file(filePath)?.async('text');
+			if (txt) this.readFileData(txt, filePath);
 		}
 	}
 
@@ -99,6 +90,7 @@ export class DataReaderService {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
+				this.setStops(csvArray);
 			}
 			if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 				csvArray.pop();
@@ -143,6 +135,10 @@ export class DataReaderService {
 
 	private setEventObservations(data: []): void {
 		this.entityDataHandlerService.setEventObservations(data);
+	}
+
+	private setStops(data: any): void {
+		this.entityDataHandlerService.setStops(data);
 	}
 
 	private readDirectory(_: JSZip, filePath: string): void {

@@ -5,6 +5,11 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
+    <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
+    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
+    </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(0, parameterList.length)">Paramètres</div>
     <div class="sub-menu" id="sub-menu-param">
         <div class="sub-menu-option" *ngFor="let param of parameterList">{{param}}</div>
@@ -20,9 +25,14 @@
     <div class="sub-menu" id="sub-menu-manip">
         <div class="sub-menu-option" *ngFor="let manip of manipOptionList">{{manip}}</div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch">
-        Lancer la simulation (TODO)
+    <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
+        Lancer la simulation
     </div>
+    <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
+        Pauser la simulation
+    </div>
+    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
+        Continuer la simulation
 </div>
 
 <i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>

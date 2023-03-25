@@ -133,6 +133,7 @@ export class MessageQueueStompService {
 				eventJson['cumulative_distance'],
 				eventJson['stop_lon'],
 				eventJson['stop_lat'],
+				eventJson['polylines'],
 				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
 			)
 		}

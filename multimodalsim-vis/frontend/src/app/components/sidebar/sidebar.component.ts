@@ -1,4 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { Viewer } from 'cesium';
+import { Subscription } from 'rxjs';
+import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
+import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CommunicationService } from 'src/app/services/communication/communication.service';
+import { SaveModalComponent } from '../save-modal/save-modal.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -12,11 +19,22 @@ export class SidebarComponent implements OnInit {
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
 
+	private viewer: Viewer | undefined;
+	private viewerSubscription: Subscription = new Subscription();
+
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
+	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
+
 	ngOnInit() {
+		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
+			this.viewer = viewer;
+
+			this.entityHandler.initHandler(this.viewer);
+		});
+
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
@@ -32,6 +50,10 @@ export class SidebarComponent implements OnInit {
 		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
+	}
+
+	ngOnDestroy() {
+		this.viewerSubscription.unsubscribe();
 	}
 
 	open(): void {
@@ -71,5 +93,30 @@ export class SidebarComponent implements OnInit {
 	openUploadStopsFile():void {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('stops-file-container') as HTMLElement).style.visibility = 'visible';
+	}
+
+	openSaveModal(): void {
+		this.dialog.open(SaveModalComponent, {
+			height: '400px',
+			width: '600px',
+		});
+	}
+
+	launchSimulation(): void {
+		this.commService.startSimulation().subscribe((res) => {
+			console.log(res);
+		});
+	}
+
+	pauseSimulation(): void {
+		this.commService.pauseSimulation().subscribe((res) => {
+			console.log(res);
+		});
+	}
+
+	continueSimulation(): void {
+		this.commService.continueSimulation().subscribe((res) => {
+			console.log(res);
+		});
 	}
 }

@@ -11,7 +11,10 @@ import multimodalsim.simulator.vehicle_event
 from multimodalsim.config.data_collector_config import DataCollectorConfig
 from multimodalsim.simulator.event import ActionEvent
 from multimodalsim.state_machine.status import PassengersStatus, VehicleStatus
-from multimodalsim.observer.data_collector import DataCollector, DataContainer
+from multimodalsim.observer.data_collector import DataCollector
+from multimodalsim.observer.data_collector import DataContainer
+from communication.active_mq_controller import ActiveMQController
+from communication.connection_credentials import ConnectionCredentials
 
 N_SECONDS_DAY       = 24*60*60
 N_SECONDS_HOUR      = 60*60

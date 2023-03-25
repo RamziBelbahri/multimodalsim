@@ -17,20 +17,9 @@ export class DateParserService {
 		return Cesium.JulianDate.fromDate(date);
 	}
 
-	// Retourne le nombre de secondes, minutes et heures de la durée en string
-	private parseDurationFromString(duration: string): string[] {
-		const dateSplit = duration.split(' ');
-
-		return dateSplit[2].split(':');
-	}
-
 	// Ajoute la durée voulue (string) à la julian date
-	addDuration(currentTime: JulianDate, duration: string): JulianDate {
-		const timeValues = this.parseDurationFromString(duration);
-		const seconds = Number(timeValues[0]) * this.SECONDS_IN_HOUR + Number(timeValues[1]) * this.SECONDS_IN_MINUTE + Number(timeValues[2]);
-
-		const newTime = Cesium.JulianDate.addSeconds(currentTime, seconds, new Cesium.JulianDate());
-
+	addDuration(currentTime: JulianDate, duration: number): JulianDate {
+		const newTime = Cesium.JulianDate.addSeconds(currentTime, duration, new Cesium.JulianDate());
 		return newTime;
 	}
 

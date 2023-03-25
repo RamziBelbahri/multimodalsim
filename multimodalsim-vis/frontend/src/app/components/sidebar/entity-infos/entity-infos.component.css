@@ -1,0 +1,58 @@
+.entity-infos-sidebar {
+	height: 50%;
+	width: 25em;
+	position: fixed;
+	z-index: 1;
+	bottom: 2em;
+	right: 0;
+	background-color: white;
+	border-top-style: solid;
+	border-top-width: 30px;
+	border-top-color:lightskyblue;
+	color: black;
+	overflow-x:visible;
+	padding-bottom: 60px;
+	transition: 0.5s;
+}
+
+#entity-infos {
+	display: block;
+	width: 90%;
+	margin-left: 5%;
+	margin-bottom: 5px;
+	padding: 8px 8px 8px 8px;
+	color: #5c5c5c;
+	background-color: whitesmoke;
+	cursor: pointer;
+	font-size: 25px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	transition: 0.3s;
+}
+
+#close {
+	color: #5c5c5c;
+	cursor: pointer;
+	position: absolute;
+	top: -25px;
+	left: 0;
+	font-size: 36px;
+}
+
+.close:hover {
+	color: black;
+}
+
+#open {
+	position: absolute;
+	left: 1850px;
+	top: 365px;
+	font-size: 50px;
+	opacity: 0.8;
+	color: blue;
+	size: 800x;
+	cursor:grab;
+}
+
+#open:hover {
+	opacity: 1;
+}

@@ -10,6 +10,9 @@ import { DateParserService } from '../util/date-parser.service';
 import { EventEmitter } from 'events';
 import { FlowControl } from './flow-control';
 const DEBUG = false;
+import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
+import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
+import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -17,18 +20,26 @@ const DEBUG = false;
 export class EntityDataHandlerService {
 	public vehicleEvents: VehicleEvent[];
 	public passengerEvents: PassengerEvent[];
+	private stops: any[];
+	private eventObservations: EventObservation[];
 	public combined: EntityEvent[];
-	private eventObservations: [];
 	// public eventQueue: Queue;
 	private simulationRunning: boolean;
 	public simulationCompleted: boolean;
 	public pauseEventEmitter = new EventEmitter();
 	
-	constructor(private dateParser: DateParserService, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
+	constructor(
+		private dateParser: DateParserService,
+		private vehicleHandler: VehiclePositionHandlerService,
+		private stopHandler: StopPositionHandlerService,
+		private dataSaverService: DataSaverService,
+		private boardingHandler: BoardingHandlerService
+	) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
-		this.combined = [];
+		this.stops = [];
 		this.eventObservations = [];
+		this.combined = [];
 		// this.eventQueue = new Cesium.Queue();
 		this.simulationRunning = false;
 		this.simulationCompleted = false;
@@ -46,11 +57,15 @@ export class EntityDataHandlerService {
 		this.passengerEvents = passengerEvents;
 	}
 
-	public setEventObservations(eventObservations: []): void {
+	public setEventObservations(eventObservations: EventObservation[]): void {
 		this.eventObservations = eventObservations;
 	}
 
-	public getEventObservations(): [] {
+	public setStops(stops: any[]): void {
+		this.stops = stops;
+	}
+
+	public getEventObservations(): EventObservation[] {
 		return this.eventObservations;
 	}
 
@@ -106,6 +121,8 @@ export class EntityDataHandlerService {
 		}
 		this.vehicleHandler.loadSpawnEvents(viewer);
 		this.stopHandler.loadSpawnEvents(viewer);
+		this.boardingHandler.initBoarding(viewer);
+		this.saveSimulationState();
 	}
 
 	/* TODO: Il faudra retirer les itérations sur i et gérer l'arrêt total de
@@ -154,7 +171,7 @@ export class EntityDataHandlerService {
 			if(event && i == 0) {
 				// const julianDateStart
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
-				const end = this.dateParser.addDuration(start, '0 days 23:00:00');
+				const end = this.dateParser.addDuration(start, 23 * 60 * 60);
 				this.zoomTo(viewer, start, end);
 			}
 			console.log(
@@ -166,52 +183,56 @@ export class EntityDataHandlerService {
 
 		}
 		onPlaySubscription.dispose();
+		this.saveSimulationState();
 	}
 
 	// debugging purpose only
-	private saveVehicleEventsAsCSV = () => {
-		let a = document.createElement('a');
-		const csvString = [
-			[
-				"id",
-				"time",			
-				"status",			
-				"previous_stop",	
-				"current_stop",	
-				"next_stop",		
-				"assigned_legs",	
-				"onboard_legs",	
-				"alighted_legs",	
-				"cumulative_distance",
-				"position",
-				"duration",
-				"hasChanged",
-				"movement",
-			],
-			...this.vehicleEvents.map(item => [
-				item.id,
-				item.time,
-				item.status,
-				item.previous_stop? item.previous_stop.toString(): 'null',
-				item.current_stop,
-				item.next_stop ? item.next_stop.toString() : 'null',
-				item.assigned_legs ? item.next_stop.toString() : 'null',
-				item.onboard_legs? item.onboard_legs.toString() : 'null',
-				item.alighted_legs? item.alighted_legs.toString() : 'null',
-				item.cumulative_distance ? item.cumulative_distance.toString() : 'null',
-				item.position ? item.position.toString() : 'None',
-				item.duration,
-				item.hasChanged ? 'true' : 'false',
-				item.movement? item.movement.toString():'null'
-			])
-		].map(e => e.join(";")).join("\n");
-		a.href = "data:application/octet-stream,"+encodeURIComponent(csvString);
-		a.download = 'myFile.json';
-		a.click();
-	}
+	// private saveVehicleEventsAsCSV = () => {
+	// 	let a = document.createElement('a');
+	// 	const csvString = [
+	// 		[
+	// 			"id",
+	// 			"time",			
+	// 			"status",			
+	// 			"previous_stop",	
+	// 			"current_stop",	
+	// 			"next_stop",		
+	// 			"assigned_legs",	
+	// 			"onboard_legs",	
+	// 			"alighted_legs",	
+	// 			"cumulative_distance",
+	// 			"position",
+	// 			"duration",
+	// 			"hasChanged",
+	// 			"movement",
+	// 		],
+	// 		...this.vehicleEvents.map(item => [
+	// 			item.id,
+	// 			item.time,
+	// 			item.status,
+	// 			item.previous_stop? item.previous_stop.toString(): 'null',
+	// 			item.current_stop,
+	// 			item.next_stop ? item.next_stop.toString() : 'null',
+	// 			item.assigned_legs ? item.next_stop.toString() : 'null',
+	// 			item.onboard_legs? item.onboard_legs.toString() : 'null',
+	// 			item.alighted_legs? item.alighted_legs.toString() : 'null',
+	// 			item.cumulative_distance ? item.cumulative_distance.toString() : 'null',
+	// 			item.position ? item.position.toString() : 'None',
+	// 			item.duration,
+	// 			item.hasChanged ? 'true' : 'false',
+	// 			item.movement? item.movement.toString():'null'
+	// 		])
+	// 	].map(e => e.join(";")).join("\n");
+	// 	a.href = "data:application/octet-stream,"+encodeURIComponent(csvString);
+	// 	a.download = 'myFile.json';
+	// 	a.click();
+	// }
 
 	private setSimulationState(isRunning: boolean): void {
 		this.simulationRunning = isRunning;
 	}
 
+	private saveSimulationState(): void {
+		this.dataSaverService.saveSimulationState(this.vehicleEvents, this.passengerEvents, this.eventObservations, this.stops);
+	}
 }
