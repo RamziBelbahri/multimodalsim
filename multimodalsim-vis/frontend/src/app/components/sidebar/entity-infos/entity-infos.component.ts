@@ -32,18 +32,13 @@ export class EntityInfosComponent {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
 
-			/*this.entityHandler.findClickedEntityId(this.viewer);
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				this.lat = infos.position.x;
 				this.lon = infos.position.y;
 				this.passengerAmount = infos.passengers.length;
 				this.passengerList = infos.passengers;
-			});*/
+			});
 		});
-
-		// this.passengerList.push('Paramètre 1');
-		// this.passengerList.push('Paramètre 2');
-		// this.passengerList.push('Paramètre 3');
 	}
 
 	ngOnDestroy() {
@@ -51,10 +46,10 @@ export class EntityInfosComponent {
 	}
 
 	open(): void {
-		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
-		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '0px';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
 	}
 }
