@@ -7,3 +7,42 @@
 	font-size: 36px;
 	margin-left: 50px;
 }
+
+.json-load-button {
+	display: block;
+	position: relative;
+	left: 40%;
+	top: 15%;
+	width: 20%;
+	height: 40px;
+	border: black;
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 2px;
+	margin-bottom: 5px;
+	color: #5c5c5c;
+	background-color: #e7e7e7;
+	cursor: pointer;
+	font-size: 16px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	text-align: center;
+}
+
+.table-container {
+	width: 100%;
+	text-align: center;
+}
+
+.stat-field {
+	text-align: left;
+	width: 60%;
+}
+
+.stat-value {
+	width: 40%;
+}
+
+th,
+td {
+	border: 3px solid rgb(138, 138, 138);
+}

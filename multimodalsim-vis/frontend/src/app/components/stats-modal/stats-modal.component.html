@@ -1,3 +1,20 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="table-container">
+    <div *ngIf="!isShowingStats" class="json-load-button" (click)="loadJson()">Charger JSON</div>
+    
+    <h1 *ngIf="isShowingStats"> Statisques de simulation</h1>  
+    <table *ngIf="isShowingStats" class="table table-striped">  
+        <thead>  
+            <tr>  
+              <th>Statistique</th>  
+              <th>Valeur</th>  
+            </tr>  
+        </thead>  
+        <tbody>  
+          <tr *ngFor="let stat of stats">  
+            <td class="stat-field">{{ stat.field }}</td>  
+            <td class="stat-value">{{ stat.value }}</td>  
+          </tr>  
+        </tbody>  
+      </table>  
 </div>

@@ -26,6 +26,7 @@
     "cesium": "^1.101.0",
     "delay": "^5.0.0",
     "file-saver": "^2.0.5",
+    "fs": "^0.0.1-security",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "ngx-papaparse": "^6.0.2",
