@@ -150,21 +150,25 @@ export class EntityDataHandlerService {
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
-
+			// console.log(new Date(event.time).getTime() - Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime())
 			if(event && i == 0) {
-				const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time);
-				const end = this.dateParser.addDuration(start, '1 days 00:00:00');
+				// const julianDateStart
+				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
+				const end = this.dateParser.addDuration(start, '0 days 23:00:00');
 				this.zoomTo(viewer, start, end);
 			}
+			console.log(
+				Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime() - new Date(event.time * 1000).getTime()
+			)
+
+			console.log("")
 			i++;
-			// console.log('inside event loop', i)
-			if(i == 1000 && DEBUG){
-				this.saveVehicleEventsAsCSV();
-			} 
+
 		}
 		onPlaySubscription.dispose();
 	}
 
+	// debugging purpose only
 	private saveVehicleEventsAsCSV = () => {
 		let a = document.createElement('a');
 		const csvString = [

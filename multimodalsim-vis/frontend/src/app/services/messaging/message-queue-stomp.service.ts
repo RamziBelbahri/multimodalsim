@@ -104,9 +104,9 @@ export class MessageQueueStompService {
 	}
 
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
-		if(eventJson['status'] == VehicleStatus.ENROUTE) {
-			console.log(eventJson['duration'])
-		}
+		// if(eventJson['status'] == VehicleStatus.ENROUTE) {
+		// 	console.log(eventJson['duration'])
+		// }
 		if(eventJson['event_type'] == 'PASSENGER') {
 			return new PassengerEvent(
 				eventJson['id'],
@@ -209,10 +209,6 @@ export class MessageQueueStompService {
 	}
 
 	private sendCurrentTimeStamp = () => {
-		// console.log(
-		// 	this.currentTimeStampEventLookup.size,
-		// 	this.nextTimeStampEventLookup.size
-		// )
 		for(let key of this.currentTimeStampEventLookup.keys()) {
 			const value = this.currentTimeStampEventLookup.get(key);
 			// ============================== this is just to make typescript compile ============================== 
@@ -235,9 +231,6 @@ export class MessageQueueStompService {
 
 			const tmp_currentEvent = this.currentTimeStampEventLookup.get(key);
 			const currentEvent = tmp_currentEvent ? tmp_currentEvent[0] : undefined;
-			if(currentEvent?.status == VehicleStatus.ENROUTE) {
-				console.log(currentEvent.status);
-			}
 
 			// if the next timestamp has this event, use the next timestamp
 			if(currentEvent && this.nextTimeStampEventLookup.has(currentEvent.id)) {
@@ -277,11 +270,10 @@ export class MessageQueueStompService {
 				}
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
 				else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
-					console.log(currentEvent.duration);
+					// console.log(currentEvent.duration);
 					toSend.push(currentEvent);
 				}
 			}
-			
 			for(let event of toSend) {
 				this.entityDataHandlerService.combined.push(event);
 			}
