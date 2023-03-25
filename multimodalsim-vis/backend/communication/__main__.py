@@ -4,6 +4,10 @@ import cProfile
 import pstats
 
 import networkx as nx
+from communication.active_mq_controller import ActiveMQController
+from communication.connection_credentials import ConnectionCredentials 
+from communication.frontend_observer import FrontendEnvironmentObserver
+from communication.frontend_visualizer import FrontendVisualizer
 
 from multimodalsim.shuttle.shuttle_greedy_dispatcher import \
     ShuttleGreedyDispatcher
@@ -160,15 +164,14 @@ def main():
             splitter = OneLegSplitter()
         dispatcher = FixedLineDispatcher()
     else:
-        raise ValueError("The type of optimization must be either 'shuttle' "
-                         "or 'fixed'!")
+        raise ValueError("The type of optimization must be 'fixed'!")
 
     opt = Optimization(dispatcher, splitter)
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
 
-    environment_observer = StandardEnvironmentObserver()
+    environment_observer = FrontendEnvironmentObserver()
 
     if args.coord:
         logger.info("Coordinates from {}".format(args.coord))
@@ -184,8 +187,11 @@ def main():
                             environment_observer=environment_observer,
                             coordinates=coordinates)
     simulation.simulate()
+    ActiveMQController().getConnection().send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)
+    
 
 if __name__ == '__main__':
     logger.info("MAIN")
 
     main()
+    
