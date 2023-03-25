@@ -14,6 +14,7 @@ export class EntityPathHandlerService {
 	private progressPath: [Array<Cartesian3>, Array<Cartesian3>];
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
+	private polylines = new Cesium.PolylineCollection();
 
 	constructor(private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
@@ -39,10 +40,7 @@ export class EntityPathHandlerService {
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: new Cesium.CallbackProperty(() => {
-										const linkingPosition = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]);
-										return linkingPosition.concat(this.progressPath[1]);
-									}),
+									positions: new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]),
 									width: 5,
 									material: Cesium.Color.BLUE,
 								},
@@ -52,28 +50,18 @@ export class EntityPathHandlerService {
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: new Cesium.CallbackProperty(() => {
-										return this.progressPath[0].concat(this.progressPath[1][0]);
-									}),
+									positions: this.progressPath[0].concat(this.progressPath[1][0]),
 									width: 5,
 									material: Cesium.Color.GRAY,
 								},
 							})
 						);
-						//this.spawnLine(1, this.progressPath[1], Cesium.Color.BLUE, viewer);
-						//this.spawnLine(0, this.progressPath[0], Cesium.Color.GRAY, viewer);
 					}
 				}
 			}
 
 			if (this.lastEntities.length > 0) {
-				//this.lastEntities.forEach((element: any) => {
-				//	viewer.entities.remove(element);
-				//});
-
 				this.updateProgress(viewer.clock.currentTime, viewer);
-				//this.spawnLine(1, this.progressPath[1], Cesium.Color.BLUE, viewer);
-				//this.spawnLine(0, this.progressPath[0], Cesium.Color.GRAY, viewer);
 			}
 		});
 
@@ -94,20 +82,7 @@ export class EntityPathHandlerService {
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
 
-	/*private spawnLine(id: number, positions: Array<Cartesian3>, color: Color, viewer: Viewer): void {
-		this.lastEntities.push(
-			viewer.entities.add({
-				polyline: {
-					positions: new Cesium.CallbackProperty(() => {
-						return this.progressPath[id];
-					}),
-					width: 5,
-					material: color,
-				},
-			})
-		);
-	}*/
-
+	// Compile les sections des positions de la polyline en deux array différents (complété et non complété).
 	private compileSections(positions: Array<Array<Cartesian3>>, times: Array<Array<JulianDate>>, currentTime: JulianDate): [Array<Cartesian3>, Array<Cartesian3>] {
 		let completedPath = new Array<Cartesian3>();
 		let uncompletedPath = new Array<Cartesian3>();
@@ -127,7 +102,6 @@ export class EntityPathHandlerService {
 						if (Cesium.JulianDate.greaterThan(times[i][j], currentTime) && !busReached) {
 							busReached = true;
 							this.lastTime = times[i][j];
-							//completedPath.push(positions[i][j]);
 						}
 					}
 
@@ -143,6 +117,7 @@ export class EntityPathHandlerService {
 		return [completedPath, uncompletedPath];
 	}
 
+	// Met à jour les le progrès du chemin en déplaçant les coordonnées d'un array à l'autre
 	private updateProgress(currentTime: JulianDate, viewer: Viewer): void {
 		const originalCompletedLength = this.progressPath[0].length;
 		const originalUnCompletedLength = this.progressPath[1].length;
@@ -151,6 +126,7 @@ export class EntityPathHandlerService {
 			for (let i = 0; i < originalUnCompletedLength; i++) {
 				if (Cesium.JulianDate.greaterThan(this.timeList[i + originalCompletedLength - 1], currentTime)) {
 					this.lastTime = this.timeList[i + originalCompletedLength - 1];
+					this.updatePolylinePositions();
 					break;
 				}
 
@@ -158,18 +134,22 @@ export class EntityPathHandlerService {
 				this.progressPath[1].splice(0, 1);
 			}
 		} else if (viewer.clock.multiplier < 0 && Cesium.JulianDate.lessThan(viewer.clock.currentTime, this.lastTime)) {
-			console.log('AAA');
-
 			for (let i = originalCompletedLength - 1; i >= 0; i--) {
 				if (Cesium.JulianDate.lessThan(this.timeList[i], currentTime)) {
 					this.lastTime = this.timeList[i];
+					this.updatePolylinePositions();
 					break;
 				}
 
-				//const linkingPosition = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]);
-				this.progressPath[1].unshift(this.progressPath[0][this.progressPath.length - 1]);
+				this.progressPath[1].unshift(this.progressPath[0][this.progressPath[0].length - 1]);
 				this.progressPath[0].length--;
 			}
 		}
+	}
+
+	// Met à jour les positions des polyline de cesium
+	private updatePolylinePositions(): void {
+		this.lastEntities[0].polyline.positions = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
+		this.lastEntities[1].polyline.positions = this.progressPath[0].concat(this.progressPath[1][0]);
 	}
 }
