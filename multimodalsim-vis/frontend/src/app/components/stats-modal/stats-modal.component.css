@@ -8,6 +8,24 @@
 	margin-left: 50px;
 }
 
+#return-button {
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	position: absolute;
+	left: 8px;
+	font-size: 24px;
+	border-radius: 5px;
+	opacity: 0.6;
+	background-color: none;
+	cursor: pointer;
+}
+
+#return-button:hover {
+	opacity: 1;
+}
+
 .json-load-button {
 	display: block;
 	position: relative;

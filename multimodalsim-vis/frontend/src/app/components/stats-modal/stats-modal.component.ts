@@ -38,7 +38,13 @@ export class StatsModalComponent {
 		this.isShowingStats = true;
 	}
 
+	return(): void {
+		this.isShowingStats = false;
+		this.stats.length = 0;
+	}
+
 	closeModal(): void {
+		this.return();
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'hidden';
 	}
 }

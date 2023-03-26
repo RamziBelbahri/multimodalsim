@@ -19,8 +19,6 @@ export class VehiclePositionHandlerService {
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle> {
-		console.log(this.vehicleIdMapping);
-
 		return this.vehicleIdMapping;
 	}
 
