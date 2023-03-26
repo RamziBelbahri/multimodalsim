@@ -1,6 +1,7 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="table-container">
-    <div *ngIf="!isShowingStats" class="json-load-button" (click)="loadJson()">Charger JSON</div>
+    <div *ngIf="!isShowingStats" class="json-load-button" (click)="loadEntityNumber()">Nombres d'entités de la simulation</div>
+    <div *ngIf="!isShowingStats" class="json-load-button" (click)="loadJson()">Charger statistiques personnalisées</div>
     
     <h1 *ngIf="isShowingStats"> Statisques de simulation</h1>  
     <table *ngIf="isShowingStats" class="table table-striped">  

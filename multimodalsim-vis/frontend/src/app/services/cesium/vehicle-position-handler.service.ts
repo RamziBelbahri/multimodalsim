@@ -18,10 +18,12 @@ export class VehiclePositionHandlerService {
 		this.pathIdMapping = new Map<string, string>();
 	}
 
-	getVehicleIdMapping(): Map<string, Vehicle>{
+	getVehicleIdMapping(): Map<string, Vehicle> {
+		console.log(this.vehicleIdMapping);
+
 		return this.vehicleIdMapping;
 	}
-	
+
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();

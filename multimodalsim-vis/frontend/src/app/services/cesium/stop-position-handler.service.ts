@@ -13,10 +13,12 @@ import { StopLookupService } from '../util/stop-lookup.service';
 export class StopPositionHandlerService {
 	private stopIdMapping;
 	private boardingEventQueue;
+	private globalPassengerList;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.stopIdMapping = new Map<string, Stop>();
 		this.boardingEventQueue = new Array<BoardingEvent>();
+		this.globalPassengerList = new Array<string>();
 	}
 
 	// Initialise tous les stops de la liste de stop fournie
@@ -35,6 +37,10 @@ export class StopPositionHandlerService {
 		const stop = this.stopIdMapping.get(stopId);
 		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
 		const time = this.dateParser.parseTimeFromSeconds(passengerEvent.time);
+
+		if (!this.globalPassengerList.includes(passengerEvent.id)) {
+			this.globalPassengerList.push(passengerEvent.id);
+		}
 
 		if (stop || PassengersStatus.ONBOARD) {
 			switch (passengerEvent.status) {
@@ -72,6 +78,10 @@ export class StopPositionHandlerService {
 		}
 
 		return result;
+	}
+
+	getTotalPassengerAmount(): number {
+		return this.globalPassengerList.length;
 	}
 
 	boardingEventPop(): BoardingEvent | undefined {

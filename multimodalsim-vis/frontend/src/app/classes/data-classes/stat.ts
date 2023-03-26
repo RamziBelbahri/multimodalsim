@@ -2,8 +2,8 @@ export class Stat {
 	field: string;
 	value: string;
 
-	constructor() {
-		this.field = '';
-		this.value = '';
+	constructor(field = '', value = '') {
+		this.field = field;
+		this.value = value;
 	}
 }
