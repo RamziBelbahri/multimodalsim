@@ -2,7 +2,9 @@ import { CallbackProperty, Cartesian3, IonImageryProvider, JulianDate, PolygonHi
 
 export class CesiumClass {
 	static viewer(element: Element | string): Viewer {
-		return new Cesium.Viewer(element);
+		return new Cesium.Viewer(element, {
+			selectionIndicator: false,
+		});
 	}
 
 	static polygonHierarchy(points: Cartesian3[]): PolygonHierarchy {
