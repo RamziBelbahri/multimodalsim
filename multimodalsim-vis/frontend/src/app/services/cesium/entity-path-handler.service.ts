@@ -3,21 +3,27 @@ import { Injectable } from '@angular/core';
 import { Cartesian2, Cartesian3, Viewer } from 'cesium';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 import * as polylineEncoder from '@mapbox/polyline';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityPathHandlerService {
+	private readonly CONFIG_PATH = 'assets/viewer-config.json';
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities;
 	private isLeftClicked = false;
+	private color = '';
 
-	constructor(private vehicleHandler: VehiclePositionHandlerService) {
+	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
 	}
 
 	// Active le handler qui s'occupe d'afficher le path
 	initHandler(viewer: Viewer): void {
+		this.readViewerConfig();
+
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
@@ -43,7 +49,7 @@ export class EntityPathHandlerService {
 							polyline: {
 								positions: positions,
 								width: 5,
-								material: Cesium.Color.RED,
+								material: Cesium.Color.fromCssColorString(this.color),
 							},
 						});
 
@@ -66,6 +72,17 @@ export class EntityPathHandlerService {
 			this.currentMousePosition = movement.position;
 			this.isLeftClicked = true;
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	}
+
+	private readViewerConfig(): void {
+		this.http
+			.get(this.CONFIG_PATH, { responseType: 'text' })
+			.pipe(map((res: string) => JSON.parse(res)))
+			.subscribe((data) => {
+				console.log(data);
+
+				this.color = data.completed_color;
+			});
 	}
 
 	private removeRepeatedEscapeChar(polyline: string): string {
