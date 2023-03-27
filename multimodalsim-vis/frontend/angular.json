@@ -23,6 +23,11 @@
                                 "input": "node_modules/cesium/Build/Cesium",
                                 "output": "./assets/cesium"
                             },
+                            {
+                                "glob": "**/*",
+                                "input": "../../simulations",
+                                "output": "/mysims/"
+                            },
                             "src/favicon.ico",
                             "src/assets"
                         ],

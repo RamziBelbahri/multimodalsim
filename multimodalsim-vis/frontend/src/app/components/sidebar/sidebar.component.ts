@@ -6,6 +6,7 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
+import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -25,8 +26,10 @@ export class SidebarComponent implements OnInit {
 	parameterList: Array<string> = new Array<string>();
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
+	savedSimList: Array<string> = new Array<string>();
 
-	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
+	// eslint-disable-next-line max-len
+	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService, private dataSaver: DataSaverService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -50,6 +53,7 @@ export class SidebarComponent implements OnInit {
 		this.visOptionList.push('Types de modes de transport');
 
 		this.manipOptionList.push('Manipulations');
+		this.savedSimList = [];
 	}
 
 	ngOnDestroy() {
@@ -73,6 +77,8 @@ export class SidebarComponent implements OnInit {
 			this.subMenuList[id].style.opacity = '0';
 		}
 
+		this.listSimulations();
+
 		this.toggleContainer(id);
 	}
 
@@ -95,6 +101,11 @@ export class SidebarComponent implements OnInit {
 			height: '400px',
 			width: '600px',
 		});
+	}
+
+	listSimulations(): void {
+		// this.savedSimsList = {...localStorage}.getItem('1');
+		this.savedSimList = this.dataSaver.savedSimPaths;
 	}
 
 	launchSimulation(): void {

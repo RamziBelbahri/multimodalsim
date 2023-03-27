@@ -8,6 +8,12 @@
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu-button" (click)="toggleSubMenu(0, savedSimList.length)">
+        Liste des sauvegardes
+    </div>
+    <div class="sub-menu" id="sub-menu-param">
+        <div class="sub-menu-option" *ngFor="let sim of savedSimList">{{sim}}</div>
+    </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
