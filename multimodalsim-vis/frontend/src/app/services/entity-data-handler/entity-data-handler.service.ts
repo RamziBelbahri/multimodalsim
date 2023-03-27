@@ -13,6 +13,7 @@ const DEBUG = false;
 import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
+import * as delay from 'delay';
 
 @Injectable({
 	providedIn: 'root',
@@ -137,9 +138,9 @@ export class EntityDataHandlerService {
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
 			if(isRunning) {
-				service.pauseEventEmitter.emit('unpause');
+				service.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
-			console.log(isRunning)
+			console.log(isRunning);
 		});
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
@@ -149,13 +150,22 @@ export class EntityDataHandlerService {
 		// viewer.allowDataSourcesToSuspendAnimation = false;
 		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
+			// make sure that Cesium doesnt go further than the simulation, if it does all buses will disappear
+			const clockTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
+			const lastEventTime = new Date(this.combined[this.combined.length - 1].time * 1000).getTime();
+			if((lastEventTime - clockTime) < FlowControl.TIME_BUFFER_MS) {
+				viewer.animation.viewModel.clockViewModel.shouldAnimate = false;
+				await delay(FlowControl.TIME_BUFFER_MS * 10);
+				viewer.animation.viewModel.clockViewModel.shouldAnimate = true;
+			}
+			// await new event
 			if(i >= this.combined.length) {
-				// console.log('waiting for new event...')
 				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
 			}
 			const event = this.combined[i];
+			
 			if(!this.simulationRunning) {
-				await new Promise(resolve => this.pauseEventEmitter.once('unpause', resolve));
+				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_PAUSE, resolve));
 			}
 
 			if (event && event.eventType == 'VEHICLE') {
@@ -174,11 +184,7 @@ export class EntityDataHandlerService {
 				const end = this.dateParser.addDuration(start, 23 * 60 * 60);
 				this.zoomTo(viewer, start, end);
 			}
-			console.log(
-				Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime() - new Date(event.time * 1000).getTime()
-			)
-
-			console.log("")
+			// console.log("")
 			i++;
 
 		}
