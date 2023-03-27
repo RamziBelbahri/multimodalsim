@@ -10,14 +10,15 @@ import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-i
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {MatIcon, MatIconModule} from '@angular/material/icon';
-import {MatButtonToggle, MatButtonToggleModule} from '@angular/material/button-toggle';
-import {MatButtonModule} from '@angular/material/button';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatButtonToggle, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 import {AngularFileUploaderModule} from 'angular-file-uploader';
+import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, AngularFileUploaderModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],

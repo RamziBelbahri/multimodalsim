@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { saveAs } from 'file-saver';
-import * as JSZip from 'jszip';
+import JSZip from 'jszip';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
