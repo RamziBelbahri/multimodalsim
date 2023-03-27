@@ -2,21 +2,26 @@
 import { Injectable } from '@angular/core';
 import { Cartesian2, Cartesian3, JulianDate, Viewer } from 'cesium';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityPathHandlerService {
+	private readonly CONFIG_PATH = 'assets/viewer-config.json';
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities;
 	private isLeftClicked = false;
+	private completedColor = '';
+	private uncompletedColor = '';
 
 	private progressPath: [Array<Cartesian3>, Array<Cartesian3>];
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
 	private polylines = new Cesium.PolylineCollection();
 
-	constructor(private vehicleHandler: VehiclePositionHandlerService) {
+	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
 		this.progressPath = [new Array<Cartesian3>(), new Array<Cartesian3>()];
 		this.timeList = new Array<JulianDate>();
@@ -25,6 +30,8 @@ export class EntityPathHandlerService {
 
 	// Active le handler qui s'occupe d'afficher le path
 	initHandler(viewer: Viewer): void {
+		this.readViewerConfig();
+
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
@@ -42,7 +49,7 @@ export class EntityPathHandlerService {
 								polyline: {
 									positions: new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]),
 									width: 5,
-									material: Cesium.Color.BLUE,
+									material: Cesium.Color.fromCssColorString(this.uncompletedColor),
 								},
 							})
 						);
@@ -52,7 +59,7 @@ export class EntityPathHandlerService {
 								polyline: {
 									positions: this.progressPath[0].concat(this.progressPath[1][0]),
 									width: 5,
-									material: Cesium.Color.GRAY,
+									material: Cesium.Color.fromCssColorString(this.completedColor),
 								},
 							})
 						);
@@ -151,5 +158,18 @@ export class EntityPathHandlerService {
 	private updatePolylinePositions(): void {
 		this.lastEntities[0].polyline.positions = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
 		this.lastEntities[1].polyline.positions = this.progressPath[0].concat(this.progressPath[1][0]);
+	}
+
+	// Lit la configuration pour avoir les couleurs des lignes
+	private readViewerConfig(): void {
+		this.http
+			.get(this.CONFIG_PATH, { responseType: 'text' })
+			.pipe(map((res: string) => JSON.parse(res)))
+			.subscribe((data) => {
+				console.log(data);
+
+				this.completedColor = data.completed_color;
+				this.uncompletedColor = data.uncompletedColor;
+			});
 	}
 }

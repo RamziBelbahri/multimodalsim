@@ -34,7 +34,7 @@
 	visibility: hidden;
 }
 
-#modal-container {
+.modal {
 	height: 70%;
 	width: 50%;
 	position: fixed;
