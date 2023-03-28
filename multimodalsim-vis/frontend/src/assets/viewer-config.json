@@ -1,4 +1,4 @@
 {
-	"uncompleted_color": "#0000ffff",
-	"completed_color": "#808080ff"
+	"uncompleted_color": "blue",
+	"completed_color": "#808080"
 }

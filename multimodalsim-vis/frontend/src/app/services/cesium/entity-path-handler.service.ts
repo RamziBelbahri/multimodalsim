@@ -166,10 +166,8 @@ export class EntityPathHandlerService {
 			.get(this.CONFIG_PATH, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
 			.subscribe((data) => {
-				console.log(data);
-
-				this.completedColor = data.completed_color;
-				this.uncompletedColor = data.uncompletedColor;
+				this.completedColor = data.completed_color.toString();
+				this.uncompletedColor = data.uncompleted_color.toString();
 			});
 	}
 }
