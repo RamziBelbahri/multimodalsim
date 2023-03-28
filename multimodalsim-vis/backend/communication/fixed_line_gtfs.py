@@ -1,7 +1,8 @@
 import logging
 from active_mq_controller import ActiveMQController
-from connection_credentials import ConnectionCredentials  # Required to modify the log level
-
+from connection_credentials import ConnectionCredentials
+from multimodalsim.config.coordinates_osrm_config import CoordinatesOSRMConfig  # Required to modify the log level
+import os
 from multimodalsim.observer.environment_observer import \
     StandardEnvironmentObserver
 from multimodalsim.optimization.dispatcher import FixedLineDispatcher
@@ -30,7 +31,13 @@ if __name__ == '__main__':
     # coordinates_file_path = "../multimodal-simulator/data/fixed_line/gtfs/coordinates" \
     #                         "/coordinates_30s.csv"
     # coordinates = CoordinatesFromFile(coordinates_file_path)
-    coordinates = CoordinatesOSRM()
+    # config = CoordinatesOSRMConfig(
+    #     config_file=os.path.join(os.path.dirname(__file__), "coordinates_osrm.ini")
+    # )
+    coordinates = CoordinatesOSRM(
+        # config=config
+    )
+    # print(config.__dict__)
 
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()

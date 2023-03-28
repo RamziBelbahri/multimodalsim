@@ -6,6 +6,7 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -26,7 +27,12 @@ export class SidebarComponent implements OnInit {
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
 
-	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
+	constructor(
+		private dialog: MatDialog,
+		private entityHandler: EntityLabelHandlerService,
+		private viewerSharer: ViewerSharingService,
+		private commService: CommunicationService,
+		private dataReaderService: DataReaderService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -108,6 +114,9 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 
+	launchRealTimeSimulation(): void {
+		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer, true);
+	}
 	pauseSimulation(): void {
 		this.commService.pauseSimulation().subscribe((res) => {
 			console.log(res);

@@ -151,18 +151,22 @@ export class EntityDataHandlerService {
 		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
 			// make sure that Cesium doesnt go further than the simulation, if it does all buses will disappear
-			const clockTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
-			const lastEventTime = new Date(this.combined[this.combined.length - 1].time * 1000).getTime();
-			if((lastEventTime - clockTime) < FlowControl.TIME_BUFFER_MS) {
-				viewer.animation.viewModel.clockViewModel.shouldAnimate = false;
-				await delay(FlowControl.TIME_BUFFER_MS * 10);
-				viewer.animation.viewModel.clockViewModel.shouldAnimate = true;
-			}
+			
 			// await new event
 			if(i >= this.combined.length) {
 				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
 			}
+
+			// const clockTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
+			// const lastEventTime = new Date(this.combined[this.combined.length - 1].time * 1000).getTime();
+			// console.log(lastEventTime - clockTime)
+			// if((lastEventTime - clockTime) < FlowControl.TIME_BUFFER_MS) {
+			// 	viewer.animation.viewModel.clockViewModel.shouldAnimate = false;
+			// 	await delay(FlowControl.TIME_BUFFER_MS * 10);
+			// 	viewer.animation.viewModel.clockViewModel.shouldAnimate = true;
+			// }
 			const event = this.combined[i];
+			// console.log(event)
 			
 			if(!this.simulationRunning) {
 				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_PAUSE, resolve));
@@ -171,8 +175,9 @@ export class EntityDataHandlerService {
 			if (event && event.eventType == 'VEHICLE') {
 				try {
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				} catch {
-					console.log(event)
+				} catch (e) {
+					console.log("inside catch", e)
+					// console.log(eventJ)
 				}
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);

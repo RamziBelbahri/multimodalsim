@@ -1,8 +1,8 @@
 import json
 import logging
 import pandas as pd
-from active_mq_controller import ActiveMQController
-from connection_credentials import ConnectionCredentials
+# from active_mq_controller import ActiveMQController
+# from connection_credentials import ConnectionCredentials
 
 import multimodalsim.simulator.request
 import multimodalsim.simulator.vehicle
@@ -96,17 +96,6 @@ class FrontendDataCollector(DataCollector):
         next_stops = [str(stop.location) for stop
                       in route.next_stops]
 
-        # if route.current_stop != None:
-        #     print(route.current_stop)    
-        # try:
-            
-        #     # print("duration inside try",route.status, duration)
-        # except Exception as e:
-        #     if route.status == VehicleStatus.ENROUTE:
-        #         print(e)
-        #         duration = '0 days 00:00:00'
-                
-
         assigned_legs = [leg.id for leg in route.assigned_legs]
         onboard_legs = [leg.id for leg in route.onboard_legs]
         alighted_legs = [leg.id for leg in route.alighted_legs]
@@ -127,7 +116,7 @@ class FrontendDataCollector(DataCollector):
             if route.vehicle.polylines is not None else None
 
         mode = route.vehicle.mode
-
+        # print(polylines)
         obs_dict = {"id": route.vehicle.id,
                     "time": self.__time,
                     "status": route.status,
@@ -142,8 +131,10 @@ class FrontendDataCollector(DataCollector):
                     "stop_lat": stop_lat,
                     "lon": lon,
                     "lat": lat,
-                    "polylines": polylines,
+                    "polylines": str(polylines),
                     "mode": mode}
+        # for k, v in polylines.items():
+        #     print(k, v)
 
         self.__data_container.add_observation(
             "vehicles", obs_dict, "id")

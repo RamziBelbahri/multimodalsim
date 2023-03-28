@@ -1,3 +1,6 @@
+<button mat-icon-button id="open" (click)="open()">
+    <mat-icon>infos</mat-icon>
+</button>
 <div id="entity-infos-menu" class="entity-infos-sidebar">
     <a id="close" (click)="close()">&times;</a>
     <div class="sub-menu-button" id="entity-infos">
@@ -8,8 +11,3 @@
         <div *ngFor="let passenger of passengerList">{{passenger}}</div>
     </div>
 </div>
-
-<mat-button-toggle id="open" (click)="open()">
-    <mat-icon>infos</mat-icon>
-</mat-button-toggle>
-<!-- <i id="open" class="fas fa-bars" aria-hidden="true" (click)="open()"></i> -->

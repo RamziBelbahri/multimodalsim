@@ -1,3 +1,4 @@
+<i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
     <div class="sub-menu-button" (click)="openSimulationModal()">Charger Simulation</div>
@@ -28,11 +29,12 @@
     <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
         Lancer la simulation
     </div>
+    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
+        Lancer la simulation en temps réel (A MODIFIER)
+    </div>
     <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
         Pauser la simulation
     </div>
     <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
         Continuer la simulation
 </div>
-
-<i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { SampledPositionProperty, Viewer } from 'cesium';
+import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
+import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
 import { DateParserService } from '../util/date-parser.service';
+import { PolylineDecoderService } from '../util/polyline-decoder.service';
 import { StopLookupService } from '../util/stop-lookup.service';
 
 @Injectable({
@@ -13,15 +15,15 @@ export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
 	private pathIdMapping;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
-		this.pathIdMapping = new Map<string, string>();
+		this.pathIdMapping = new Map<string, TimedPolyline>();
 	}
 
-	getVehicleIdMapping(): Map<string, Vehicle>{
+	getVehicleIdMapping(): Map<string, Vehicle> {
 		return this.vehicleIdMapping;
 	}
-	
+
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
@@ -29,25 +31,23 @@ export class VehiclePositionHandlerService {
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
 
-			// Donner une valeur non nulle afin de ne pas causer d'erreur si le véhicule ne se déplace jamais.
-			if (vehicleEvent.status != VehicleStatus.ENROUTE) {
-				this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
+			if (isRealTime) {
+				this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
 			}
-			if (isRealTime) this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
 		}
 
 		if (!this.pathIdMapping.has(vehicleId)) {
-			this.pathIdMapping.set(vehicleId, vehicleEvent.polylines);
+			this.pathIdMapping.set(vehicleId, this.polylineDecoder.parsePolyline(vehicleEvent.polylines));
 		}
 
 		switch (vehicleEvent.status) {
 		case VehicleStatus.ENROUTE:
-			this.setNextStop(vehicleEvent, Number(vehicleEvent.next_stops.toString().split('\'')[1]));
+			this.setNextLeg(vehicleEvent);
 			break;
-		case VehicleStatus.IDLE:
-		case VehicleStatus.ALIGHTING:
-		case VehicleStatus.BOARDING:
-			this.setNextStop(vehicleEvent, Number(vehicleEvent.current_stop));
+		case VehicleStatus.COMPLETE:
+			break;
+		default:
+			this.setIdleStop(vehicleEvent, Number(vehicleEvent.current_stop));
 			break;
 		}
 	}
@@ -79,31 +79,43 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping.get(vehicleId)?.removePassenger(passengerid);
 	}
 
-	// Ce n'est pas le parsing le plus propre, mais cette fonction retourne seulement les polylines de la string Polylines
-	getPolylines(id: string): Array<string> {
-		const rawString = this.pathIdMapping.get(id);
-		const polylines = new Array<string>();
+	getPolylines(id: string): TimedPolyline {
+		const section = this.pathIdMapping.get(id);
 
-		if (rawString) {
-			const rawStringArray = rawString.split('\'');
-
-			for (let i = 0; i < rawStringArray.length; i++) {
-				if ((i - 3) % 4 == 0) {
-					polylines.push(rawStringArray[i]);
-				}
-			}
-		}
-
-		return polylines;
+		return section ? section : new TimedPolyline();
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
-	private setNextStop(vehicleEvent: VehicleEvent, stop: number): void {
+	private setNextLeg(vehicleEvent: VehicleEvent): void {
+		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
+		const polyline = this.pathIdMapping.get(vehicleEvent.id.toString()) as TimedPolyline;
+
+		if (polyline.positions[polyline.lastSectionCompiled] && VehicleEvent) {
+			let time = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
+			polyline.times.push(new Array<JulianDate>());
+
+			for (let i = 0; i < polyline.positions[polyline.lastSectionCompiled].length; i++) {
+				vehicle.path.addSample(time, polyline.positions[polyline.lastSectionCompiled][i]);
+				polyline.times[polyline.lastSectionCompiled].push(time);
+
+				if (i >= polyline.sectionTimes[polyline.lastSectionCompiled].length) break;
+
+				const sectionTime = polyline.sectionTimes[polyline.lastSectionCompiled][i] * Number(vehicleEvent.duration);
+				time = this.dateParser.addDuration(time, sectionTime);
+			}
+
+			polyline.lastSectionCompiled++;
+
+			this.pathIdMapping.set(vehicleEvent.id.toString(), polyline);
+			this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
+		}
+	}
+
+	// Ajout un temps d'arrêt quand le bus doit idle
+	private setIdleStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
 		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
-		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
-
-		//console.log(Cesium.JulianDate.toDate(endTime));
+		const endTime = this.dateParser.addDuration(startTime, Number(vehicleEvent.duration));
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
@@ -111,6 +123,7 @@ export class VehiclePositionHandlerService {
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
 	private spawnEntity(id: string, positionProperty: SampledPositionProperty, viewer: Viewer): void {
+		console.log(positionProperty);
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {

@@ -120,6 +120,7 @@ export class MessageQueueStompService {
 				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
 			)
 		} else {
+			// console.log(eventJson)
 			return new VehicleEvent(
 				eventJson['id'],
 				eventJson['time'],
