@@ -6,6 +6,7 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
+import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -22,9 +23,15 @@ export class SidebarComponent implements OnInit {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 
-	transportModeList: Array<string> = new Array<string>();
+	transportModeList: Map<string, boolean> = new Map<string, boolean>();
 
-	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
+	constructor(
+		private dialog: MatDialog,
+		private entityHandler: EntityLabelHandlerService,
+		private viewerSharer: ViewerSharingService,
+		private commService: CommunicationService,
+		private pathHandler: EntityPathHandlerService
+	) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -35,8 +42,8 @@ export class SidebarComponent implements OnInit {
 
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
 
-		this.transportModeList.push('bus0');
-		this.transportModeList.push('bus1');
+		this.transportModeList.set('bus0', true);
+		this.transportModeList.set('bus1', true);
 	}
 
 	ngOnDestroy() {
@@ -82,6 +89,21 @@ export class SidebarComponent implements OnInit {
 			height: '400px',
 			width: '600px',
 		});
+	}
+
+	changeModeVisibility(type: string): void {
+		const newValue = !(this.transportModeList.get(type) as boolean);
+		this.transportModeList.set(type, newValue);
+
+		this.viewer?.entities.values.forEach((entity) => {
+			if (entity.name == type) {
+				entity.show = newValue;
+			}
+		});
+
+		if (!newValue && this.pathHandler.lastEntityType == type) {
+			this.pathHandler.clearLists(this.viewer as Viewer);
+		}
 	}
 
 	openStats(): void {
