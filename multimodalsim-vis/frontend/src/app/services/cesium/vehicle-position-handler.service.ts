@@ -133,7 +133,7 @@ export class VehiclePositionHandlerService {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 			},
 			id: id,
-			name: 'vehicle',
+			name: 'bus' + (Number(id) % 2).toString(),
 		});
 	}
 }

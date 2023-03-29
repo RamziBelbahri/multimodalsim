@@ -39,7 +39,7 @@ export class EntityPathHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if (entity.name == 'vehicle' && this.isLeftClicked) {
+					if (entity.name == 'bus1' && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const sections = this.vehicleHandler.getPolylines(entity.id);
 						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);

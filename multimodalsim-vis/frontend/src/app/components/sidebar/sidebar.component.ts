@@ -22,8 +22,7 @@ export class SidebarComponent implements OnInit {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 
-	parameterList: Array<string> = new Array<string>();
-	manipOptionList: Array<string> = new Array<string>();
+	transportModeList: Array<string> = new Array<string>();
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {}
 
@@ -35,14 +34,9 @@ export class SidebarComponent implements OnInit {
 		});
 
 		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
-		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
-		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
 
-		this.parameterList.push('Paramètre 1');
-		this.parameterList.push('Paramètre 2');
-		this.parameterList.push('Paramètre 3');
-
-		this.manipOptionList.push('Manipulations');
+		this.transportModeList.push('bus0');
+		this.transportModeList.push('bus1');
 	}
 
 	ngOnDestroy() {
