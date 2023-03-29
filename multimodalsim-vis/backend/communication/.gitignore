@@ -44,3 +44,6 @@ Thumbs.db
 # Simulation data
 /src/simulation_data_samples/
 /server/node_modules
+
+# communication
+/communication/data

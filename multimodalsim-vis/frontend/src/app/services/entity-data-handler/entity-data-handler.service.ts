@@ -140,7 +140,6 @@ export class EntityDataHandlerService {
 			if(isRunning) {
 				service.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
-			console.log(isRunning);
 		});
 
 		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
@@ -177,7 +176,6 @@ export class EntityDataHandlerService {
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 				} catch (e) {
 					console.log("inside catch", e)
-					// console.log(eventJ)
 				}
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
@@ -187,6 +185,8 @@ export class EntityDataHandlerService {
 				// const julianDateStart
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, 23 * 60 * 60);
+				console.log(Cesium.JulianDate.toDate(start).getTime())
+				console.log(Cesium.JulianDate.toDate(end).getTime())
 				this.zoomTo(viewer, start, end);
 			}
 			// console.log("")

@@ -78,29 +78,32 @@ export class MessageQueueStompService {
 	private onError = (err:IMessage) => {
 		console.log(err.body);
 	}
-
+	private i = 0;
 	private onReceivingEvent = (msg:IMessage) => {
-		const receivedText = document.getElementById('received-text');
-		if(receivedText) {
-			try {
-				receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
-			} catch {
-				receivedText.innerText = msg.body;
-				console.log(msg.body);
+		if(this.i == 0){
+			const receivedText = document.getElementById('received-text');
+			if(receivedText) {
+				try {
+					receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
+				} catch {
+					receivedText.innerText = msg.body;
+					console.log(msg.body);
+				}
 			}
 		}
+		this.i++;
 	}
 
 	private onReceivingEventObservation = (msg:IMessage) => {
-		const receivedText = document.getElementById('received-text');
-		if(receivedText) {
-			try {
-				receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
-			} catch {
-				receivedText.innerText = msg.body;
-				console.log(msg.body);
-			}
-		}
+		// const receivedText = document.getElementById('received-text');
+		// if(receivedText) {
+		// 	try {
+		// 		receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
+		// 	} catch {
+		// 		receivedText.innerText = msg.body;
+		// 		console.log(msg.body);
+		// 	}
+		// }
 	}
 
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
@@ -153,6 +156,9 @@ export class MessageQueueStompService {
 			return;
 		}
 		const eventJson = JSON.parse(msg.body)
+		// if(eventJson['polylines']) {
+		// 	console.log(eventJson['polylines'] as Object);
+		// }
 		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
 
 		entityEvent.eventType == 'PASSENGER' ?

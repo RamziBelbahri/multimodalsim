@@ -27,8 +27,9 @@ export class EntityPathHandlerService {
 	initHandler(viewer: Viewer): void {
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
-				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 
+				const pickedObject = viewer.scene.pick(this.currentMousePosition);
+				// console.log("currentMousePosition", this.currentMousePosition)
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
@@ -37,20 +38,22 @@ export class EntityPathHandlerService {
 						const sections = this.vehicleHandler.getPolylines(entity.id);
 						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);
 
+						const polylineArray = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
+						const positions:Cartesian3[] = this.progressPath[0].concat(this.progressPath[1][0]);
+
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]),
+									positions: polylineArray,
 									width: 5,
 									material: Cesium.Color.BLUE,
 								},
 							})
 						);
-
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: this.progressPath[0].concat(this.progressPath[1][0]),
+									positions: positions,
 									width: 5,
 									material: Cesium.Color.GRAY,
 								},
@@ -58,8 +61,8 @@ export class EntityPathHandlerService {
 						);
 					}
 				}
-			}
 
+			}
 			if (this.lastEntities.length > 0) {
 				this.updateProgress(viewer.clock.currentTime, viewer);
 			}
@@ -88,8 +91,7 @@ export class EntityPathHandlerService {
 		let completedPath = new Array<Cartesian3>();
 		let uncompletedPath = new Array<Cartesian3>();
 		let busReached = false;
-		try{ 
-		for (let i = 0; i < positions.length; i++) {
+		for (let i = 0; i < Math.min(positions.length, times.length) ; i++) {
 			if (Cesium.JulianDate.lessThan(times[i][times[i].length - 1], currentTime)) {
 				completedPath = completedPath.concat(positions[i]);
 				this.timeList = this.timeList.concat(times[i]);
@@ -114,9 +116,7 @@ export class EntityPathHandlerService {
 				}
 			}
 		}
-		}catch(e) {
-			console.log(e);
-		}
+		
 		return [completedPath, uncompletedPath];
 	}
 
@@ -124,7 +124,7 @@ export class EntityPathHandlerService {
 	private updateProgress(currentTime: JulianDate, viewer: Viewer): void {
 		const originalCompletedLength = this.progressPath[0].length;
 		const originalUnCompletedLength = this.progressPath[1].length;
-
+		console.log("Cesium.JulianDate.toDate(currentTime).getTime()", Cesium.JulianDate.toDate(currentTime).getTime())
 		if (viewer.clock.multiplier > 0 && Cesium.JulianDate.greaterThan(viewer.clock.currentTime, this.lastTime)) {
 			for (let i = 0; i < originalUnCompletedLength; i++) {
 				if (Cesium.JulianDate.greaterThan(this.timeList[i + originalCompletedLength - 1], currentTime)) {

@@ -54,7 +54,6 @@ export class StopPositionHandlerService {
 	// Charge tous les arrêts qui contiennent des passagers
 	loadSpawnEvents(viewer: Viewer): void {
 		this.stopIdMapping.forEach((stop: Stop, id: string) => {
-			// console.log(id)
 			this.spawnEntity(id, stop, viewer);
 		});
 	}

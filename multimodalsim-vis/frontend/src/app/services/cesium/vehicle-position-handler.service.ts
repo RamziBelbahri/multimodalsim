@@ -37,7 +37,8 @@ export class VehiclePositionHandlerService {
 		}
 
 		if (!this.pathIdMapping.has(vehicleId)) {
-			this.pathIdMapping.set(vehicleId, this.polylineDecoder.parsePolyline(vehicleEvent.polylines));
+			const polylines = this.polylineDecoder.parsePolyline(vehicleEvent.polylines);
+			this.pathIdMapping.set(vehicleId, polylines);
 		}
 
 		switch (vehicleEvent.status) {
@@ -123,7 +124,6 @@ export class VehiclePositionHandlerService {
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
 	private spawnEntity(id: string, positionProperty: SampledPositionProperty, viewer: Viewer): void {
-		console.log(positionProperty);
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {

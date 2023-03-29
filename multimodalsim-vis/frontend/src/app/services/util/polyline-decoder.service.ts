@@ -34,7 +34,7 @@ export class PolylineDecoderService {
 		const polyline = new TimedPolyline();
 		polyline.positions = this.decodePolyline(polylines);
 		polyline.sectionTimes = times;
-		console.log(polyline);
+		// console.log(polyline);
 		return polyline;
 	}
 
