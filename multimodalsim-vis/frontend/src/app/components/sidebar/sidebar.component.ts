@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
+import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -22,6 +23,7 @@ export class SidebarComponent implements OnInit {
 
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
+	private vehicleTypesSubscription: Subscription = new Subscription();
 
 	transportModeList: Map<string, boolean> = new Map<string, boolean>();
 
@@ -30,7 +32,8 @@ export class SidebarComponent implements OnInit {
 		private entityHandler: EntityLabelHandlerService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		private pathHandler: EntityPathHandlerService
+		private pathHandler: EntityPathHandlerService,
+		private vehicleHandler: VehiclePositionHandlerService
 	) {}
 
 	ngOnInit() {
@@ -40,10 +43,17 @@ export class SidebarComponent implements OnInit {
 			this.entityHandler.initHandler(this.viewer);
 		});
 
-		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
+		this.vehicleTypesSubscription = this.vehicleHandler.vehicleTypeListObservable.subscribe((typeList) => {
+			for (const type of typeList) {
+				this.transportModeList.set(type, true);
+			}
 
-		this.transportModeList.set('bus0', true);
-		this.transportModeList.set('bus1', true);
+			if (this.transportModeList.size > 0) {
+				this.enableButton('mode-menu-button');
+			}
+		});
+
+		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -52,6 +62,10 @@ export class SidebarComponent implements OnInit {
 
 	open(): void {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';
+
+		if (this.transportModeList.size <= 0) {
+			this.disableButton('mode-menu-button');
+		}
 	}
 
 	close(): void {
@@ -68,6 +82,20 @@ export class SidebarComponent implements OnInit {
 		}
 
 		this.toggleContainer(id);
+	}
+
+	private disableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		element.style.backgroundColor = '#b1b1b1';
+		element.style.marginBottom = '10px';
+		element.style.pointerEvents = 'none';
+	}
+
+	private enableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		element.style.backgroundColor = '#e7e7e7';
+		element.style.marginBottom = '5px';
+		element.style.pointerEvents = 'auto';
 	}
 
 	private toggleContainer(id: number): void {
@@ -91,6 +119,7 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 
+	// Changer la visibilité d'un mode de transport
 	changeModeVisibility(type: string): void {
 		const newValue = !(this.transportModeList.get(type) as boolean);
 		this.transportModeList.set(type, newValue);

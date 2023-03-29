@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
+import { ReplaySubject } from 'rxjs';
 import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
@@ -14,10 +15,14 @@ import { StopLookupService } from '../util/stop-lookup.service';
 export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
 	private pathIdMapping;
+	private vehicleTypeList;
+	private vehicleTypeListSource = new ReplaySubject<Array<string>>();
+	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
 		this.pathIdMapping = new Map<string, TimedPolyline>();
+		this.vehicleTypeList = new Array<string>();
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle> {
@@ -27,6 +32,12 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
+		const vehicleType = 'bus' + (Number(vehicleEvent.id) % 2).toString();
+
+		if (!this.vehicleTypeList.includes(vehicleType)) {
+			this.vehicleTypeList.push(vehicleType);
+			this.vehicleTypeListSource.next(this.vehicleTypeList);
+		}
 
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));

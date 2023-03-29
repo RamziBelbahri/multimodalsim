@@ -11,8 +11,8 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <div class="sub-menu-button" (click)="toggleSubMenu(0, transportModeList.size)">Modes de transport</div>
-    <div class="sub-menu" id="sub-menu-param">
+    <div id="mode-menu-button" class="sub-menu-button" (click)="toggleSubMenu(0, transportModeList.size)">Modes de transport</div>
+    <div id="sub-menu-mode" class="sub-menu">
         <label class="sub-menu-option" *ngFor="let pair of transportModeList | keyvalue">
             <input type="checkbox" [(ngModel)]="pair.value" (change)="changeModeVisibility(pair.key)">
             <span class="checkbox"></span>

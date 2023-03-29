@@ -169,6 +169,7 @@ export class EntityPathHandlerService {
 			});
 	}
 
+	// Vider la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
 	clearLists(viewer: Viewer): void {
 		this.lastEntities.forEach((element: any) => {
 			viewer.entities.remove(element);
