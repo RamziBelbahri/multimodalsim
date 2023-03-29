@@ -40,7 +40,7 @@ export class EntityPathHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if (entity.name == 'bus1' && this.isLeftClicked) {
+					if (entity.name == 'bus1' || (entity.name == 'bus2' && this.isLeftClicked)) {
 						this.isLeftClicked = false;
 						this.lastEntityType = entity.name;
 						const sections = this.vehicleHandler.getPolylines(entity.id);

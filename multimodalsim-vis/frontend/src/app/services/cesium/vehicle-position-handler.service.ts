@@ -32,7 +32,7 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
-		const vehicleType = 'bus' + (Number(vehicleEvent.id) % 2).toString();
+		const vehicleType = 'bus' + ((Number(vehicleEvent.id) % 2) + 1).toString();
 
 		if (!this.vehicleTypeList.includes(vehicleType)) {
 			this.vehicleTypeList.push(vehicleType);
@@ -144,7 +144,7 @@ export class VehiclePositionHandlerService {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 			},
 			id: id,
-			name: 'bus' + (Number(id) % 2).toString(),
+			name: 'bus' + ((Number(id) % 2) + 1).toString(),
 		});
 	}
 }
