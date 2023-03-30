@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Viewer } from 'cesium';
+import { JulianDate, Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
@@ -8,6 +8,7 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
+import { DateParserService } from 'src/app/services/util/date-parser.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -33,7 +34,8 @@ export class SidebarComponent implements OnInit {
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
 		private pathHandler: EntityPathHandlerService,
-		private vehicleHandler: VehiclePositionHandlerService
+		private vehicleHandler: VehiclePositionHandlerService,
+		private dateParser: DateParserService
 	) {}
 
 	ngOnInit() {
@@ -51,6 +53,15 @@ export class SidebarComponent implements OnInit {
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
 				this.enableButton('replay-menu-button');
+
+				const dateArray = this.dateParser.getSeparateValueFromDate(this.viewer?.clock.startTime as JulianDate);
+
+				(document.getElementById('year-input') as HTMLInputElement).value = dateArray[0];
+				(document.getElementById('month-input') as HTMLInputElement).value = dateArray[1];
+				(document.getElementById('day-input') as HTMLInputElement).value = dateArray[2];
+				(document.getElementById('hour-input') as HTMLInputElement).value = dateArray[3];
+				(document.getElementById('minute-input') as HTMLInputElement).value = dateArray[4];
+				(document.getElementById('second-input') as HTMLInputElement).value = dateArray[5];
 			}
 		});
 
@@ -67,7 +78,7 @@ export class SidebarComponent implements OnInit {
 
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
-			//this.disableButton('replay-menu-button');
+			this.disableButton('replay-menu-button');
 		}
 	}
 
@@ -140,6 +151,22 @@ export class SidebarComponent implements OnInit {
 
 	openStats(): void {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
+	}
+
+	replay(): void {
+		const monthNumber = Number((document.getElementById('month-input') as HTMLInputElement).value) - 1;
+		const yearNumber = Number((document.getElementById('year-input') as HTMLInputElement).value);
+
+		const date = new Date(
+			monthNumber < 1 ? yearNumber - 1 : yearNumber,
+			monthNumber < 1 ? 12 : monthNumber,
+			Number((document.getElementById('day-input') as HTMLInputElement).value),
+			Number((document.getElementById('hour-input') as HTMLInputElement).value) - 5,
+			Number((document.getElementById('minute-input') as HTMLInputElement).value),
+			Number((document.getElementById('second-input') as HTMLInputElement).value)
+		);
+
+		(this.viewer as Viewer).clock.currentTime = Cesium.JulianDate.fromDate(date);
 	}
 
 	launchSimulation(): void {
