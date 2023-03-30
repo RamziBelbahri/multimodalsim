@@ -14,6 +14,8 @@ import { DataSaverService } from '../data-initialization/data-saver/data-saver.s
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 import * as delay from 'delay';
+import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
+import { EventType } from '../util/event-types';
 
 @Injectable({
 	providedIn: 'root',
@@ -110,9 +112,9 @@ export class EntityDataHandlerService {
 		for (let i = 0; i < this.combined.length - 1; i++) {
 			const event = this.combined[i];
 
-			if (event && event.eventType == 'VEHICLE') {
+			if (event && event.eventType == EventType.VEHICLE) {
 				this.vehicleHandler.compileEvent(event as VehicleEvent, false, viewer);
-			} else if (event && event.eventType == 'PASSENGER') {
+			} else if (event && event.eventType == EventType.PASSENGER) {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
 			// if(event) {
@@ -172,11 +174,13 @@ export class EntityDataHandlerService {
 			}
 
 			if (event && event.eventType == 'VEHICLE') {
-				try {
+				// try {
+				event.isRealtime ?
+					this.vehicleHandler.compileLiveEvent(event as VehicleEvent, viewer) :
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				} catch (e) {
-					console.log("inside catch", e)
-				}
+				// } catch (e) {
+				// 	console.log("inside catch", e)
+				// }
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}

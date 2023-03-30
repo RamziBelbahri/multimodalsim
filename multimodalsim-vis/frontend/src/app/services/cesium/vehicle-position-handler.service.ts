@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
 import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
+import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
@@ -37,6 +38,7 @@ export class VehiclePositionHandlerService {
 		}
 
 		if (!this.pathIdMapping.has(vehicleId)) {
+			
 			const polylines = this.polylineDecoder.parsePolyline(vehicleEvent.polylines);
 			this.pathIdMapping.set(vehicleId, polylines);
 		}
@@ -52,6 +54,31 @@ export class VehiclePositionHandlerService {
 			break;
 		}
 	}
+
+	// Compile les chemins des véhicules avant leur création
+	compileLiveEvent(vehicleEvent: VehicleEvent, viewer: Viewer): void {
+		const vehicleId = vehicleEvent.id.toString();
+
+		if (!this.vehicleIdMapping.has(vehicleId)) {
+			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
+			this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
+		}
+
+		switch (vehicleEvent.status) {
+		case VehicleStatus.ENROUTE:
+			this.setLiveEventsPositions(vehicleEvent);
+			break;
+		case VehicleStatus.COMPLETE:
+			break;
+		default:
+			this.setIdleStop(vehicleEvent, Number(vehicleEvent.current_stop));
+			break;
+		}
+	}
+
+
+
+
 
 	// Charge tous les chemins des véhicules afin de les ajouter sur la carte
 	loadSpawnEvents(viewer: Viewer): void {
@@ -84,6 +111,27 @@ export class VehiclePositionHandlerService {
 		const section = this.pathIdMapping.get(id);
 
 		return section ? section : new TimedPolyline();
+	}
+
+
+	setLiveEventsPositions(event:VehicleEvent) {
+		const realtimePolylines:RealTimePolyline = event.polylines;
+		let startTime = this.dateParser.parseTimeFromSeconds(event.time);
+		let duration = Number(event.duration);
+		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
+		console.log(event);
+		let segments = realtimePolylines.stopsPolylineLookup.get(event.current_stop);
+		let fraction = 0;
+		if(segments) {
+			const positions = segments[0];
+			const timeFractions = segments[1];
+			for(let i = 0; i < timeFractions.length; i++) {
+				fraction += timeFractions[i];
+				const position = positions[i + 1];
+				const time = this.dateParser.addDuration(startTime, duration * fraction);
+				vehicle.path.addSample(time,position);
+			}
+		}
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule

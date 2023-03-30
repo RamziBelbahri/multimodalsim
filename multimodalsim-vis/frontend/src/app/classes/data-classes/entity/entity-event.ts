@@ -4,4 +4,5 @@ export interface EntityEvent {
 	status: string;
 	readonly eventType: string;
 	duration:string;
+	readonly isRealtime:boolean;
 }

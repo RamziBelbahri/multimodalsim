@@ -9,6 +9,8 @@ import {ConnectionCredentials} from './connection-constants';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { FlowControl } from '../entity-data-handler/flow-control';
+import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
+import { EventType } from '../util/event-types';
 // var LinkedList = require('dbly-linked-list')
 
 // uses STOMP with active MQ
@@ -16,7 +18,7 @@ export class MessageQueueStompService {
 	public static client:CompatClient;
 	public static service:MessageQueueStompService;
 	public static readonly DURATION_WAIT_NEXT = 'DURATION_WAIT_NEXT';
-
+	private realtimePolylineLookup:Map<string, RealTimePolyline> = new Map<string, RealTimePolyline>();
 	/*
 	id --> entityEnvents associated with this id
 	*/
@@ -120,7 +122,8 @@ export class MessageQueueStompService {
 				eventJson['previous_legs'],
 				eventJson['current_leg'],
 				eventJson['next_legs'],
-				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
+				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration'],
+				true
 			)
 		} else {
 			// console.log(eventJson)
@@ -138,7 +141,8 @@ export class MessageQueueStompService {
 				eventJson['stop_lon'],
 				eventJson['stop_lat'],
 				eventJson['polylines'],
-				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration']
+				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration'],
+				true
 			)
 		}
 	}
@@ -155,13 +159,28 @@ export class MessageQueueStompService {
 			console.log(msg.body);
 			return;
 		}
+
+
+		// 1. event is parsed as JSON
 		const eventJson = JSON.parse(msg.body)
-		// if(eventJson['polylines']) {
-		// 	console.log(eventJson['polylines'] as Object);
-		// }
 		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
 
-		entityEvent.eventType == 'PASSENGER' ?
+		// console.log(eventJson['polylines'])
+		let realtimePolyline:RealTimePolyline | undefined;
+		const polylinesJSON = eventJson['polylines']
+		if (polylinesJSON && !this.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
+			realtimePolyline = new RealTimePolyline(polylinesJSON);
+			this.realtimePolylineLookup.set(
+				entityEvent.id,
+				realtimePolyline
+			);
+		}
+		realtimePolyline = this.realtimePolylineLookup.get(entityEvent.id);
+		if( realtimePolyline && entityEvent.eventType == EventType.VEHICLE) {
+			(entityEvent as VehicleEvent).polylines = realtimePolyline;
+		}
+
+		entityEvent.eventType == EventType.PASSENGER ?
 			this.entityDataHandlerService.passengerEvents.push(entityEvent as PassengerEvent) :
 			this.entityDataHandlerService.vehicleEvents.push(entityEvent as VehicleEvent);
 
@@ -230,7 +249,7 @@ export class MessageQueueStompService {
 			if(value.length > 1) { // <---- pretty sure this almost never runs
 				// if 2 events for the same entity arrived in the same timestamp, the duration is zero
 				for(let i = 0; i < value.length - 1; i++) {
-					value[i].duration = '0 days 00:00:00';
+					value[i].duration = '0';
 					toSend.push(value[i]);
 				}
 				// only the last event of each timestamp remains
@@ -245,7 +264,7 @@ export class MessageQueueStompService {
 				const tmp_nextEvent = this.nextTimeStampEventLookup.get(currentEvent.id);
 				const nextEvent = tmp_nextEvent ? tmp_nextEvent[0] : undefined;
 				if(currentEvent && nextEvent) { // <---------- pretty much guaranteed to be true
-					currentEvent.duration = this.dateParserService.toDateString(nextEvent.time - currentEvent.time);
+					currentEvent.duration = (nextEvent.time - currentEvent.time).toString();
 					toSend.push(currentEvent);
 					this.currentTimeStampEventLookup.delete(key);
 				}
@@ -254,7 +273,7 @@ export class MessageQueueStompService {
 			else if (!this.nextTimeStampEventLookup.has(key) && currentEvent) {
 				// RELEASE and COMPLETE are guaranteed to have a duration of zero
 				if(currentEvent && MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
-					currentEvent.duration = '0 days 00:00:00';
+					currentEvent.duration = '0';
 					toSend.push(currentEvent);
 				}
 				// RELEASE, COMPLETE: duration is always 0
@@ -273,7 +292,7 @@ export class MessageQueueStompService {
 						currentEvent.id,
 						[createdEvent]
 					);
-					currentEvent.duration = this.dateParserService.toDateString(createdEvent.time - currentEvent.time);
+					currentEvent.duration = (createdEvent.time - currentEvent.time).toString();
 					toSend.push(currentEvent);
 				}
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info

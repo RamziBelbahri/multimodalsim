@@ -43,15 +43,15 @@ class FrontendDataCollector(DataCollector):
     
     def __get_duration(self, duration_in_seconds:int):
         # duration_in_seconds = # en secondes
-        days    = int(duration_in_seconds / N_SECONDS_DAY)
-        hours   = int((duration_in_seconds - days * N_SECONDS_DAY) / N_SECONDS_HOUR)
-        minutes = int((duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR)/60)
-        seconds = int(duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR - minutes * N_SECONDS_MINUTE)
-        duration = str(days) + ' days ' + \
-            (str(hours)     if len(str(hours))      >= 2 else ('0' + str(hours)  )) + ':' + \
-            (str(minutes)   if len(str(minutes))    >= 2 else ('0' + str(minutes))) + ':' + \
-            (str(seconds)   if len(str(seconds))    >= 2 else ('0' + str(seconds)))
-        return duration
+        # days    = int(duration_in_seconds / N_SECONDS_DAY)
+        # hours   = int((duration_in_seconds - days * N_SECONDS_DAY) / N_SECONDS_HOUR)
+        # minutes = int((duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR)/60)
+        # seconds = int(duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR - minutes * N_SECONDS_MINUTE)
+        # duration = str(days) + ' days ' + \
+        #     (str(hours)     if len(str(hours))      >= 2 else ('0' + str(hours)  )) + ':' + \
+        #     (str(minutes)   if len(str(minutes))    >= 2 else ('0' + str(minutes))) + ':' + \
+        #     (str(seconds)   if len(str(seconds))    >= 2 else ('0' + str(seconds)))
+        return duration_in_seconds
     
     def collect(self, env, current_event=None, event_index=None,
                 event_priority=None):
@@ -131,8 +131,10 @@ class FrontendDataCollector(DataCollector):
                     "stop_lat": stop_lat,
                     "lon": lon,
                     "lat": lat,
-                    "polylines": str(polylines),
+                    "polylines": polylines,
                     "mode": mode}
+        # import pprint
+        # pprint.pprint(polylines)
         # for k, v in polylines.items():
         #     print(k, v)
 
@@ -145,6 +147,7 @@ class FrontendDataCollector(DataCollector):
             duration = self.__get_duration(route.next_stops[0].arrival_time - route.previous_stops[-1].departure_time)
             print("duration", route.status, duration)
             obs_dict["duration"] = duration
+            
         self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
 
     def __update_trip_cumulative_distance_by_vehicle(self, veh):

@@ -16,13 +16,9 @@ export class PolylineDecoderService {
 
 		for (let i = 0; i < rawStringArray.length; i++) {
 			if ((i - 3) % 4 == 0) {
-				// console.log("rawStringArray[i]", rawStringArray[i]);
-				// console.log('----------------------------------------------------------------------------')
 				polylines.push(rawStringArray[i]);
 			} else if ((i - 4) % 4 == 0 && i != 0) {
 				const timesString = rawStringArray[i].substring(3, rawStringArray[i].length - 4);
-				// console.log("timestring", timesString);
-				// console.log('============================================================================')
 				times.push(
 					timesString.split(',').map((item) => {
 						return Number(item);
@@ -39,7 +35,7 @@ export class PolylineDecoderService {
 	}
 
 	// Utilise un décodeur pour décrypter une polyline
-	private decodePolyline(polylines: Array<string>): Array<Array<Cartesian3>> {
+	decodePolyline(polylines: Array<string>): Array<Array<Cartesian3>> {
 		const positions = new Array<Array<Cartesian3>>();
 
 		for (let i = 0; i < polylines.length; i++) {

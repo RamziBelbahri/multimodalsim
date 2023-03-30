@@ -124,7 +124,7 @@ export class EntityPathHandlerService {
 	private updateProgress(currentTime: JulianDate, viewer: Viewer): void {
 		const originalCompletedLength = this.progressPath[0].length;
 		const originalUnCompletedLength = this.progressPath[1].length;
-		console.log("Cesium.JulianDate.toDate(currentTime).getTime()", Cesium.JulianDate.toDate(currentTime).getTime())
+		// console.log("Cesium.JulianDate.toDate(currentTime).getTime()", Cesium.JulianDate.toDate(currentTime).getTime())
 		if (viewer.clock.multiplier > 0 && Cesium.JulianDate.greaterThan(viewer.clock.currentTime, this.lastTime)) {
 			for (let i = 0; i < originalUnCompletedLength; i++) {
 				if (Cesium.JulianDate.greaterThan(this.timeList[i + originalCompletedLength - 1], currentTime)) {
