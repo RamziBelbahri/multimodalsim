@@ -19,7 +19,8 @@ export class EntityPathHandlerService {
 	private progressPath: [Array<Cartesian3>, Array<Cartesian3>];
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
-	private polylines = new Cesium.PolylineCollection();
+
+	lastEntityType = '';
 
 	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEntities = new Array<any>();
@@ -39,8 +40,9 @@ export class EntityPathHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if (entity.name == 'vehicle' && this.isLeftClicked) {
+					if (entity.name == 'bus1' || (entity.name == 'bus2' && this.isLeftClicked)) {
 						this.isLeftClicked = false;
+						this.lastEntityType = entity.name;
 						const sections = this.vehicleHandler.getPolylines(entity.id);
 						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);
 
@@ -77,11 +79,7 @@ export class EntityPathHandlerService {
 		// Modifie la position de la souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
 			if (this.lastEntities.length > 0) {
-				this.lastEntities.forEach((element: any) => {
-					viewer.entities.remove(element);
-				});
-				this.lastEntities.length = 0;
-				this.timeList.length = 0;
+				this.clearLists(viewer);
 			}
 
 			this.currentMousePosition = movement.position;
@@ -169,5 +167,15 @@ export class EntityPathHandlerService {
 				this.completedColor = data.completed_color.toString();
 				this.uncompletedColor = data.uncompleted_color.toString();
 			});
+	}
+
+	// Vider la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
+	clearLists(viewer: Viewer): void {
+		this.lastEntities.forEach((element: any) => {
+			viewer.entities.remove(element);
+		});
+		this.lastEntities.length = 0;
+		this.timeList.length = 0;
+		this.lastEntityType = '';
 	}
 }

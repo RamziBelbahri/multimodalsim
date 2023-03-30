@@ -136,7 +136,6 @@ export class EntityDataHandlerService {
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 				} else if (event && event.eventType == 'PASSENGER') {
 					this.stopHandler.compileEvent(event as PassengerEvent);
-					// TODO
 				}
 			}
 			i++;
