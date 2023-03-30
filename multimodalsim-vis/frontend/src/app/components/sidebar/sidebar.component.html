@@ -23,6 +23,23 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
+    <div id="replay-menu-button" class="sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer visualisation</div>
+    <div id="sub-menu-replay" class="sub-menu">
+        <div class="sub-menu-replay-option">
+            <div id="replay-button" class="fa fa-refresh"></div>
+            <input type="text" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" id="year-input" class="time-input" value="2023">
+            <a class="separator">-</a>
+            <input type="text" pattern="[0-9]" class="time-input" value="03">
+            <a class="separator">-</a>
+            <input type="text" pattern="[0-9]" class="time-input" value="30">
+            <a class="separator"> </a>
+            <input type="text" pattern="[0-9]" class="time-input" value="00">
+            <a class="separator">:</a>
+            <input type="text" pattern="[0-9]" class="time-input" value="00">
+            <a class="separator">:</a>
+            <input type="text" pattern="[0-9]" class="time-input" value="00">
+        </div>
+    </div>
     <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
         Lancer la simulation
     </div>

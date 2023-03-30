@@ -50,10 +50,12 @@ export class SidebarComponent implements OnInit {
 
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
+				this.enableButton('replay-menu-button');
 			}
 		});
 
 		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
+		this.subMenuList.push(document.getElementById('sub-menu-replay') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -65,6 +67,7 @@ export class SidebarComponent implements OnInit {
 
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
+			//this.disableButton('replay-menu-button');
 		}
 	}
 
