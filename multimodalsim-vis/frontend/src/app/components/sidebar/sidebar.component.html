@@ -27,17 +27,17 @@
     <div id="sub-menu-replay" class="sub-menu">
         <div class="sub-menu-replay-option">
             <div id="replay-button" class="fa fa-refresh" (click)="replay()"></div>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="year-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="year-input" class="time-input">
             <a class="separator">-</a>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="month-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="month-input" class="time-input">
             <a class="separator">-</a>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="day-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="day-input" class="time-input">
             <a class="separator"> </a>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="hour-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="hour-input" class="time-input">
             <a class="separator">:</a>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="minute-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="minute-input" class="time-input">
             <a class="separator">:</a>
-            <input type="text" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
         </div>
     </div>
     <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">

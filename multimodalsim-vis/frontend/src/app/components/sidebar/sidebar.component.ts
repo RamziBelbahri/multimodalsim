@@ -9,6 +9,7 @@ import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
 	selector: 'app-sidebar',
@@ -35,7 +36,8 @@ export class SidebarComponent implements OnInit {
 		private commService: CommunicationService,
 		private pathHandler: EntityPathHandlerService,
 		private vehicleHandler: VehiclePositionHandlerService,
-		private dateParser: DateParserService
+		private dateParser: DateParserService,
+		private snackBar: MatSnackBar
 	) {}
 
 	ngOnInit() {
@@ -54,14 +56,7 @@ export class SidebarComponent implements OnInit {
 				this.enableButton('mode-menu-button');
 				this.enableButton('replay-menu-button');
 
-				const dateArray = this.dateParser.getSeparateValueFromDate(this.viewer?.clock.startTime as JulianDate);
-
-				(document.getElementById('year-input') as HTMLInputElement).value = dateArray[0];
-				(document.getElementById('month-input') as HTMLInputElement).value = dateArray[1];
-				(document.getElementById('day-input') as HTMLInputElement).value = dateArray[2];
-				(document.getElementById('hour-input') as HTMLInputElement).value = dateArray[3];
-				(document.getElementById('minute-input') as HTMLInputElement).value = dateArray[4];
-				(document.getElementById('second-input') as HTMLInputElement).value = dateArray[5];
+				this.loadTime();
 			}
 		});
 
@@ -79,6 +74,8 @@ export class SidebarComponent implements OnInit {
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
 			this.disableButton('replay-menu-button');
+		} else {
+			this.loadTime();
 		}
 	}
 
@@ -153,6 +150,25 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
 	}
 
+	private loadTime(): void {
+		const dateArray = this.dateParser.getSeparateValueFromDate(this.viewer?.clock.startTime as JulianDate);
+
+		(document.getElementById('year-input') as HTMLInputElement).value = dateArray[0];
+		(document.getElementById('month-input') as HTMLInputElement).value = dateArray[1];
+		(document.getElementById('day-input') as HTMLInputElement).value = dateArray[2];
+		(document.getElementById('hour-input') as HTMLInputElement).value = dateArray[3];
+		(document.getElementById('minute-input') as HTMLInputElement).value = dateArray[4];
+		(document.getElementById('second-input') as HTMLInputElement).value = dateArray[5];
+	}
+
+	changeTimeInputsColor(color: string): void {
+		const inputs = document.getElementsByClassName('time-input');
+
+		for (let i = 0; i < inputs.length; i++) {
+			(inputs[i] as HTMLElement).style.color = color;
+		}
+	}
+
 	replay(): void {
 		const monthNumber = Number((document.getElementById('month-input') as HTMLInputElement).value) - 1;
 		const yearNumber = Number((document.getElementById('year-input') as HTMLInputElement).value);
@@ -166,7 +182,19 @@ export class SidebarComponent implements OnInit {
 			Number((document.getElementById('second-input') as HTMLInputElement).value)
 		);
 
-		(this.viewer as Viewer).clock.currentTime = Cesium.JulianDate.fromDate(date);
+		const julianDate = Cesium.JulianDate.fromDate(date);
+
+		if (julianDate >= (this.viewer as Viewer).clock.startTime && julianDate <= (this.viewer as Viewer).clock.currentTime) {
+			(this.viewer as Viewer).clock.currentTime = julianDate;
+			this.changeTimeInputsColor('black');
+			this.close();
+		} else {
+			this.changeTimeInputsColor('red');
+
+			this.snackBar.open('Le temps doit être en le temps de départ (' + this.viewer?.clock.startTime.toString() + ') et le temps courant(' + this.viewer?.clock.currentTime.toString(), '', {
+				duration: 5000,
+			});
+		}
 	}
 
 	launchSimulation(): void {

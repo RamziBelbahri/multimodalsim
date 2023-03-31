@@ -15,12 +15,13 @@ import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonToggle, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
 
 @NgModule({
 	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent],
-	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule],
+	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, MatSnackBarModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],
 })
