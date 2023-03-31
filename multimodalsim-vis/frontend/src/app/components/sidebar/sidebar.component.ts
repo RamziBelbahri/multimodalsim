@@ -191,7 +191,7 @@ export class SidebarComponent implements OnInit {
 		} else {
 			this.changeTimeInputsColor('red');
 
-			this.snackBar.open('Le temps doit être en le temps de départ (' + this.viewer?.clock.startTime.toString() + ') et le temps courant(' + this.viewer?.clock.currentTime.toString(), '', {
+			this.snackBar.open('Le temps doit être entre le temps de départ (' + this.viewer?.clock.startTime.toString() + ') et le temps courant(' + this.viewer?.clock.currentTime.toString(), '', {
 				duration: 5000,
 			});
 		}
