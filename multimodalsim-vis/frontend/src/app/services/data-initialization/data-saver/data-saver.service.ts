@@ -6,6 +6,7 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { FileType } from 'src/app/classes/file-classes/file-type';
 import { SimulationParserService } from '../simulation-parser/simulation-parser.service';
+import { CommunicationService } from '../../communication/communication.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -14,13 +15,12 @@ export class DataSaverService {
 	private vehicleEvents: VehicleEvent[];
 	private passengerEvents: PassengerEvent[];
 	private eventObservations: EventObservation[];
-	savedSimPaths: string[];
 	private stops: any[] = [];
-	constructor(private parser: SimulationParserService) {
+	private simulationId = 0;
+	constructor(private parser: SimulationParserService, private commService: CommunicationService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.eventObservations = [];
-		this.savedSimPaths = [];
 	}
 
 	async saveAsZip(): Promise<void> {
@@ -30,26 +30,9 @@ export class DataSaverService {
 		zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.eventObservations));
 		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
 		const zipfile = await zipper.generateAsync({ type: 'blob' });
-		const index = this.savedSimPaths.length;
-		const filename = '/mysims/simulation'+index.toString()+'.zip';
-		// const reader = new FileReader();
-		// let base64data: string | ArrayBuffer | null;
-		// reader.readAsDataURL(zipfile); 
-		// reader.onloadend = function() {
-		// 	base64data = reader.result;                
-		// 	console.log(base64data);
-		// };
-		// const filename = 'simulation.zip';
-		saveAs(zipfile, filename);
-		localStorage.setItem(index.toString(), filename);
-		// localStorage.setItem(filename, base64data?.toString());
-		await this.addToSavedSims(filename);
-	}
-
-	async addToSavedSims(path: string):Promise<void>{
-		this.savedSimPaths.push(path);
-		// console.log(this.savedSimPaths);
-		console.log({ ...localStorage });
+		this.simulationId += 1;
+		const filename = 'simulation'+this.simulationId.toString()+'.zip';
+		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res)=>{console.log(res);});
 	}
 
 	saveSimulationState(vehicleEvents: VehicleEvent[], passengerEvents: PassengerEvent[], eventObservations: EventObservation[], stops: any[]): void {

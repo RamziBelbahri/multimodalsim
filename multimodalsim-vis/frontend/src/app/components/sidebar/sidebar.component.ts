@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -25,10 +26,12 @@ export class SidebarComponent implements OnInit {
 
 	parameterList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
-	savedSimList: Array<string> = new Array<string>();
+	savedSimulationsList: Array<string> = new Array<string>();
 
 	// eslint-disable-next-line max-len
-	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService, private commService: CommunicationService, private dataSaver: DataSaverService) {}
+	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, 
+				private viewerSharer: ViewerSharingService, private commService: CommunicationService, 
+				private dataSaver: DataSaverService, private dataReader: DataReaderService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -46,7 +49,7 @@ export class SidebarComponent implements OnInit {
 		this.parameterList.push('Paramètre 3');
 
 		this.manipOptionList.push('Manipulations');
-		this.savedSimList = [];
+		this.savedSimulationsList = [];
 	}
 
 	ngOnDestroy() {
@@ -84,7 +87,9 @@ export class SidebarComponent implements OnInit {
 		}
 	}
 
-	openSimulationModal(): void {
+	openSimulationModal(isFromServer: boolean, filename?: string): void {
+		this.setSimulationOrigin(isFromServer);
+		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
@@ -97,8 +102,9 @@ export class SidebarComponent implements OnInit {
 	}
 
 	listSimulations(): void {
-		// this.savedSimsList = {...localStorage}.getItem('1');
-		this.savedSimList = this.dataSaver.savedSimPaths;
+		this.commService.listSimulations().subscribe((res) => {
+			this.savedSimulationsList = res as string[];
+		});
 	}
 	
 	openStats(): void {
@@ -110,6 +116,10 @@ export class SidebarComponent implements OnInit {
 			console.log(res);
 		});
 	}
+
+	setSimulationOrigin(isFromServer: boolean): void{
+		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
+	}	
 
 	pauseSimulation(): void {
 		this.commService.pauseSimulation().subscribe((res) => {

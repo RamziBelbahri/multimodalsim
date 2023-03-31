@@ -33,4 +33,17 @@ export class CommunicationService {
 		}
 		return throwError(() => new Error('Something bad happened; please try again later.'));
 	}
+	
+	saveSimulation(zipData: {zipContent: Blob, zipFileName: string}) {
+		console.log('comm service');
+		return this.http.post(this.APIURL + 'save-simulation', zipData).pipe(catchError(this.handleError));
+	}
+
+	listSimulations() {
+		return this.http.get(this.APIURL + 'list-saved-simulations').pipe(catchError(this.handleError));
+	}
+
+	getSimulationContent(filename: string){
+		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`).pipe(catchError(this.handleError));
+	}
 }

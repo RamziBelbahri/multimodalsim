@@ -1,18 +1,18 @@
 <i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
-    <div class="sub-menu-button" (click)="openSimulationModal()">Charger Simulation</div>
+    <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu-button" (click)="toggleSubMenu(0, savedSimList.length)">
+    <div class="sub-menu-button" (click)="toggleSubMenu(0, savedSimulationsList.length)">
         Liste des sauvegardes
     </div>
     <div class="sub-menu" id="sub-menu-param">
-        <div class="sub-menu-option" *ngFor="let sim of savedSimList">{{sim}}</div>
+        <div class="sub-menu-option" *ngFor="let sim of savedSimulationsList" (click)="openSimulationModal(true, sim)">{{sim}}</div>
     </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
