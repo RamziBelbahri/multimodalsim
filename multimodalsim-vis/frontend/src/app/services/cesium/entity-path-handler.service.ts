@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { Cartesian2, Cartesian3, JulianDate, Viewer } from 'cesium';
+import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
 @Injectable({
@@ -15,17 +16,43 @@ export class EntityPathHandlerService {
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
 	private polylines = new Cesium.PolylineCollection();
+	isRealtime = false;
 
-	constructor(private vehicleHandler: VehiclePositionHandlerService) {
+	constructor(private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService:EntityDataHandlerService) {
 		this.lastEntities = new Array<any>();
 		this.progressPath = [new Array<Cartesian3>(), new Array<Cartesian3>()];
 		this.timeList = new Array<JulianDate>();
 		this.lastTime = new Cesium.JulianDate();
 	}
 
+	private enableClick(viewer:Viewer) {
+		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+
+		// Modifie la position de la souris pour pouvoir pick une entité
+		mouseHandler.setInputAction((movement: any) => {
+			console.log("set to true")
+			try {
+			if (this.lastEntities.length > 0) {
+				this.lastEntities.forEach((element: any) => {
+					viewer.entities.remove(element);
+				});
+				this.lastEntities.length = 0;
+				this.timeList.length = 0;
+			}}catch(e){console.log(e)}
+
+			this.currentMousePosition = movement.position;
+			this.isLeftClicked = true;
+		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+	}
+
 	// Active le handler qui s'occupe d'afficher le path
 	initHandler(viewer: Viewer): void {
+
 		viewer.scene.preRender.addEventListener(() => {
+			if(this.isRealtime) {
+				return;
+			}
+			// console.log(this.currentMousePosition);
 			if (this.currentMousePosition) {
 
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
@@ -68,21 +95,72 @@ export class EntityPathHandlerService {
 			}
 		});
 
-		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+		this.enableClick(viewer);
+	}
 
-		// Modifie la position de la souris pour pouvoir pick une entité
-		mouseHandler.setInputAction((movement: any) => {
-			if (this.lastEntities.length > 0) {
-				this.lastEntities.forEach((element: any) => {
-					viewer.entities.remove(element);
-				});
-				this.lastEntities.length = 0;
-				this.timeList.length = 0;
+	initRealTimeHandler(viewer:Viewer) {
+		viewer.scene.preRender.addEventListener(() => {
+			if (this.currentMousePosition) {
+				
+				const pickedObject = viewer.scene.pick(this.currentMousePosition);
+				// console.log(pickedObject);
+				// console.log("currentMousePosition", this.currentMousePosition)
+				if (pickedObject) {
+					const entity = pickedObject.id;
+
+					if (entity.name == 'vehicle' && this.isLeftClicked) {
+						this.isLeftClicked = false;
+						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
+
+						if(realtimePolyline) {
+							const totalStops = realtimePolyline.stops;
+							const stopToUse = this.entityDataHandlerService.vehicleStopLookup.get(entity.id);
+							const index = totalStops.indexOf(stopToUse ? stopToUse : "None");
+							console.log(stopToUse, totalStops, index)
+							if(index >= 0) {
+								const traveledStops = totalStops.slice(0, index + 1);
+								const stopsToTravel = index + 1 < totalStops.length ? totalStops.slice(index + 1, totalStops.length) : [] ;
+
+								for(let traveledStop of traveledStops){
+									const segment = realtimePolyline.stopsPolylineLookup.get(traveledStop);
+									if(segment) {
+										this.lastEntities.push(
+											viewer.entities.add({
+												polyline: {
+													positions: segment[0],
+													width: 5,
+													material: Cesium.Color.GRAY,
+												},
+											})
+										);
+									}
+								}
+								for(let stopToTravel of stopsToTravel){
+									const segment = realtimePolyline.stopsPolylineLookup.get(stopToTravel);
+									if(segment) {
+										this.lastEntities.push(
+											viewer.entities.add({
+												polyline: {
+													positions: segment[0],
+													width: 5,
+													material: Cesium.Color.BLUE,
+												},
+											})
+										);
+									}
+								}
+								
+							}
+						}
+					}
+				}
+
 			}
-
-			this.currentMousePosition = movement.position;
-			this.isLeftClicked = true;
-		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+			// if (this.lastEntities.length > 0) {
+			// 	this.updateProgress(viewer.clock.currentTime, viewer);
+			// }
+		})
+		this.enableClick(viewer);
 	}
 
 	// Compile les sections des positions de la polyline en deux array différents (complété et non complété).

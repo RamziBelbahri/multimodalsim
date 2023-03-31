@@ -18,7 +18,6 @@ export class MessageQueueStompService {
 	public static client:CompatClient;
 	public static service:MessageQueueStompService;
 	public static readonly DURATION_WAIT_NEXT = 'DURATION_WAIT_NEXT';
-	private realtimePolylineLookup:Map<string, RealTimePolyline> = new Map<string, RealTimePolyline>();
 	/*
 	id --> entityEnvents associated with this id
 	*/
@@ -47,7 +46,7 @@ export class MessageQueueStompService {
 	private static readonly USE_NEXT_STOP:Set<string> = new Set([
 		VehicleStatus.ENROUTE,
 	])
-	private dateParserService:DateParserService = new DateParserService();
+	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService,
 		socketAddress:string=ConnectionCredentials.WEBSOCKET,
@@ -63,12 +62,7 @@ export class MessageQueueStompService {
 		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
 		MessageQueueStompService.service = this;
 	}
-	private onReceivingInfo = (msg:IMessage) => {
-		const p = document.getElementById('received-text');
-		if(p) {
-			p.innerText = JSON.stringify(Date.now() + ':\n' + msg.body);
-		}
-	}
+
 	private onConnect = () => {
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, this.onReceivingInfo);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
@@ -96,17 +90,9 @@ export class MessageQueueStompService {
 		this.i++;
 	}
 
-	private onReceivingEventObservation = (msg:IMessage) => {
-		// const receivedText = document.getElementById('received-text');
-		// if(receivedText) {
-		// 	try {
-		// 		receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
-		// 	} catch {
-		// 		receivedText.innerText = msg.body;
-		// 		console.log(msg.body);
-		// 	}
-		// }
-	}
+	// for now these are useless
+	private onReceivingInfo = (msg:IMessage) => {}
+	private onReceivingEventObservation = (msg:IMessage) => {}
 
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
 		// if(eventJson['status'] == VehicleStatus.ENROUTE) {
@@ -168,16 +154,26 @@ export class MessageQueueStompService {
 		// console.log(eventJson['polylines'])
 		let realtimePolyline:RealTimePolyline | undefined;
 		const polylinesJSON = eventJson['polylines']
-		if (polylinesJSON && !this.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
-			realtimePolyline = new RealTimePolyline(polylinesJSON);
-			this.realtimePolylineLookup.set(
+		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
+			// status = release, pretty much guaranteed to have a current stop and a next stop
+			realtimePolyline = new RealTimePolyline(
+				polylinesJSON, 
+				[(entityEvent as VehicleEvent).current_stop].concat((entityEvent as VehicleEvent).next_stops)
+			);
+			this.entityDataHandlerService.realtimePolylineLookup.set(
 				entityEvent.id,
 				realtimePolyline
 			);
 		}
-		realtimePolyline = this.realtimePolylineLookup.get(entityEvent.id);
+		realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entityEvent.id);
+
 		if( realtimePolyline && entityEvent.eventType == EventType.VEHICLE) {
 			(entityEvent as VehicleEvent).polylines = realtimePolyline;
+			entityEvent = entityEvent as VehicleEvent;
+			this.entityDataHandlerService.vehicleStopLookup.set(
+				entityEvent.id,
+				Number(entityEvent.current_stop) ? entityEvent.current_stop : entityEvent.previous_stops[entityEvent.previous_stops.length - 1]
+			)
 		}
 
 		entityEvent.eventType == EventType.PASSENGER ?

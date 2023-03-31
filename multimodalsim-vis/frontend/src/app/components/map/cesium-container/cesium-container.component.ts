@@ -25,6 +25,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		this.cameraHandler.initCameraData(this.viewer.camera);
 
 		this.pathHandler.initHandler(this.viewer);
+		this.pathHandler.initRealTimeHandler(this.viewer);
 
 		this.viewer.animation.viewModel.setShuttleRingTicks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]);
 

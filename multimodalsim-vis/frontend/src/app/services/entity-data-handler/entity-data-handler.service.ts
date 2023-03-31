@@ -16,6 +16,7 @@ import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 import * as delay from 'delay';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { EventType } from '../util/event-types';
+import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 
 @Injectable({
 	providedIn: 'root',
@@ -30,6 +31,10 @@ export class EntityDataHandlerService {
 	private simulationRunning: boolean;
 	public simulationCompleted: boolean;
 	public pauseEventEmitter = new EventEmitter();
+	public realtimePolylineLookup:Map<string, RealTimePolyline> = new Map<string, RealTimePolyline>();
+	// which bus is where?
+	public vehicleStopLookup:Map<string,string|undefined> = new Map<string,string>();
+
 	
 	constructor(
 		private dateParser: DateParserService,

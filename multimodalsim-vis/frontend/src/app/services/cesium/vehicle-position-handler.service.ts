@@ -119,7 +119,7 @@ export class VehiclePositionHandlerService {
 		let startTime = this.dateParser.parseTimeFromSeconds(event.time);
 		let duration = Number(event.duration);
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
-		console.log(event);
+		// console.log(event);
 		let segments = realtimePolylines.stopsPolylineLookup.get(event.current_stop);
 		let fraction = 0;
 		if(segments) {

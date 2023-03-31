@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
+import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -32,7 +33,8 @@ export class SidebarComponent implements OnInit {
 		private entityHandler: EntityLabelHandlerService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		private dataReaderService: DataReaderService) {}
+		private dataReaderService: DataReaderService,
+		private entityPathHandlerService:EntityPathHandlerService) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -115,6 +117,7 @@ export class SidebarComponent implements OnInit {
 	}
 
 	launchRealTimeSimulation(): void {
+		this.entityPathHandlerService.isRealtime = true;
 		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer, true);
 	}
 	pauseSimulation(): void {
