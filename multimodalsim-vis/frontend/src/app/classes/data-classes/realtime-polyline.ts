@@ -1,5 +1,5 @@
 
-import { Cartesian3, SampledPositionProperty, Viewer } from "cesium";
+import { Cartesian3, JulianDate, SampledPositionProperty, Viewer } from "cesium";
 import * as polylineEncoder from '@mapbox/polyline';
 import { VehicleEvent } from "./vehicle-class/vehicle-event";
 
@@ -8,10 +8,15 @@ export class RealTimePolyline {
     // stop --> [Positions, times]
     stopsPolylineLookup = new Map<string, PositionTimePair<Array<Cartesian3>, Array<number>>>();
     stops:string[];
+    
+
+    positionsInOrder:Cartesian3[] = [];
+    timesDone:number[] = [];
+
     constructor(polylinesJSON:any, stops:string[]) {
         this.stops = stops;
         for(let [stop, _] of Object.entries(polylinesJSON)) {
-            const positions = polylineEncoder.decode(polylinesJSON[stop][0]);
+            const positions = polylineEncoder.decode(polylinesJSON[stop][0].replaceAll('\\\\', '\\'));
             const cartesian3Pos = [];
             for(const position of positions) {
                 cartesian3Pos.push(Cesium.Cartesian3.fromDegrees(position[1], position[0]));
@@ -26,13 +31,42 @@ export class RealTimePolyline {
                 )
             }
         }
+        for(let stop of stops) {
+            const segment = this.stopsPolylineLookup.get(stop);
+            if(segment) {
+                this.positionsInOrder.push(...segment[0])
+            }
+        }
     }
-    drawPolyline(viewer:Viewer) {
+    getClosestIndex(dateNumber:number):number {
+        //                                 DELETE THIS 
+        // /*----> DELETE THIS*/this.times = [1,2,3,4,5,6] // <--------- DELETE THIS
+        //                                 DELETE THIS 
+        // let dateNumber = Cesium.JulianDate.toDate(date).getTime();
+        let startIndex = 0;
+        let endIndex = this.timesDone.length - 1;
+        let midIndex = Math.floor((startIndex + endIndex)/2);
+        // console.log(dateNumber)
+        // console.log(this.times)
+        // code more or less copied from https://stackoverflow.com/q/60343999/11627201 by Kamil Staszewski (21/02/2020)
+
+
+
         
-        viewer.entities.add;
-    }
-    // adds the polyline
-    addPositionsFromPolyline(position:SampledPositionProperty, startID:string, stopID:string, event:VehicleEvent) {
-        
+        while(startIndex <= endIndex) {
+            midIndex = Math.floor((startIndex + endIndex)/2);
+            const element = this.timesDone[midIndex];
+            if (dateNumber == element) {
+                return midIndex;
+            } else if (dateNumber < element) {
+                endIndex = midIndex - 1;
+            } else {
+                startIndex = midIndex + 1;
+            }
+        }
+        // console.log("startIndex",startIndex)
+        // console.log("endIndex",endIndex)
+
+        return this.timesDone.length == 0 ? 0 : Math.max(0, endIndex);
     }
 }

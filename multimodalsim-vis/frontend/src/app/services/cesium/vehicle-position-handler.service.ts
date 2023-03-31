@@ -5,6 +5,7 @@ import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
+import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { DateParserService } from '../util/date-parser.service';
 import { PolylineDecoderService } from '../util/polyline-decoder.service';
 import { StopLookupService } from '../util/stop-lookup.service';
@@ -120,7 +121,7 @@ export class VehiclePositionHandlerService {
 		let duration = Number(event.duration);
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
 		// console.log(event);
-		let segments = realtimePolylines.stopsPolylineLookup.get(event.current_stop);
+		let segments = realtimePolylines.stopsPolylineLookup.get(event.previous_stops[event.previous_stops.length - 1]);
 		let fraction = 0;
 		if(segments) {
 			const positions = segments[0];
@@ -129,9 +130,11 @@ export class VehiclePositionHandlerService {
 				fraction += timeFractions[i];
 				const position = positions[i + 1];
 				const time = this.dateParser.addDuration(startTime, duration * fraction);
+				realtimePolylines.timesDone.push(Cesium.JulianDate.toDate(time).getTime())
 				vehicle.path.addSample(time,position);
 			}
 		}
+		// console.log("realtimePolylines.timesDone.length", realtimePolylines.timesDone.length)
 	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
@@ -168,6 +171,12 @@ export class VehiclePositionHandlerService {
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
+
+		// if(realTime) {
+		// 	const polyline = this.entityDataHandlerService.realtimePolylineLookup.get(vehicleEvent.id);
+		// 	if()
+		// }
+
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié

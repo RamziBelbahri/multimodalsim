@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, JulianDate, Viewer } from 'cesium';
+import { Cartesian2, Cartesian3, Entity, JulianDate, Viewer } from 'cesium';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 
@@ -18,6 +18,8 @@ export class EntityPathHandlerService {
 	private polylines = new Cesium.PolylineCollection();
 	isRealtime = false;
 
+	private pickedIndex = -1;
+	private pickedEntityID:string = "";
 	constructor(private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService:EntityDataHandlerService) {
 		this.lastEntities = new Array<any>();
 		this.progressPath = [new Array<Cartesian3>(), new Array<Cartesian3>()];
@@ -30,7 +32,7 @@ export class EntityPathHandlerService {
 
 		// Modifie la position de la souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
-			console.log("set to true")
+			// console.log("set to true")
 			try {
 			if (this.lastEntities.length > 0) {
 				this.lastEntities.forEach((element: any) => {
@@ -103,64 +105,65 @@ export class EntityPathHandlerService {
 			if (this.currentMousePosition) {
 				
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
-				// console.log(pickedObject);
 				// console.log("currentMousePosition", this.currentMousePosition)
 				if (pickedObject) {
 					const entity = pickedObject.id;
+					const currentTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
+
+					this.pickedEntityID = entity.id.toString();
 
 					if (entity.name == 'vehicle' && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
-
 						if(realtimePolyline) {
-							const totalStops = realtimePolyline.stops;
-							const stopToUse = this.entityDataHandlerService.vehicleStopLookup.get(entity.id);
-							const index = totalStops.indexOf(stopToUse ? stopToUse : "None");
-							console.log(stopToUse, totalStops, index)
-							if(index >= 0) {
-								const traveledStops = totalStops.slice(0, index + 1);
-								const stopsToTravel = index + 1 < totalStops.length ? totalStops.slice(index + 1, totalStops.length) : [] ;
+							const index = realtimePolyline.getClosestIndex(currentTime);
+							// console.log(index, realtimePolyline.timesDone.length);
+							this.pickedIndex = index;
 
-								for(let traveledStop of traveledStops){
-									const segment = realtimePolyline.stopsPolylineLookup.get(traveledStop);
-									if(segment) {
-										const entityPolyline = viewer.entities.add({
-											polyline: {
-												positions: segment[0],
-												width: 5,
-												material: Cesium.Color.GRAY,
-											},
-										})
-										this.lastEntities.push(
-											entityPolyline
-										);
-										console.log(entityPolyline);
+							const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
+							const todo = realtimePolyline.positionsInOrder.slice(index + 3);
+							done.push(todo[0]);
+
+							this.lastEntities.push(
+								viewer.entities.add({
+									polyline: {
+										positions:done,
+										width: 5,
+										material: Cesium.Color.GRAY
 									}
-								}
-								for(let stopToTravel of stopsToTravel){
-									const segment = realtimePolyline.stopsPolylineLookup.get(stopToTravel);
-									if(segment) {
-										this.lastEntities.push(
-											viewer.entities.add({
-												polyline: {
-													positions: segment[0],
-													width: 5,
-													material: Cesium.Color.BLUE,
-												},
-											})
-										);
+								})
+							)
+							this.lastEntities.push(
+								viewer.entities.add({
+									polyline: {
+										positions:todo,
+										width: 5,
+										material: Cesium.Color.BLUE
 									}
-								}
-								
-							}
+								})
+							)
 						}
 					}
 				}
 
 			}
-			// if (this.lastEntities.length > 0) {
-			// 	this.updateProgress(viewer.clock.currentTime, viewer);
-			// }
+			const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(this.pickedEntityID);
+			console.log("this.lastEntities.length",this.lastEntities.length);
+			if (this.lastEntities.length > 0 && realtimePolyline) {
+				const currentTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
+				const index = realtimePolyline?.getClosestIndex(currentTime);
+
+				console.log(index, this.pickedIndex)
+				if(index >= 0 && this.pickedIndex != index) {
+					const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
+					const todo = realtimePolyline.positionsInOrder.slice(index + 3);
+					done.push(todo[0]);
+					this.pickedIndex = index;
+					this.lastEntities[0].polyline.positions = done;
+					this.lastEntities[1].polyline.positions = todo;
+
+				}
+			}
 		})
 		this.enableClick(viewer);
 	}
