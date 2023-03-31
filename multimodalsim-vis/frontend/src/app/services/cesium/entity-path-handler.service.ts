@@ -124,15 +124,17 @@ export class EntityPathHandlerService {
 								for(let traveledStop of traveledStops){
 									const segment = realtimePolyline.stopsPolylineLookup.get(traveledStop);
 									if(segment) {
+										const entityPolyline = viewer.entities.add({
+											polyline: {
+												positions: segment[0],
+												width: 5,
+												material: Cesium.Color.GRAY,
+											},
+										})
 										this.lastEntities.push(
-											viewer.entities.add({
-												polyline: {
-													positions: segment[0],
-													width: 5,
-													material: Cesium.Color.GRAY,
-												},
-											})
+											entityPolyline
 										);
+										console.log(entityPolyline);
 									}
 								}
 								for(let stopToTravel of stopsToTravel){
