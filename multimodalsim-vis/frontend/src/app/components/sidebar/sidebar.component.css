@@ -2,7 +2,7 @@
 	height: 100%;
 	width: 0px;
 	position: fixed;
-	z-index: 1;
+	z-index: 2;
 	top: 0;
 	left: 0;
 	background-color: white;
@@ -76,6 +76,57 @@
 	background-color: #dadada;
 }
 
+.sub-menu-option input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+
+.checkbox {
+	position: absolute;
+	align-self: center;
+	left: 10px;
+	height: 25px;
+	width: 25px;
+	background-color: #eee;
+}
+
+.sub-menu-option:hover input ~ .checkbox {
+	background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.sub-menu-option input:checked ~ .checkbox {
+	background-color: #2196f3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkbox:after {
+	content: '';
+	position: absolute;
+	display: none;
+}
+
+/* Show the checkmark when checked */
+.sub-menu-option input:checked ~ .checkbox:after {
+	display: block;
+}
+
+/* Style the checkmark/indicator */
+.sub-menu-option .checkbox:after {
+	left: 9px;
+	top: 5px;
+	width: 5px;
+	height: 10px;
+	border: solid white;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
 .close-button {
 	color: #5c5c5c;
 	cursor: pointer;
@@ -96,6 +147,7 @@
 	padding-top: 2px;
 	padding-bottom: 2px;
 	position: absolute;
+	z-index: 1;
 	left: 16px;
 	font-size: 32px;
 	border-radius: 5px;

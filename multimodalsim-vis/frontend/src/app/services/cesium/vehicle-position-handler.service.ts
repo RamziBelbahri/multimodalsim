@@ -6,6 +6,7 @@ import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
+import { ReplaySubject } from 'rxjs';
 import { DateParserService } from '../util/date-parser.service';
 import { PolylineDecoderService } from '../util/polyline-decoder.service';
 import { StopLookupService } from '../util/stop-lookup.service';
@@ -16,10 +17,14 @@ import { StopLookupService } from '../util/stop-lookup.service';
 export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
 	private pathIdMapping;
+	private vehicleTypeList;
+	private vehicleTypeListSource = new ReplaySubject<Array<string>>();
+	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
 		this.pathIdMapping = new Map<string, TimedPolyline>();
+		this.vehicleTypeList = new Array<string>();
 	}
 
 	getVehicleIdMapping(): Map<string, Vehicle> {
@@ -29,6 +34,12 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
+		const vehicleType = 'bus' + ((Number(vehicleEvent.id) % 2) + 1).toString();
+
+		if (!this.vehicleTypeList.includes(vehicleType)) {
+			this.vehicleTypeList.push(vehicleType);
+			this.vehicleTypeListSource.next(this.vehicleTypeList);
+		}
 
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
@@ -59,7 +70,13 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileLiveEvent(vehicleEvent: VehicleEvent, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
+		const vehicleType = 'bus' + ((Number(vehicleEvent.id) % 2) + 1).toString();
 
+		if (!this.vehicleTypeList.includes(vehicleType)) {
+			this.vehicleTypeList.push(vehicleType);
+			this.vehicleTypeListSource.next(this.vehicleTypeList);
+		}
+		
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
 			this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
@@ -76,10 +93,6 @@ export class VehiclePositionHandlerService {
 			break;
 		}
 	}
-
-
-
-
 
 	// Charge tous les chemins des véhicules afin de les ajouter sur la carte
 	loadSpawnEvents(viewer: Viewer): void {
@@ -117,7 +130,7 @@ export class VehiclePositionHandlerService {
 
 	setLiveEventsPositions(event:VehicleEvent) {
 		const realtimePolylines:RealTimePolyline = event.polylines;
-		let startTime = this.dateParser.parseTimeFromSeconds(event.time);
+		let startTime = this.dateParser.parseTimeFromSeconds(event.time.toString());
 		let duration = Number(event.duration);
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
 		// console.log(event);
@@ -129,7 +142,7 @@ export class VehiclePositionHandlerService {
 			for(let i = 0; i < timeFractions.length; i++) {
 				fraction += timeFractions[i];
 				const position = positions[i + 1];
-				const time = this.dateParser.addDuration(startTime, duration * fraction);
+				const time = this.dateParser.addDuration(startTime, (duration * fraction).toString());
 				realtimePolylines.timesDone.push(Cesium.JulianDate.toDate(time).getTime())
 				vehicle.path.addSample(time,position);
 			}
@@ -143,7 +156,7 @@ export class VehiclePositionHandlerService {
 		const polyline = this.pathIdMapping.get(vehicleEvent.id.toString()) as TimedPolyline;
 
 		if (polyline.positions[polyline.lastSectionCompiled] && VehicleEvent) {
-			let time = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
+			let time = this.dateParser.parseTimeFromSeconds(vehicleEvent.time.toString());
 			polyline.times.push(new Array<JulianDate>());
 
 			for (let i = 0; i < polyline.positions[polyline.lastSectionCompiled].length; i++) {
@@ -153,7 +166,7 @@ export class VehiclePositionHandlerService {
 				if (i >= polyline.sectionTimes[polyline.lastSectionCompiled].length) break;
 
 				const sectionTime = polyline.sectionTimes[polyline.lastSectionCompiled][i] * Number(vehicleEvent.duration);
-				time = this.dateParser.addDuration(time, sectionTime);
+				time = this.dateParser.addDuration(time, sectionTime.toString());
 			}
 
 			polyline.lastSectionCompiled++;
@@ -166,17 +179,11 @@ export class VehiclePositionHandlerService {
 	// Ajout un temps d'arrêt quand le bus doit idle
 	private setIdleStop(vehicleEvent: VehicleEvent, stop: number): void {
 		const vehicle = this.vehicleIdMapping.get(vehicleEvent.id.toString()) as Vehicle;
-		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time);
-		const endTime = this.dateParser.addDuration(startTime, Number(vehicleEvent.duration));
+		const startTime = this.dateParser.parseTimeFromSeconds(vehicleEvent.time.toString());
+		const endTime = this.dateParser.addDuration(startTime, vehicleEvent.duration);
 
 		vehicle.path.addSample(endTime, this.stopLookup.coordinatesFromStopId(stop));
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
-
-		// if(realTime) {
-		// 	const polyline = this.entityDataHandlerService.realtimePolylineLookup.get(vehicleEvent.id);
-		// 	if()
-		// }
-
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
@@ -195,7 +202,7 @@ export class VehiclePositionHandlerService {
 				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
 			},
 			id: id,
-			name: 'vehicle',
+			name: 'bus' + ((Number(id) % 2) + 1).toString(),
 		});
 	}
 }

@@ -8,12 +8,14 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
+import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
 	styleUrls: ['./sidebar.component.css'],
 })
+
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
@@ -23,18 +25,19 @@ export class SidebarComponent implements OnInit {
 
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
+	private vehicleTypesSubscription: Subscription = new Subscription();
 
-	parameterList: Array<string> = new Array<string>();
-	visOptionList: Array<string> = new Array<string>();
-	manipOptionList: Array<string> = new Array<string>();
+	transportModeList: Map<string, boolean> = new Map<string, boolean>();
 
 	constructor(
 		private dialog: MatDialog,
 		private entityHandler: EntityLabelHandlerService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		private dataReaderService: DataReaderService,
-		private entityPathHandlerService:EntityPathHandlerService) {}
+		private vehicleHandler: VehiclePositionHandlerService,
+		private pathHandler: EntityPathHandlerService,
+		private dataReader: DataReaderService
+	) {}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -43,21 +46,17 @@ export class SidebarComponent implements OnInit {
 			this.entityHandler.initHandler(this.viewer);
 		});
 
-		this.subMenuList.push(document.getElementById('sub-menu-param') as HTMLElement);
-		this.subMenuList.push(document.getElementById('sub-menu-vis') as HTMLElement);
-		this.subMenuList.push(document.getElementById('sub-menu-manip') as HTMLElement);
+		this.vehicleTypesSubscription = this.vehicleHandler.vehicleTypeListObservable.subscribe((typeList) => {
+			for (const type of typeList) {
+				this.transportModeList.set(type, true);
+			}
 
-		this.parameterList.push('Paramètre 1');
-		this.parameterList.push('Paramètre 2');
-		this.parameterList.push('Paramètre 3');
+			if (this.transportModeList.size > 0) {
+				this.enableButton('mode-menu-button');
+			}
+		});
 
-		this.visOptionList.push('Temps d\'attente moyen');
-		this.visOptionList.push('Temps de parcours moyen');
-		this.visOptionList.push('Nombre de lignes d\'autobus');
-		this.visOptionList.push('Nombre de types de transport');
-		this.visOptionList.push('Types de modes de transport');
-
-		this.manipOptionList.push('Manipulations');
+		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -66,6 +65,10 @@ export class SidebarComponent implements OnInit {
 
 	open(): void {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';
+
+		if (this.transportModeList.size <= 0) {
+			this.disableButton('mode-menu-button');
+		}
 	}
 
 	close(): void {
@@ -84,6 +87,20 @@ export class SidebarComponent implements OnInit {
 		this.toggleContainer(id);
 	}
 
+	private disableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		element.style.backgroundColor = '#b1b1b1';
+		element.style.marginBottom = '10px';
+		element.style.pointerEvents = 'none';
+	}
+
+	private enableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		element.style.backgroundColor = '#e7e7e7';
+		element.style.marginBottom = '5px';
+		element.style.pointerEvents = 'auto';
+	}
+
 	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';
 		if (this.openedMenuList.indexOf(id) > -1) {
@@ -100,7 +117,6 @@ export class SidebarComponent implements OnInit {
 
 	openUploadStopsFile():void {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
-		(document.getElementById('stops-file-container') as HTMLElement).style.visibility = 'visible';
 	}
 
 	openSaveModal(): void {
@@ -110,6 +126,26 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 
+	// Changer la visibilité d'un mode de transport
+	changeModeVisibility(type: string): void {
+		const newValue = !(this.transportModeList.get(type) as boolean);
+		this.transportModeList.set(type, newValue);
+
+		this.viewer?.entities.values.forEach((entity) => {
+			if (entity.name == type) {
+				entity.show = newValue;
+			}
+		});
+
+		if (!newValue && this.pathHandler.lastEntityType == type) {
+			this.pathHandler.clearLists(this.viewer as Viewer);
+		}
+	}
+
+	openStats(): void {
+		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
+	}
+
 	launchSimulation(): void {
 		this.commService.startSimulation().subscribe((res) => {
 			console.log(res);
@@ -117,8 +153,8 @@ export class SidebarComponent implements OnInit {
 	}
 
 	launchRealTimeSimulation(): void {
-		this.entityPathHandlerService.isRealtime = true;
-		if (this.viewer) this.dataReaderService.launchSimulation(this.viewer, true);
+		this.pathHandler.isRealtime = true;
+		if (this.viewer) this.dataReader.launchSimulation(this.viewer, true);
 	}
 	pauseSimulation(): void {
 		this.commService.pauseSimulation().subscribe((res) => {

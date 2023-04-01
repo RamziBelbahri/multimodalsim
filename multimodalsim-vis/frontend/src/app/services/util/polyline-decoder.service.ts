@@ -9,7 +9,6 @@ import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 export class PolylineDecoderService {
 	// Prend la string complète de la polyline et retourne une liste de positions
 	parsePolyline(rawString: string): TimedPolyline {
-		// console.log(rawString)
 		const polylines = new Array<string>();
 		const times = new Array<Array<number>>();
 		const rawStringArray = rawString.split('\'');
@@ -30,12 +29,11 @@ export class PolylineDecoderService {
 		const polyline = new TimedPolyline();
 		polyline.positions = this.decodePolyline(polylines);
 		polyline.sectionTimes = times;
-		// console.log(polyline);
 		return polyline;
 	}
 
 	// Utilise un décodeur pour décrypter une polyline
-	decodePolyline(polylines: Array<string>): Array<Array<Cartesian3>> {
+	private decodePolyline(polylines: Array<string>): Array<Array<Cartesian3>> {
 		const positions = new Array<Array<Cartesian3>>();
 
 		for (let i = 0; i < polylines.length; i++) {

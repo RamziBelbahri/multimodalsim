@@ -1,8 +1,8 @@
 import json
 import logging
 import pandas as pd
-# from active_mq_controller import ActiveMQController
-# from connection_credentials import ConnectionCredentials
+
+from datetime import datetime
 
 import multimodalsim.simulator.request
 import multimodalsim.simulator.vehicle
@@ -19,6 +19,8 @@ from communication.connection_credentials import ConnectionCredentials
 N_SECONDS_DAY       = 24*60*60
 N_SECONDS_HOUR      = 60*60
 N_SECONDS_MINUTE    = 60
+logger = logging.getLogger(__name__)
+
 
 class FrontendDataCollector(DataCollector):
 

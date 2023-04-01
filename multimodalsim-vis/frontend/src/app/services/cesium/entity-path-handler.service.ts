@@ -3,104 +3,106 @@ import { Injectable } from '@angular/core';
 import { Cartesian2, Cartesian3, Entity, JulianDate, Viewer } from 'cesium';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class EntityPathHandlerService {
+	private readonly CONFIG_PATH = 'assets/viewer-config.json';
 	private currentMousePosition: Cartesian2 | undefined;
 	private lastEntities;
 	private isLeftClicked = false;
+	private completedColor = '';
+	private uncompletedColor = '';
 
 	private progressPath: [Array<Cartesian3>, Array<Cartesian3>];
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
 	private polylines = new Cesium.PolylineCollection();
 	isRealtime = false;
+	lastEntityType = '';
 
 	private pickedIndex = -1;
 	private pickedEntityID:string = "";
-	constructor(private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService:EntityDataHandlerService) {
+
+	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService:EntityDataHandlerService) {
 		this.lastEntities = new Array<any>();
 		this.progressPath = [new Array<Cartesian3>(), new Array<Cartesian3>()];
 		this.timeList = new Array<JulianDate>();
 		this.lastTime = new Cesium.JulianDate();
 	}
 
-	private enableClick(viewer:Viewer) {
+	// Active le handler qui s'occupe d'afficher le path
+	initHandler(viewer: Viewer): void {
+		this.readViewerConfig();
+		viewer.scene.preRender.addEventListener(() => {
+			if(this.isRealtime) {
+				return
+			}
+			if (this.currentMousePosition) {
+				const pickedObject = viewer.scene.pick(this.currentMousePosition);
+
+				if (pickedObject) {
+					const entity = pickedObject.id;
+
+					if (entity.name == 'bus1' || (entity.name == 'bus2' && this.isLeftClicked)) {
+						this.isLeftClicked = false;
+						this.lastEntityType = entity.name;
+						const sections = this.vehicleHandler.getPolylines(entity.id);
+						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);
+
+						this.lastEntities.push(
+							viewer.entities.add({
+								polyline: {
+									positions: new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]),
+									width: 5,
+									material: Cesium.Color.fromCssColorString(this.uncompletedColor),
+								},
+							})
+						);
+
+						this.lastEntities.push(
+							viewer.entities.add({
+								polyline: {
+									positions: this.progressPath[0].concat(this.progressPath[1][0]),
+									width: 5,
+									material: Cesium.Color.fromCssColorString(this.completedColor),
+								},
+							})
+						);
+					}
+				}
+			}
+
+			if (this.lastEntities.length > 0) {
+				this.updateProgress(viewer.clock.currentTime, viewer);
+			}
+		});
+
+		if(!this.isRealtime) {
+			this.enableClick(viewer)
+		}
+
+	}
+
+	enableClick(viewer: Viewer) {
 		const mouseHandler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
 		// Modifie la position de la souris pour pouvoir pick une entité
 		mouseHandler.setInputAction((movement: any) => {
-			// console.log("set to true")
-			try {
 			if (this.lastEntities.length > 0) {
-				this.lastEntities.forEach((element: any) => {
-					viewer.entities.remove(element);
-				});
-				this.lastEntities.length = 0;
-				this.timeList.length = 0;
-			}}catch(e){console.log(e)}
+				this.clearLists(viewer);
+			}
 
 			this.currentMousePosition = movement.position;
 			this.isLeftClicked = true;
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
 
-	// Active le handler qui s'occupe d'afficher le path
-	initHandler(viewer: Viewer): void {
-
-		viewer.scene.preRender.addEventListener(() => {
-			if(this.isRealtime) {
-				return;
-			}
-			// console.log(this.currentMousePosition);
-			if (this.currentMousePosition) {
-
-				const pickedObject = viewer.scene.pick(this.currentMousePosition);
-				// console.log("currentMousePosition", this.currentMousePosition)
-				if (pickedObject) {
-					const entity = pickedObject.id;
-
-					if (entity.name == 'vehicle' && this.isLeftClicked) {
-						this.isLeftClicked = false;
-						const sections = this.vehicleHandler.getPolylines(entity.id);
-						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);
-
-						const polylineArray = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
-						const positions:Cartesian3[] = this.progressPath[0].concat(this.progressPath[1][0]);
-
-						this.lastEntities.push(
-							viewer.entities.add({
-								polyline: {
-									positions: polylineArray,
-									width: 5,
-									material: Cesium.Color.BLUE,
-								},
-							})
-						);
-						this.lastEntities.push(
-							viewer.entities.add({
-								polyline: {
-									positions: positions,
-									width: 5,
-									material: Cesium.Color.GRAY,
-								},
-							})
-						);
-					}
-				}
-
-			}
-			if (this.lastEntities.length > 0) {
-				this.updateProgress(viewer.clock.currentTime, viewer);
-			}
-		});
-
-		this.enableClick(viewer);
-	}
-
 	initRealTimeHandler(viewer:Viewer) {
+		this.readViewerConfig();
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
 				
@@ -129,7 +131,7 @@ export class EntityPathHandlerService {
 									polyline: {
 										positions:done,
 										width: 5,
-										material: Cesium.Color.GRAY
+										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
 									}
 								})
 							)
@@ -138,7 +140,7 @@ export class EntityPathHandlerService {
 									polyline: {
 										positions:todo,
 										width: 5,
-										material: Cesium.Color.BLUE
+										material: Cesium.Color.fromCssColorString(this.completedColor),
 									}
 								})
 							)
@@ -207,7 +209,6 @@ export class EntityPathHandlerService {
 	private updateProgress(currentTime: JulianDate, viewer: Viewer): void {
 		const originalCompletedLength = this.progressPath[0].length;
 		const originalUnCompletedLength = this.progressPath[1].length;
-		// console.log("Cesium.JulianDate.toDate(currentTime).getTime()", Cesium.JulianDate.toDate(currentTime).getTime())
 		if (viewer.clock.multiplier > 0 && Cesium.JulianDate.greaterThan(viewer.clock.currentTime, this.lastTime)) {
 			for (let i = 0; i < originalUnCompletedLength; i++) {
 				if (Cesium.JulianDate.greaterThan(this.timeList[i + originalCompletedLength - 1], currentTime)) {
@@ -215,7 +216,6 @@ export class EntityPathHandlerService {
 					this.updatePolylinePositions();
 					break;
 				}
-
 				this.progressPath[0].push(this.progressPath[1][0]);
 				this.progressPath[1].splice(0, 1);
 			}
@@ -237,5 +237,26 @@ export class EntityPathHandlerService {
 	private updatePolylinePositions(): void {
 		this.lastEntities[0].polyline.positions = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
 		this.lastEntities[1].polyline.positions = this.progressPath[0].concat(this.progressPath[1][0]);
+	}
+
+	// Lit la configuration pour avoir les couleurs des lignes
+	private readViewerConfig(): void {
+		this.http
+			.get(this.CONFIG_PATH, { responseType: 'text' })
+			.pipe(map((res: string) => JSON.parse(res)))
+			.subscribe((data) => {
+				this.completedColor = data.completed_color.toString();
+				this.uncompletedColor = data.uncompleted_color.toString();
+			});
+	}
+
+	// Vider la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
+	clearLists(viewer: Viewer): void {
+		this.lastEntities.forEach((element: any) => {
+			viewer.entities.remove(element);
+		});
+		this.lastEntities.length = 0;
+		this.timeList.length = 0;
+		this.lastEntityType = '';
 	}
 }

@@ -33,7 +33,7 @@ export class VehicleEvent implements EntityEvent {
 		cumulative_distance: number,
 		longitude: number,
 		latitude: number,
-		polylines: string,
+		polylines: string | any,
 		duration: string,
 		isRealtime:boolean = false
 	) {

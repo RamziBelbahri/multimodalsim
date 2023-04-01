@@ -18,7 +18,7 @@ export class StopsFileModalComponent {
 	}
 	closeModal(): void {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'hidden';
-		(document.getElementById('stops-file-container') as HTMLElement).style.visibility = 'hidden';
+		// (document.getElementById('stops-file-container') as HTMLElement).style.visibility = 'hidden';
 	}
 	readStopsFile():void {
 		const stopsInput = document.getElementById('stopInput') as HTMLInputElement;

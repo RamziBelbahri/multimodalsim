@@ -1,8 +1,10 @@
 import logging
 from active_mq_controller import ActiveMQController
-from connection_credentials import ConnectionCredentials
 from multimodalsim.config.coordinates_osrm_config import CoordinatesOSRMConfig  # Required to modify the log level
 import os
+import logging  # Required to modify the log level
+from connection_credentials import ConnectionCredentials  # Required to modify the log level
+
 from multimodalsim.observer.environment_observer import \
     StandardEnvironmentObserver
 from multimodalsim.optimization.dispatcher import FixedLineDispatcher
@@ -56,7 +58,8 @@ if __name__ == '__main__':
 
     # Initialize the simulation.
     simulation = Simulation(opt, trips, vehicles,
-                            environment_observer=environment_observer)
+                            environment_observer=environment_observer,
+                            coordinates=coordinates)
 
     # Execute the simulation.
     simulation.simulate()
