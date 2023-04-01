@@ -34,7 +34,7 @@ export class CommunicationService {
 		return throwError(() => new Error('Something bad happened; please try again later.'));
 	}
 	
-	saveSimulation(zipData: {zipContent: Blob, zipFileName: string}) {
+	saveSimulation(zipData: {zipContent: number[], zipFileName: string}) {
 		console.log('comm service');
 		return this.http.post(this.APIURL + 'save-simulation', zipData).pipe(catchError(this.handleError));
 	}

@@ -29,10 +29,10 @@ export class DataSaverService {
 		zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.passengerEvents));
 		zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.eventObservations));
 		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
-		const zipfile = await zipper.generateAsync({ type: 'blob' });
+		const zipfile = await zipper.generateAsync({ type: 'array' });
 		this.simulationId += 1;
 		const filename = 'simulation'+this.simulationId.toString()+'.zip';
-		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res)=>{console.log(res);});
+		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res)=> console.log(res));
 	}
 
 	saveSimulationState(vehicleEvents: VehicleEvent[], passengerEvents: PassengerEvent[], eventObservations: EventObservation[], stops: any[]): void {

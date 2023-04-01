@@ -47,7 +47,7 @@ export class SimulationModalComponent {
 		if (this.isSavedSimulationFromServer){
 			let simulationData: Buffer = Buffer.from('');
 			const filename = this.dataReader.zipfileNameFromServer;
-			this.commService.getSimulationContent(filename).subscribe((content) => simulationData = content as Buffer);
+			this.commService.getSimulationContent(filename).subscribe((res) => simulationData = res as Buffer);
 			this.dataReader.readZipContentFromServer(simulationData);
 		}
 		else {	
