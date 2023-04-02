@@ -6,6 +6,7 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
@@ -34,10 +35,11 @@ export class SidebarComponent implements OnInit {
 		private entityHandler: EntityLabelHandlerService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		private pathHandler: EntityPathHandlerService,
 		private vehicleHandler: VehiclePositionHandlerService,
+		private pathHandler: EntityPathHandlerService,
 		private dateParser: DateParserService,
-		private snackBar: MatSnackBar
+		private snackBar: MatSnackBar,
+		private dataReader: DataReaderService
 	) {}
 
 	ngOnInit() {
@@ -123,6 +125,10 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
 
+	openUploadStopsFile(): void {
+		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
+	}
+
 	openSaveModal(): void {
 		this.dialog.open(SaveModalComponent, {
 			height: '400px',
@@ -203,6 +209,10 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 
+	launchRealTimeSimulation(): void {
+		this.pathHandler.isRealtime = true;
+		if (this.viewer) this.dataReader.launchSimulation(this.viewer, true);
+	}
 	pauseSimulation(): void {
 		this.commService.pauseSimulation().subscribe((res) => {
 			console.log(res);

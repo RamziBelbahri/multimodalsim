@@ -40,7 +40,6 @@ export class DebugReceiverComponentComponent {
 	// 	DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
 	// }
 	// onError(err:IMessage){
-	// 	console.log(err.body);
 	// }
 	// private static onMessage(msg:IMessage) {
 	// 	const p = document.getElementById('received-text');

@@ -5,6 +5,7 @@ import { JulianDate } from 'cesium';
 	providedIn: 'root',
 })
 export class DateParserService {
+
 	// Prend une valeur en secondes et retourne la julian date associée
 	parseTimeFromSeconds(time: string): JulianDate {
 		const date = new Date(0);

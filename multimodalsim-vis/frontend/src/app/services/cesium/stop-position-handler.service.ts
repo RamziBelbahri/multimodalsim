@@ -36,7 +36,7 @@ export class StopPositionHandlerService {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
 		const assignedVehicleId = passengerEvent.assigned_vehicle ? passengerEvent.assigned_vehicle.toString() : '';
-		const time = this.dateParser.parseTimeFromSeconds(passengerEvent.time);
+		const time = this.dateParser.parseTimeFromSeconds(passengerEvent.time.toString());
 
 		if (!this.globalPassengerList.includes(passengerEvent.id)) {
 			this.globalPassengerList.push(passengerEvent.id);

@@ -7,6 +7,7 @@ import { CesiumContainerComponent } from './components/map/cesium-container/cesi
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { DebugReceiverComponentComponent } from './components/debug-receiver/debug-receiver-component.component';
 import { SimulationModalComponent } from './components/simulation-modal/simulation-modal.component';
+import { StopsFileModalComponent } from './components/stops-file-modal/stops-file-modal.component';
 import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-infos.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
@@ -20,9 +21,10 @@ import { SaveModalComponent } from './components/save-modal/save-modal.component
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, MatSnackBarModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],
 })
+
 export class AppModule {}
