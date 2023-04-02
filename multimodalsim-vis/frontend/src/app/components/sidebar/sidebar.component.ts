@@ -10,7 +10,6 @@ import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-ha
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { InteractionComponent } from '../interaction/interaction.component';
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
-import { result } from 'lodash';
 
 @Component({
 	selector: 'app-sidebar',

@@ -1,4 +1,6 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="selection">
-<button class="modal-button" (click)="launchSimulation()">Lancer la simulation</button>
+    <p class="selection-title">Dossier de la simulation:</p>
+    <input id="gtfsinput" class="selection-input" type='file' webkitdirectory=true (change)="selectFile($event)">
+</div>
 

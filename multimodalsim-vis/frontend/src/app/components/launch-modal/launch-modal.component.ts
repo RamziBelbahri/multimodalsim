@@ -8,10 +8,20 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 	styleUrls: ['./launch-modal.component.css'],
 })
 export class LaunchModalComponent {
+	folder: string | undefined;
 	constructor(private dialogRef: MatDialogRef<LaunchModalComponent>, private commService: CommunicationService) {}
 
+	selectFile(event: Event): void {
+		const target = event.target as HTMLInputElement;
+		const selectedFile = (target.files as FileList)[0];
+		this.folder = selectedFile.webkitRelativePath.split('/')[0];
+	}
+
 	launchSimulation(): void {
-		this.commService.startSimulation().subscribe((res) => {
+		const body = {
+			...(this.folder && { folder: this.folder }),
+		};
+		this.commService.startSimulation(body).subscribe((res) => {
 			console.log(res);
 		});
 		this.dialogRef.close({ isRunning: true });
