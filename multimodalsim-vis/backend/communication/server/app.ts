@@ -11,7 +11,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + "/dist/";
-const port = process.env['PORT'] ? process.env['PORT'] : '8000';
+const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
@@ -34,7 +34,6 @@ app.get("/api/status", (req: Request, res: Response) =>  {
 });
 app.get('/api/start-simulation', (req: Request, res: Response) => {
 	const args = ["-m","communication","fixed","--gtfs","--gtfs-folder","data/20191101/gtfs/","-r","data/20191101/requests.csv","--multimodal","--log-level","INFO","-g","data/20191101/bus_network_graph_20191101.txt","--osrm"];
-	// const scriptCommand = `python -m communication fixed --gtfs --gtfs-folder "data/20191101/gtfs/" -r "data/20191101/requests.csv" --multimodal --log-level INFO -g "data/20191101/bus_network_graph_20191101.txt" --osrm`
 	runSim = spawn("python", args, {cwd:"../../"});
 
 	runSim.on('spawn', () => {
@@ -57,7 +56,6 @@ app.get('/api/start-simulation', (req: Request, res: Response) => {
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
 	if(runSim) {
 		suspend(runSim, true);
-		console.log(runSim.killed);
 	}
 	res.status(200).json({ status: "PAUSED" });
 })
