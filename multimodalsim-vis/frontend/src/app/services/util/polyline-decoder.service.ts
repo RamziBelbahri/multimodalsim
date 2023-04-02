@@ -18,7 +18,6 @@ export class PolylineDecoderService {
 				polylines.push(rawStringArray[i]);
 			} else if ((i - 4) % 4 == 0 && i != 0) {
 				const timesString = rawStringArray[i].substring(3, rawStringArray[i].length - 4);
-
 				times.push(
 					timesString.split(',').map((item) => {
 						return Number(item);
@@ -30,7 +29,6 @@ export class PolylineDecoderService {
 		const polyline = new TimedPolyline();
 		polyline.positions = this.decodePolyline(polylines);
 		polyline.sectionTimes = times;
-
 		return polyline;
 	}
 
