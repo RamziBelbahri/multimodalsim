@@ -29,11 +29,19 @@ app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
 
+const getsArgs = (req: Request):string[] => {
+	const defaultFolder  = "20191101";
+	const folder = req.body.folder ? req.body.folder : defaultFolder;
+	const args = ["-m","communication","fixed","--gtfs","--gtfs-folder",`multimodal-simulator/data/${folder}/gtfs/`,"-r",`multimodal-simulator/data/${folder}/requests.csv`,"--multimodal","--log-level","INFO","-g",`multimodal-simulator/data/${folder}/bus_network_graph_${folder}.txt`,"--osrm"];
+	return args;
+};
+
+
 app.get("/api/status", (req: Request, res: Response) =>  {
     res.status(200).json({ status: "UP" });
 });
-app.get('/api/start-simulation', (req: Request, res: Response) => {
-	const args = ["-m","communication","fixed","--gtfs","--gtfs-folder","data/20191101/gtfs/","-r","data/20191101/requests.csv","--multimodal","--log-level","INFO","-g","data/20191101/bus_network_graph_20191101.txt","--osrm"];
+app.post('/api/start-simulation', (req: Request, res: Response) => {
+	const args = getsArgs(req);
 	runSim = spawn("python", args, {cwd:"../../"});
 
 	runSim.on('spawn', () => {
@@ -65,4 +73,15 @@ app.get('/api/continue-simulation', (req:Request, res:Response) => {
 		suspend(runSim, false);
 	}
 	res.status(200).json({ status: "RESUMED" });
+})
+
+app.get('/api/end-simulation', (req:Request, res:Response) => {
+	if(runSim) {
+		runSim.on('close', (code, signal) => {
+			console.log(
+			  `child process terminated due to receipt of signal ${signal}\n`, `code: ${code}`);
+		  });
+		runSim.kill();
+	}
+	res.status(200).json({ status: "TERMINATED" });
 })

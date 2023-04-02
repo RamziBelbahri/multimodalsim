@@ -19,9 +19,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
+import { InteractionComponent } from './components/interaction/interaction.component';
+import { LaunchModalComponent } from './components/launch-modal/launch-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent, LaunchModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, MatSnackBarModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],
