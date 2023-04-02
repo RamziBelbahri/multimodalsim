@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Viewer } from 'cesium';
+import { JulianDate, Viewer } from 'cesium';
 import { Subscription } from 'rxjs';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
@@ -9,13 +9,14 @@ import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
+import { DateParserService } from 'src/app/services/util/date-parser.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
 	styleUrls: ['./sidebar.component.css'],
 })
-
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
@@ -36,6 +37,8 @@ export class SidebarComponent implements OnInit {
 		private commService: CommunicationService,
 		private vehicleHandler: VehiclePositionHandlerService,
 		private pathHandler: EntityPathHandlerService,
+		private dateParser: DateParserService,
+		private snackBar: MatSnackBar,
 		private dataReader: DataReaderService
 	) {}
 
@@ -53,10 +56,14 @@ export class SidebarComponent implements OnInit {
 
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
+				this.enableButton('replay-menu-button');
+
+				this.loadTime();
 			}
 		});
 
 		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
+		this.subMenuList.push(document.getElementById('sub-menu-replay') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -68,6 +75,9 @@ export class SidebarComponent implements OnInit {
 
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
+			this.disableButton('replay-menu-button');
+		} else {
+			this.loadTime();
 		}
 	}
 
@@ -115,7 +125,7 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
 
-	openUploadStopsFile():void {
+	openUploadStopsFile(): void {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
 	}
 
@@ -144,6 +154,53 @@ export class SidebarComponent implements OnInit {
 
 	openStats(): void {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
+	}
+
+	private loadTime(): void {
+		const dateArray = this.dateParser.getSeparateValueFromDate(this.viewer?.clock.startTime as JulianDate);
+
+		(document.getElementById('year-input') as HTMLInputElement).value = dateArray[0];
+		(document.getElementById('month-input') as HTMLInputElement).value = dateArray[1];
+		(document.getElementById('day-input') as HTMLInputElement).value = dateArray[2];
+		(document.getElementById('hour-input') as HTMLInputElement).value = dateArray[3];
+		(document.getElementById('minute-input') as HTMLInputElement).value = dateArray[4];
+		(document.getElementById('second-input') as HTMLInputElement).value = dateArray[5];
+	}
+
+	changeTimeInputsColor(color: string): void {
+		const inputs = document.getElementsByClassName('time-input');
+
+		for (let i = 0; i < inputs.length; i++) {
+			(inputs[i] as HTMLElement).style.color = color;
+		}
+	}
+
+	replay(): void {
+		const monthNumber = Number((document.getElementById('month-input') as HTMLInputElement).value) - 1;
+		const yearNumber = Number((document.getElementById('year-input') as HTMLInputElement).value);
+
+		const date = new Date(
+			monthNumber < 1 ? yearNumber - 1 : yearNumber,
+			monthNumber < 1 ? 12 : monthNumber,
+			Number((document.getElementById('day-input') as HTMLInputElement).value),
+			Number((document.getElementById('hour-input') as HTMLInputElement).value) - 5,
+			Number((document.getElementById('minute-input') as HTMLInputElement).value),
+			Number((document.getElementById('second-input') as HTMLInputElement).value)
+		);
+
+		const julianDate = Cesium.JulianDate.fromDate(date);
+
+		if (julianDate >= (this.viewer as Viewer).clock.startTime && julianDate <= (this.viewer as Viewer).clock.currentTime) {
+			(this.viewer as Viewer).clock.currentTime = julianDate;
+			this.changeTimeInputsColor('black');
+			this.close();
+		} else {
+			this.changeTimeInputsColor('red');
+
+			this.snackBar.open('Le temps doit être entre le temps de départ (' + this.viewer?.clock.startTime.toString() + ') et le temps courant(' + this.viewer?.clock.currentTime.toString(), '', {
+				duration: 5000,
+			});
+		}
 	}
 
 	launchSimulation(): void {

@@ -20,4 +20,20 @@ export class DateParserService {
 
 		return newTime;
 	}
+
+	getSeparateValueFromDate(julianDate: JulianDate): Array<string> {
+		const result = new Array<string>();
+		const date = Cesium.JulianDate.toDate(julianDate) as Date;
+		date.setTime(date.getTime() + date.getTimezoneOffset() * 60000);
+		const monthNumber = date.getMonth() + 1;
+
+		result.push((monthNumber > 12 ? date.getFullYear() + 1 : date.getFullYear()).toString());
+		result.push((monthNumber > 12 ? 1 : monthNumber).toString());
+		result.push(date.getDate().toString());
+		result.push(date.getHours().toString());
+		result.push(date.getMinutes().toString());
+		result.push(date.getSeconds().toString());
+
+		return result;
+	}
 }
