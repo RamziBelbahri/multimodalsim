@@ -8,6 +8,9 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 import { SaveModalComponent } from '../save-modal/save-modal.component';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
+import { InteractionComponent } from '../interaction/interaction.component';
+import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
+import { result } from 'lodash';
 
 @Component({
 	selector: 'app-sidebar',
@@ -17,6 +20,7 @@ import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-p
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
+	isRunning: boolean;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
@@ -31,10 +35,11 @@ export class SidebarComponent implements OnInit {
 		private dialog: MatDialog,
 		private entityHandler: EntityLabelHandlerService,
 		private viewerSharer: ViewerSharingService,
-		private commService: CommunicationService,
 		private pathHandler: EntityPathHandlerService,
 		private vehicleHandler: VehiclePositionHandlerService
-	) {}
+	) {
+		this.isRunning = false;
+	}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -119,6 +124,18 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 
+	openLaunchModal(): void {
+		const dialogRef = this.dialog.open(LaunchModalComponent, {
+			height: '400px',
+			width: '600px',
+		});
+		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning));
+	}
+
+	setSimulationState(isRunning: boolean): void {
+		this.isRunning = isRunning;
+	}
+
 	// Changer la visibilité d'un mode de transport
 	changeModeVisibility(type: string): void {
 		const newValue = !(this.transportModeList.get(type) as boolean);
@@ -137,23 +154,5 @@ export class SidebarComponent implements OnInit {
 
 	openStats(): void {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
-	}
-
-	launchSimulation(): void {
-		this.commService.startSimulation().subscribe((res) => {
-			console.log(res);
-		});
-	}
-
-	pauseSimulation(): void {
-		this.commService.pauseSimulation().subscribe((res) => {
-			console.log(res);
-		});
-	}
-
-	continueSimulation(): void {
-		this.commService.continueSimulation().subscribe((res) => {
-			console.log(res);
-		});
 	}
 }

@@ -68,3 +68,14 @@ app.get('/api/continue-simulation', (req:Request, res:Response) => {
 	}
 	res.status(200).json({ status: "RESUMED" });
 })
+
+app.get('/api/end-simulation', (req:Request, res:Response) => {
+	if(runSim) {
+		runSim.on('close', (code, signal) => {
+			console.log(
+			  `child process terminated due to receipt of signal ${signal}`);
+		  });
+		runSim.kill();
+	}
+	res.status(200).json({ status: "TERMINATED" });
+})

@@ -23,22 +23,11 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
+    <div class="sub-menu-button" id="sub-menu-launch" (click)="openLaunchModal()">
         Lancer la simulation
     </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
-        Pauser la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
-        Continuer la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
+    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
 </div>

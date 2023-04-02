@@ -25,6 +25,10 @@ export class CommunicationService {
 		return this.http.get(this.APIURL + 'continue-simulation').pipe(catchError(this.handleError));
 	}
 
+	endSimulation() {
+		return this.http.get(this.APIURL + 'end-simulation').pipe(catchError(this.handleError));
+	}
+
 	private handleError(error: HttpErrorResponse) {
 		if (error.status === 0) {
 			console.error('An error occurred:', error.error);
