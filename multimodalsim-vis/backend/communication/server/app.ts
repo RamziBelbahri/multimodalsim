@@ -11,7 +11,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + "/dist/";
-const port = process.env['PORT'] ? process.env['PORT'] : '8000';
+const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
@@ -64,7 +64,6 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
 	if(runSim) {
 		suspend(runSim, true);
-		console.log(runSim.killed);
 	}
 	res.status(200).json({ status: "PAUSED" });
 })
