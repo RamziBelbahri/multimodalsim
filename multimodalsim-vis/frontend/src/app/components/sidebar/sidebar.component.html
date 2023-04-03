@@ -52,6 +52,11 @@
             <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
         </div>
     </div>
+    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
+        Lancer la simulation
+    </div>
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
     <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
         Lancer la simulation en temps réel (A MODIFIER)
     </div>
