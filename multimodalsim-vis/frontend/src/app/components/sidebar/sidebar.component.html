@@ -1,67 +1,68 @@
-<i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
-<div id="sidebar-menu" class="sidebar">
-    <a class="close-button" (click)="close()">&times;</a>
-    <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
-        Liste des sauvegardes
-    </div>
-    <div class="sub-menu" id="sub-menu-savelist">
-        <div class="sub-menu-option" *ngFor="let sim of savedSimulationsList" (click)="openSimulationModal(true, sim)">{{sim}}</div>
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" (click)="openUploadStopsFile()">
-        Upload le fichier des stops
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div id="mode-menu-button" class="sub-menu-button" (click)="toggleSubMenu(0, transportModeList.size)">Modes de transport</div>
-    <div id="sub-menu-mode" class="sub-menu">
-        <label class="sub-menu-option" *ngFor="let pair of transportModeList | keyvalue">
-            <input type="checkbox" [(ngModel)]="pair.value" (change)="changeModeVisibility(pair.key)">
-            <span class="checkbox"></span>
-            {{pair.key}}
-        </label>
-    </div>
-    <div class="sub-menu-button" (click)="openStats()">Statistiques</div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div id="replay-menu-button" class="sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer la visualisation</div>
-    <div id="sub-menu-replay" class="sub-menu">
-        <div class="sub-menu-replay-option">
-            <div id="replay-button" class="fa fa-refresh" (click)="replay()"></div>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="year-input" class="time-input">
-            <a class="separator">-</a>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="month-input" class="time-input">
-            <a class="separator">-</a>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="day-input" class="time-input">
-            <a class="separator"> </a>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="hour-input" class="time-input">
-            <a class="separator">:</a>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="minute-input" class="time-input">
-            <a class="separator">:</a>
-            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
-        </div>
-    </div>
-    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
-        Lancer la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
-        Lancer la simulation en temps réel (A MODIFIER)
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
-</div>
+  <i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
+  <div id="sidebar-menu" class="sidebar">
+      <a class="close-button" (click)="close()">&times;</a>
+      <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
+      <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
+      <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+      <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
+          Liste des sauvegardes
+      </div>
+      <div class="sub-menu" id="sub-menu-savelist">
+          <div class="sub-menu-option" *ngFor="let sim of savedSimulationsList" (click)="openSimulationModal(true, sim)">{{sim}}</div>
+      </div>
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <div class="sub-menu-button" (click)="openUploadStopsFile()">
+          Upload le fichier des stops
+      </div>
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <div id="mode-menu-button" class="sub-menu-button" (click)="toggleSubMenu(0, transportModeList.size)">Modes de transport</div>
+      <div id="sub-menu-mode" class="sub-menu">
+          <label class="sub-menu-option" *ngFor="let pair of transportModeList | keyvalue">
+              <input type="checkbox" [(ngModel)]="pair.value" (change)="changeModeVisibility(pair.key)">
+              <span class="checkbox"></span>
+              {{pair.key}}
+          </label>
+      </div>
+      <div class="sub-menu-button" (click)="openStats()">Statistiques</div>
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <div id="replay-menu-button" class="sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer la visualisation</div>
+      <div id="sub-menu-replay" class="sub-menu">
+          <div class="sub-menu-replay-option">
+              <div id="replay-button" class="fa fa-refresh" (click)="replay()"></div>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="year-input" class="time-input">
+              <a class="separator">-</a>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="month-input" class="time-input">
+              <a class="separator">-</a>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="day-input" class="time-input">
+              <a class="separator"> </a>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="hour-input" class="time-input">
+              <a class="separator">:</a>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="minute-input" class="time-input">
+              <a class="separator">:</a>
+              <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
+          </div>
+      </div>
+      <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
+          Lancer la simulation
+      </div>
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <div class="sub-menu-button" id="sub-menu-launch-real" (click)="launchRealTimeSimulation()">
+          Lancer la simulation en temps réel (A MODIFIER)
+      </div>
+      <div class="sub-menu">
+          <div class="sub-menu-option"></div>
+      </div>
+      <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
+  </div>
