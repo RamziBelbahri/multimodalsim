@@ -119,6 +119,10 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
 	}
 
+	openSimulationParamModal():void {
+		(document.getElementById('sim-param-modal') as HTMLElement).style.visibility = 'visible';
+	}
+
 	openSaveModal(): void {
 		this.dialog.open(SaveModalComponent, {
 			height: '400px',

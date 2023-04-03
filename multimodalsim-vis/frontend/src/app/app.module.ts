@@ -18,9 +18,10 @@ import { MatButtonToggle, MatButtonToggleModule } from '@angular/material/button
 import { MatButtonModule } from '@angular/material/button';
 import { SaveModalComponent } from './components/save-modal/save-modal.component';
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
+import { SimulationParameterModalComponent } from './components/simulation-parameter-modal/simulation-parameter-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent, SimulationParameterModalComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],
