@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
+import { values } from 'lodash';
 
 @Component({
 	selector: 'app-stats-modal',
@@ -29,27 +30,20 @@ export class StatsModalComponent {
 	}
 
 	requestStats(): void {
-		/*this.http
-			.get(this.DEFAULT_STATS, { responseType: 'text' })
-			.pipe(map((res: string) => JSON.parse(res)))
-			.subscribe((data) => {
-				this.stats = data;
-			});
-
-		this.isShowingStats = true;*/
-		/*this.http
-			.get(this.APIURL + 'get-stats')
-			.pipe(catchError(this.handleError))
-			.subscribe((res) => {
-				console.log(res);
-			});*/
-		const body = {};
+		this.isShowingStats = true;
+		this.stats.length = 0;
 
 		this.http
-			.post(this.APIURL + 'start-simulation', body)
+			.get(this.APIURL + 'get-stats')
 			.pipe(catchError(this.handleError))
-			.subscribe((res) => {
-				console.log(res);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			.subscribe((res: any) => {
+				const a = res['values'] as object;
+				for (const key in a) {
+					if (a.hasOwnProperty.call(a, key)) {
+						this.stats.push(new Stat(key, res['values'][key]));
+					}
+				}
 			});
 	}
 
