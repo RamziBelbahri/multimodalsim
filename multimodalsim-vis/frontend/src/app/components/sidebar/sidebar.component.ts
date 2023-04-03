@@ -10,7 +10,6 @@ import { DataSaverService } from 'src/app/services/data-initialization/data-save
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
-import { InteractionComponent } from '../interaction/interaction.component';
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -75,6 +74,7 @@ export class SidebarComponent implements OnInit {
 
 		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-replay') as HTMLElement);
+		this.subMenuList.push(document.getElementById('sub-menu-savelist') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -156,7 +156,7 @@ export class SidebarComponent implements OnInit {
 			this.savedSimulationsList = res as string[];
 		});
 	}
-	
+
 	openLaunchModal(): void {
 		const dialogRef = this.dialog.open(LaunchModalComponent, {
 			height: '400px',
@@ -236,9 +236,9 @@ export class SidebarComponent implements OnInit {
 		}
 	}
 
-	setSimulationOrigin(isFromServer: boolean): void{
+	setSimulationOrigin(isFromServer: boolean): void {
 		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
-	}	
+	}
 
 	launchRealTimeSimulation(): void {
 		this.pathHandler.isRealtime = true;
