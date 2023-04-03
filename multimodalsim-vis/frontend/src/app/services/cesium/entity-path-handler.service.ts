@@ -105,7 +105,7 @@ export class EntityPathHandlerService {
 		this.readViewerConfig();
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
-				
+
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 				// console.log("currentMousePosition", this.currentMousePosition)
 				if (pickedObject) {
@@ -150,7 +150,6 @@ export class EntityPathHandlerService {
 
 			}
 			const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(this.pickedEntityID);
-			console.log("this.lastEntities.length",this.lastEntities.length);
 			if (this.lastEntities.length > 0 && realtimePolyline) {
 				const currentTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
 				const index = realtimePolyline?.getClosestIndex(currentTime);
@@ -201,7 +200,7 @@ export class EntityPathHandlerService {
 				}
 			}
 		}
-		
+
 		return [completedPath, uncompletedPath];
 	}
 
