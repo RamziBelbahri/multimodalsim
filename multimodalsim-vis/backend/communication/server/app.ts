@@ -22,6 +22,8 @@ const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
+const stats = {'Total number of trips': '55', 'Number of active trips': '12', 'Distance travelled': '402km'};
+
 app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
     res.header("Access-Control-Allow-Origin", 
                "http://localhost:4200");
@@ -57,6 +59,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 	  });
 
 	runSim.on('error', (err: { message: any; }) => {
+        //TODO: Modifier stats quand on reçoit des stats
 		console.error('Exited runSim with error:', err.message);
 	  });
 
@@ -127,4 +130,8 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 		runSim.kill();
 	}
 	res.status(200).json({ status: "TERMINATED" });
+})
+
+app.get('/api/get-stats', (req: Request, res: Response) => {
+    res.status(200).json({ status: "COMPLETED", values: stats});
 })

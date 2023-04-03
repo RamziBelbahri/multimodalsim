@@ -29,8 +29,8 @@ export class EntityDataHandlerService {
 	private simulationRunning: boolean;
 	public simulationCompleted: boolean;
 	public pauseEventEmitter = new EventEmitter();
-	public realtimePolylineLookup:Map<string, RealTimePolyline> = new Map<string, RealTimePolyline>();
-	public vehicleStopLookup:Map<string,string|undefined> = new Map<string,string>();
+	public realtimePolylineLookup: Map<string, RealTimePolyline> = new Map<string, RealTimePolyline>();
+	public vehicleStopLookup: Map<string, string | undefined> = new Map<string, string>();
 
 	constructor(
 		private dateParser: DateParserService,
@@ -81,7 +81,7 @@ export class EntityDataHandlerService {
 		if (first_time > second_time) return 1;
 		if (first_time < second_time) return -1;
 		return 0;
-	}
+	};
 
 	public combinePassengerAndVehicleEvents(): void {
 		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
@@ -91,7 +91,7 @@ export class EntityDataHandlerService {
 		this.combined = vehiclesAndTrips;
 	}
 
-	private zoomTo(viewer:Viewer, start:JulianDate, end:JulianDate):void {
+	private zoomTo(viewer: Viewer, start: JulianDate, end: JulianDate): void {
 		viewer.clock.startTime = start.clone();
 		viewer.clock.stopTime = end.clone();
 		viewer.clock.currentTime = start.clone();
@@ -99,7 +99,7 @@ export class EntityDataHandlerService {
 	}
 
 	runVehiculeSimulation(viewer: Viewer, isRealTime = true): void {
-		if(isRealTime) {
+		if (isRealTime) {
 			this.runRealTimeSimulation(viewer);
 			return;
 		}
@@ -128,59 +128,44 @@ export class EntityDataHandlerService {
 	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
 		this.stopHandler.initStops();
+
 		const clockState = viewer.animation.viewModel.clockViewModel;
-		const service = this;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
-			if(isRunning) {
-				service.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
+			if (isRunning) {
+				this.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
 		});
 
-		// Pour que l'horloge démarre dès que l'on clique sur launch simulation.
-		// clockState.shouldAnimate = true;
-
-		// test
-		// viewer.allowDataSourcesToSuspendAnimation = false;
 		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
-			// make sure that Cesium doesnt go further than the simulation, if it does all buses will disappear
-			
-			// await new event
-			if(i >= this.combined.length) {
-				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
+			if (i >= this.combined.length) {
+				await new Promise((resolve) => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
 			}
+
 			const event = this.combined[i];
-			// console.log(event)
-			
-			if(!this.simulationRunning) {
-				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_PAUSE, resolve));
+
+			if (!this.simulationRunning) {
+				await new Promise((resolve) => this.pauseEventEmitter.once(FlowControl.ON_PAUSE, resolve));
 			}
 
 			if (event && event.eventType == 'VEHICLE') {
-				// try {
-				event.isRealtime ?
-					this.vehicleHandler.compileLiveEvent(event as VehicleEvent, viewer) :
-					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				// } catch (e) {
-				// 	console.log("inside catch", e)
-				// }
+				event.isRealtime ? this.vehicleHandler.compileLiveEvent(event as VehicleEvent, viewer) : this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
-			// console.log(new Date(event.time).getTime() - Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime())
-			if(event && i == 0) {
-				// const julianDateStart
+
+			if (event && i == 0) {
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, (23 * 60 * 60).toString());
-				console.log(Cesium.JulianDate.toDate(start).getTime())
-				console.log(Cesium.JulianDate.toDate(end).getTime())
+				console.log(Cesium.JulianDate.toDate(start).getTime());
+				console.log(Cesium.JulianDate.toDate(end).getTime());
 				this.zoomTo(viewer, start, end);
 			}
-			// console.log("")
-			i++;
 
+			i++;
 		}
+
 		onPlaySubscription.dispose();
 		this.saveSimulationState();
 	}

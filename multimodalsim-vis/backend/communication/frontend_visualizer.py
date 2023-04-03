@@ -39,7 +39,7 @@ class FrontendVisualizer(Visualizer):
             except:
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x))
             self.connection.send(ConnectionCredentials.EVENT_QUEUE, body = body)
-        # self.__print_statistics()
+        self.__print_statistics()
 
     def __print_debug(self, env, current_event, event_index, event_priority):
         debug_dict = dict()
@@ -154,12 +154,11 @@ class FrontendVisualizer(Visualizer):
             input()
         else:
             self.connection.send(ConnectionCredentials.INFO_QUEUE, json.dumps(debug_dict,default=lambda x: str(x)))
-        # self.__print_statistics()
+        self.__print_statistics()
+
+    def __get_statistics(self): 
+        return "nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}".format(self.__data_analyzer.nb_trips, self.__data_analyzer.nb_vehicles, self.__data_analyzer.total_distance_travelled, self.__data_analyzer.total_ghg_e)
 
     def __print_statistics(self):
-        logger.info("nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}"
-                    .format(self.__data_analyzer.nb_trips,
-                            self.__data_analyzer.nb_vehicles,
-                            self.__data_analyzer.total_distance_travelled,
-                            self.__data_analyzer.total_ghg_e))
+        logger.info("nb_events: {}".format(self.__data_analyzer.get_trips_statistics()))
 

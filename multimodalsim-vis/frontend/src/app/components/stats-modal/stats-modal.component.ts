@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Stat } from 'src/app/classes/data-classes/stat';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, throwError } from 'rxjs';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 
@@ -12,6 +12,7 @@ import { StopPositionHandlerService } from 'src/app/services/cesium/stop-positio
 })
 export class StatsModalComponent {
 	private readonly DEFAULT_STATS = 'assets/custom_stats.json';
+	private readonly APIURL = 'http://localhost:8000/api/';
 
 	isShowingStats = false;
 	stats: Stat[];
@@ -27,15 +28,29 @@ export class StatsModalComponent {
 		this.isShowingStats = true;
 	}
 
-	loadJson(): void {
-		this.http
+	requestStats(): void {
+		/*this.http
 			.get(this.DEFAULT_STATS, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
 			.subscribe((data) => {
 				this.stats = data;
 			});
 
-		this.isShowingStats = true;
+		this.isShowingStats = true;*/
+		/*this.http
+			.get(this.APIURL + 'get-stats')
+			.pipe(catchError(this.handleError))
+			.subscribe((res) => {
+				console.log(res);
+			});*/
+		const body = {};
+
+		this.http
+			.post(this.APIURL + 'start-simulation', body)
+			.pipe(catchError(this.handleError))
+			.subscribe((res) => {
+				console.log(res);
+			});
 	}
 
 	return(): void {
@@ -46,5 +61,14 @@ export class StatsModalComponent {
 	closeModal(): void {
 		this.return();
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'hidden';
+	}
+
+	private handleError(error: HttpErrorResponse) {
+		if (error.status === 0) {
+			console.error('An error occurred:', error.error);
+		} else {
+			console.error(`Backend returned code ${error.status}, body was: `, error.error);
+		}
+		return throwError(() => new Error('Something bad happened; please try again later.'));
 	}
 }
