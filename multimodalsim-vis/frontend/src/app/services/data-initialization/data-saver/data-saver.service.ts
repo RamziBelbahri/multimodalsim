@@ -31,8 +31,8 @@ export class DataSaverService {
 		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
 		const zipfile = await zipper.generateAsync({ type: 'array' });
 		this.simulationId += 1;
-		const filename = 'simulation'+this.simulationId.toString()+'.zip';
-		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res)=> console.log(res));
+		const filename = 'simulation' + this.simulationId.toString() + '.zip';
+		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res) => console.log(res));
 	}
 
 	saveSimulationState(vehicleEvents: VehicleEvent[], passengerEvents: PassengerEvent[], eventObservations: EventObservation[], stops: any[]): void {

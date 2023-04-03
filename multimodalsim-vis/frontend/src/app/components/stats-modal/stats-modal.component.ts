@@ -4,7 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
-import { values } from 'lodash';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
 	selector: 'app-stats-modal',
@@ -12,17 +12,19 @@ import { values } from 'lodash';
 	styleUrls: ['./stats-modal.component.css'],
 })
 export class StatsModalComponent {
-	private readonly DEFAULT_STATS = 'assets/custom_stats.json';
 	private readonly APIURL = 'http://localhost:8000/api/';
 
+	sanitizedBlobUrl: SafeUrl | undefined;
 	isShowingStats = false;
 	stats: Stat[];
 
-	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService) {
+	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService, private sanitizer: DomSanitizer) {
 		this.stats = new Array<Stat>();
 	}
 
 	loadEntityNumber(): void {
+		this.stats.length = 0;
+
 		this.stats.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
 		this.stats.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
 
@@ -38,18 +40,31 @@ export class StatsModalComponent {
 			.pipe(catchError(this.handleError))
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			.subscribe((res: any) => {
-				const a = res['values'] as object;
-				for (const key in a) {
-					if (a.hasOwnProperty.call(a, key)) {
+				const statDictionnary = res['values'] as object;
+				for (const key in statDictionnary) {
+					if (statDictionnary.hasOwnProperty.call(statDictionnary, key)) {
 						this.stats.push(new Stat(key, res['values'][key]));
 					}
 				}
+
+				this.saveStats();
 			});
+	}
+
+	private saveStats(): void {
+		const json = [];
+
+		for (const stat of this.stats) {
+			json.push(stat.field, stat.value);
+		}
+
+		const blob = new Blob([JSON.stringify(json)], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob);
+		this.sanitizedBlobUrl = this.sanitizer.bypassSecurityTrustUrl(url);
 	}
 
 	return(): void {
 		this.isShowingStats = false;
-		this.stats.length = 0;
 	}
 
 	closeModal(): void {

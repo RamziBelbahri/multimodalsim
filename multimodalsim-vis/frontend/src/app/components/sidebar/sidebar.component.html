@@ -8,6 +8,9 @@
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
+    </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
         Liste des sauvegardes
     </div>
@@ -57,6 +60,7 @@
     </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
+    </div>
     <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
         Lancer la simulation en temps réel (A MODIFIER)
     </div>
