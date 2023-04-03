@@ -150,34 +150,27 @@ export class EntityDataHandlerService {
 			if(i >= this.combined.length) {
 				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
 			}
-			const event = this.combined[i];
-			// console.log(event)
-			
+			const event = this.combined[i];			
+
 			if(!this.simulationRunning) {
 				await new Promise(resolve => this.pauseEventEmitter.once(FlowControl.ON_PAUSE, resolve));
 			}
 
 			if (event && event.eventType == 'VEHICLE') {
-				// try {
 				event.isRealtime ?
 					this.vehicleHandler.compileLiveEvent(event as VehicleEvent, viewer) :
 					this.vehicleHandler.compileEvent(event as VehicleEvent, true, viewer);
-				// } catch (e) {
-				// 	console.log("inside catch", e)
-				// }
 			} else if (event && event.eventType == 'PASSENGER') {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
-			// console.log(new Date(event.time).getTime() - Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime())
+
 			if(event && i == 0) {
-				// const julianDateStart
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, (23 * 60 * 60).toString());
 				console.log(Cesium.JulianDate.toDate(start).getTime())
 				console.log(Cesium.JulianDate.toDate(end).getTime())
 				this.zoomTo(viewer, start, end);
 			}
-			// console.log("")
 			i++;
 
 		}

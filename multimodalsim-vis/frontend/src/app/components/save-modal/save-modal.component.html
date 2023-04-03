@@ -1,6 +1,18 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="selection">
     <p>Sauvegarder au format zip:</p>
-<button class="modal-button" (click)="saveAsZip()">Sauvegarder</button>
+    <form [formGroup]="filenameForm" (ngSubmit)="saveAsZip()">
+        <mat-form-field class="filename-field">
+            <mat-label>Nom du fichier</mat-label>
+            <input matInput type="text" formControlName="saveZipfileName">
+            <button *ngIf="fileName" matSuffix mat-icon-button aria-label="Clear" (click)="clearFileName()">
+                <mat-icon>close</mat-icon>
+            </button>
+            <mat-hint>Le nom du fichier ne peut contenir que des caractères alphanumériques (a-zA-Z0-9), un tiret (-) ou un tiret bas (_).</mat-hint>
+            <mat-error *ngIf="isFileNameInvalid()">Le nom du fichier est incorrect.</mat-error>
+        </mat-form-field>
+        <button class="modal-button" type="submit" [disabled]="filenameForm.invalid">Sauvegarder</button>
+    </form>
+</div>
 <mat-progress-spinner [mode]="mode" [value]="value"></mat-progress-spinner>
 

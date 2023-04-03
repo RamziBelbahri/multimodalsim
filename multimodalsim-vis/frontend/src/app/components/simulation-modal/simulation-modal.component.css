@@ -33,6 +33,10 @@
 	background-color: #dadada;
 }
 
+#delete-button {
+	background-color: red;
+}
+
 .selection {
 	display: block;
 	position: relative;

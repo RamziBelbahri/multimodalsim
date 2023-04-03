@@ -95,9 +95,7 @@ export class MessageQueueStompService {
 	private onReceivingEventObservation = (msg:IMessage) => {}
 
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
-		// if(eventJson['status'] == VehicleStatus.ENROUTE) {
-		// 	console.log(eventJson['duration'])
-		// }
+		
 		if(eventJson['event_type'] == 'PASSENGER') {
 			return new PassengerEvent(
 				eventJson['id'],
@@ -112,7 +110,6 @@ export class MessageQueueStompService {
 				true
 			)
 		} else {
-			// console.log(eventJson)
 			return new VehicleEvent(
 				eventJson['id'],
 				eventJson['time'],
@@ -150,8 +147,6 @@ export class MessageQueueStompService {
 		// 1. event is parsed as JSON
 		const eventJson = JSON.parse(msg.body)
 		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
-
-		// console.log(eventJson['polylines'])
 		let realtimePolyline:RealTimePolyline | undefined;
 		const polylinesJSON = eventJson['polylines']
 		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
@@ -186,10 +181,7 @@ export class MessageQueueStompService {
 
 		const nextTimestampOver = this.nextTimeStamp != undefined ?
 			(new Date(entityEvent.time).getTime() > new Date(this.nextTimeStamp).getTime()) : false;
-		// if (nextTimestampOver){
-		// 	console.log(entityEvent.time, this.nextTimeStamp, this.currentTimeStamp)
-		// }
-		// set current timestamp	
+
 		if(this.currentTimeStamp == undefined) {
 			this.currentTimeStamp = entityEvent.time;
 		}
@@ -232,7 +224,7 @@ export class MessageQueueStompService {
 	}
 
 	private sendCurrentTimeStamp = () => {
-		for(let key of this.currentTimeStampEventLookup.keys()) {
+		for(const key of this.currentTimeStampEventLookup.keys()) {
 			const value = this.currentTimeStampEventLookup.get(key);
 			// ============================== this is just to make typescript compile ============================== 
 			if(value == undefined) {
@@ -293,11 +285,10 @@ export class MessageQueueStompService {
 				}
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
 				else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
-					// console.log(currentEvent.duration);
 					toSend.push(currentEvent);
 				}
 			}
-			for(let event of toSend) {
+			for(const event of toSend) {
 				this.entityDataHandlerService.combined.push(event);
 			}
 		}

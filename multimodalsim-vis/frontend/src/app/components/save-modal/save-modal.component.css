@@ -8,12 +8,14 @@
 	margin-left: 50px;
 }
 
+.filename-field{
+	display: block;
+	margin-bottom: 50px;
+}
+
 .modal-button {
 	display: block;
-    position: relative;
-    left: 40%;
-    top: 40%;
-	width: 20%;
+	margin: auto;
 	height: 40px;
 	border: black;
 	border-radius: 10px;
@@ -34,21 +36,16 @@
 
 .selection {
 	display: block;
-    position: relative;
-    left: 5%;
-    margin-top: 50px;
 	width: 90%;
 	height: 15%;
 	border-radius: 40px;
-	background-color: #ddeeed;
+	margin: auto;
+    margin-top: 50px;
+	/* background-color: #ddeeed; */
 	color: black;   
 	font-size: 16px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 	text-align: center;
-}
-
-.selection:hover {
-	background-color: #c7e6e3;
 }
 
 .selection-input {   

@@ -1,5 +1,5 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
-<div *ngIf = !isSavedSimulationFromServer >
+<div *ngIf = "!isSavedSimulationFromServer" >
   <div class="selection">
       <p>Ouvrir à partir d'un CSV</p>
       <input id="csvinput" class="selection-input" type='file' (change)="selectFile($event)">
@@ -12,3 +12,4 @@
 <mat-progress-spinner [mode]="mode" [value]="value"></mat-progress-spinner>
 <button class="modal-button" (click)="readContent()">Lire le contenu</button>
 <button class="modal-button" (click)="launchSimulation()">Lancer la simulation</button>
+<button class="modal-button" id= delete-button *ngIf = "isSavedSimulationFromServer" (click)="deleteSavedSimulation()">Supprimer la sauvegarde</button>
