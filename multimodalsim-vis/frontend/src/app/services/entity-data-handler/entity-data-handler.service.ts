@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 import { JulianDate, Queue, Viewer } from 'cesium';
 import { EventEmitter } from 'events';
@@ -81,7 +82,7 @@ export class EntityDataHandlerService {
 		if (first_time > second_time) return 1;
 		if (first_time < second_time) return -1;
 		return 0;
-	}
+	};
 
 	public combinePassengerAndVehicleEvents(): void {
 		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
@@ -129,6 +130,7 @@ export class EntityDataHandlerService {
 		let i = 0;
 		this.stopHandler.initStops();
 		const clockState = viewer.animation.viewModel.clockViewModel;
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const service = this;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
@@ -173,8 +175,8 @@ export class EntityDataHandlerService {
 				// const julianDateStart
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, (23 * 60 * 60).toString());
-				console.log(Cesium.JulianDate.toDate(start).getTime())
-				console.log(Cesium.JulianDate.toDate(end).getTime())
+				console.log(Cesium.JulianDate.toDate(start).getTime());
+				console.log(Cesium.JulianDate.toDate(end).getTime());
 				this.zoomTo(viewer, start, end);
 			}
 			// console.log("")

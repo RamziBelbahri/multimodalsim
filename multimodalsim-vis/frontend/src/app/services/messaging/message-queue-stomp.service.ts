@@ -3,7 +3,7 @@ import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
-import { DateParserService } from '../util/date-parser.service';
+// import { DateParserService } from '../util/date-parser.service';
 import {ConnectionCredentials} from './connection-constants';
 // import { Queue } from 'queue-typescript';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
@@ -12,7 +12,7 @@ import { FlowControl } from '../entity-data-handler/flow-control';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { EventType } from '../util/event-types';
 // var LinkedList = require('dbly-linked-list')
-
+const DEBUG = false;
 // uses STOMP with active MQ
 export class MessageQueueStompService {
 	public static client:CompatClient;
@@ -34,18 +34,18 @@ export class MessageQueueStompService {
 		VehicleStatus.ALIGHTING,	// time to departure time
 		VehicleStatus.BOARDING,		// time to departure time
 		VehicleStatus.IDLE,			// time to departure time
-	])
+	]);
 	// we know these events have zero duration
 	private static readonly ALWAYS_ZERO_DURATION:Set<string> = new Set([
 		PassengersStatus.RELEASE,
 		PassengersStatus.COMPLETE,
 		VehicleStatus.RELEASE,
 		VehicleStatus.COMPLETE,
-	])
+	]);
 	// MOVING --> use the time it takes to get to the next stop
 	private static readonly USE_NEXT_STOP:Set<string> = new Set([
 		VehicleStatus.ENROUTE,
-	])
+	]);
 	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService,
@@ -70,10 +70,10 @@ export class MessageQueueStompService {
 		// MessageQueueStompService.client.subscribe(ConnectionCredentials.TRIPS_QUEUE, this.onReceivingTripEvent);
 		// MessageQueueStompService.client.subscribe(ConnectionCredentials.VEHICLE_QUEUE, this.onReceivingVehicleEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.ENTITY_EVENTS_QUEUE, this.onReceivingEntityEvent);
-	}
+	};
 	private onError = (err:IMessage) => {
 		console.log(err.body);
-	}
+	};
 	private i = 0;
 	private onReceivingEvent = (msg:IMessage) => {
 		if(this.i == 0){
@@ -88,12 +88,18 @@ export class MessageQueueStompService {
 			}
 		}
 		this.i++;
-	}
+	};
 
 	// for now these are useless
-	private onReceivingInfo = (msg:IMessage) => {}
-	private onReceivingEventObservation = (msg:IMessage) => {}
+	private onReceivingInfo = (msg:IMessage) => {
+		if(DEBUG) {console.log(msg.body);}
+	};
+	private onReceivingEventObservation = (msg:IMessage) => {
+		if(DEBUG) {console.log(msg.body);}
+	};
 
+	// JSON object, you can't know what is will be
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
 		// if(eventJson['status'] == VehicleStatus.ENROUTE) {
 		// 	console.log(eventJson['duration'])
@@ -110,7 +116,7 @@ export class MessageQueueStompService {
 				eventJson['next_legs'],
 				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration'],
 				true
-			)
+			);
 		} else {
 			// console.log(eventJson)
 			return new VehicleEvent(
@@ -129,9 +135,9 @@ export class MessageQueueStompService {
 				eventJson['polylines'],
 				eventJson['duration'] == undefined? MessageQueueStompService.DURATION_WAIT_NEXT:eventJson['duration'],
 				true
-			)
+			);
 		}
-	}
+	};
 
 	// private combineEvents = () => {}
 	// private createEvents = () => {}
@@ -148,12 +154,12 @@ export class MessageQueueStompService {
 
 
 		// 1. event is parsed as JSON
-		const eventJson = JSON.parse(msg.body)
-		var entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
+		const eventJson = JSON.parse(msg.body);
+		let entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
 
 		// console.log(eventJson['polylines'])
 		let realtimePolyline:RealTimePolyline | undefined;
-		const polylinesJSON = eventJson['polylines']
+		const polylinesJSON = eventJson['polylines'];
 		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
 			// status = release, pretty much guaranteed to have a current stop and a next stop
 			realtimePolyline = new RealTimePolyline(
@@ -173,7 +179,7 @@ export class MessageQueueStompService {
 			this.entityDataHandlerService.vehicleStopLookup.set(
 				entityEvent.id,
 				Number(entityEvent.current_stop) ? entityEvent.current_stop : entityEvent.previous_stops[entityEvent.previous_stops.length - 1]
-			)
+			);
 		}
 
 		entityEvent.eventType == EventType.PASSENGER ?
@@ -227,12 +233,12 @@ export class MessageQueueStompService {
 			this.nextTimeStampEventLookup.set(
 				entityEvent.id,
 				[entityEvent]
-			)
+			);
 		}
-	}
+	};
 
 	private sendCurrentTimeStamp = () => {
-		for(let key of this.currentTimeStampEventLookup.keys()) {
+		for(const key of this.currentTimeStampEventLookup.keys()) {
 			const value = this.currentTimeStampEventLookup.get(key);
 			// ============================== this is just to make typescript compile ============================== 
 			if(value == undefined) {
@@ -249,7 +255,7 @@ export class MessageQueueStompService {
 					toSend.push(value[i]);
 				}
 				// only the last event of each timestamp remains
-				this.currentTimeStampEventLookup.set(key, [value[value.length - 1]])
+				this.currentTimeStampEventLookup.set(key, [value[value.length - 1]]);
 			}
 
 			const tmp_currentEvent = this.currentTimeStampEventLookup.get(key);
@@ -297,12 +303,12 @@ export class MessageQueueStompService {
 					toSend.push(currentEvent);
 				}
 			}
-			for(let event of toSend) {
+			for(const event of toSend) {
 				this.entityDataHandlerService.combined.push(event);
 			}
 		}
 		this.entityDataHandlerService.pauseEventEmitter.emit(FlowControl.ON_NEW_EVENTS);
-	} 
+	}; 
 
 	getClient():CompatClient {
 		return MessageQueueStompService.client;
