@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 const distDir = __dirname + "/dist/";
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
-const port = process.env['PORT'] ? process.env['PORT'] : '8000';
+const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
@@ -36,11 +36,19 @@ app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
 
+const getsArgs = (req: Request):string[] => {
+	const defaultFolder  = "20191101";
+	const folder = req.body.folder ? req.body.folder : defaultFolder;
+	const args = ["-m","communication","fixed","--gtfs","--gtfs-folder",`multimodal-simulator/data/${folder}/gtfs/`,"-r",`multimodal-simulator/data/${folder}/requests.csv`,"--multimodal","--log-level","INFO","-g",`multimodal-simulator/data/${folder}/bus_network_graph_${folder}.txt`,"--osrm"];
+	return args;
+};
+
+
 app.get("/api/status", (req: Request, res: Response) =>  {
     res.status(200).json({ status: "UP" });
 });
-app.get('/api/start-simulation', (req: Request, res: Response) => {
-	const args = ["-m","communication","fixed","--gtfs","--gtfs-folder","data/20191101/gtfs/","-r","data/20191101/requests.csv","--multimodal","--log-level","INFO","-g","data/20191101/bus_network_graph_20191101.txt","--osrm"];
+app.post('/api/start-simulation', (req: Request, res: Response) => {
+	const args = getsArgs(req);
 	runSim = spawn("python", args, {cwd:"../../"});
 
 	runSim.on('spawn', () => {
@@ -62,7 +70,6 @@ app.get('/api/start-simulation', (req: Request, res: Response) => {
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
 	if(runSim) {
 		suspend(runSim, true);
-		console.log(runSim.killed);
 	}
 	res.status(200).json({ status: "PAUSED" });
 })
@@ -110,4 +117,14 @@ app.post('/api/save-simulation', async (req:Request, res:Response) => {
 		return res.status(500).json({ status: 'Sauvegarde échouée' });
 	}
 	return res.status(201).json({ status: 'sauvegarde de ' + data.zipFileName + ' réussie' });
+});
+app.get('/api/end-simulation', (req:Request, res:Response) => {
+	if(runSim) {
+		runSim.on('close', (code, signal) => {
+			console.log(
+			  `child process terminated due to receipt of signal ${signal}\n`, `code: ${code}`);
+		  });
+		runSim.kill();
+	}
+	res.status(200).json({ status: "TERMINATED" });
 })

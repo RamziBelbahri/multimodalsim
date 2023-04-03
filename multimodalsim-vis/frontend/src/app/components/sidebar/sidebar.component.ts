@@ -10,6 +10,8 @@ import { DataSaverService } from 'src/app/services/data-initialization/data-save
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
+import { InteractionComponent } from '../interaction/interaction.component';
+import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -21,6 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
+	isRunning: boolean;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
@@ -43,9 +46,11 @@ export class SidebarComponent implements OnInit {
 		private pathHandler: EntityPathHandlerService,
 		private dateParser: DateParserService,
 		private snackBar: MatSnackBar,
-		private dataReader: DataReaderService,
 		private dataSaver: DataSaverService,
-	) {}
+		private dataReader: DataReaderService
+	) {
+		this.isRunning = false;
+	}
 
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
@@ -152,6 +157,18 @@ export class SidebarComponent implements OnInit {
 		});
 	}
 	
+	openLaunchModal(): void {
+		const dialogRef = this.dialog.open(LaunchModalComponent, {
+			height: '400px',
+			width: '600px',
+		});
+		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning));
+	}
+
+	setSimulationState(isRunning: boolean): void {
+		this.isRunning = isRunning;
+	}
+
 	// Changer la visibilité d'un mode de transport
 	changeModeVisibility(type: string): void {
 		const newValue = !(this.transportModeList.get(type) as boolean);
@@ -219,12 +236,6 @@ export class SidebarComponent implements OnInit {
 		}
 	}
 
-	launchSimulation(): void {
-		this.commService.startSimulation().subscribe((res) => {
-			console.log(res);
-		});
-	}
-
 	setSimulationOrigin(isFromServer: boolean): void{
 		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
 	}	
@@ -232,16 +243,5 @@ export class SidebarComponent implements OnInit {
 	launchRealTimeSimulation(): void {
 		this.pathHandler.isRealtime = true;
 		if (this.viewer) this.dataReader.launchSimulation(this.viewer, true);
-	}
-	pauseSimulation(): void {
-		this.commService.pauseSimulation().subscribe((res) => {
-			console.log(res);
-		});
-	}
-
-	continueSimulation(): void {
-		this.commService.continueSimulation().subscribe((res) => {
-			console.log(res);
-		});
 	}
 }
