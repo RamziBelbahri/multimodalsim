@@ -13,7 +13,7 @@ export class CommunicationService {
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
 	}
-  
+
 	startSimulation(args: object) {
 		return this.http.post(this.APIURL + 'start-simulation', args).pipe(catchError(this.handleError));
 	}
@@ -37,5 +37,17 @@ export class CommunicationService {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
 		return throwError(() => new Error('Something bad happened; please try again later.'));
+	}
+
+	saveSimulation(zipData: { zipContent: number[]; zipFileName: string }) {
+		return this.http.post(this.APIURL + 'save-simulation', zipData).pipe(catchError(this.handleError));
+	}
+
+	listSimulations() {
+		return this.http.get(this.APIURL + 'list-saved-simulations').pipe(catchError(this.handleError));
+	}
+
+	getSimulationContent(filename: string) {
+		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`).pipe(catchError(this.handleError));
 	}
 }

@@ -23,7 +23,7 @@ import { InteractionComponent } from './components/interaction/interaction.compo
 import { LaunchModalComponent } from './components/launch-modal/launch-modal.component';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent, LaunchModalComponent],
+	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent, LaunchModalComponent, InteractionComponent],
 	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, MatSnackBarModule],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],

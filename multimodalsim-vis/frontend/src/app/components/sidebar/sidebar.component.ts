@@ -6,10 +6,10 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
+import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
-import { InteractionComponent } from '../interaction/interaction.component';
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -31,6 +31,9 @@ export class SidebarComponent implements OnInit {
 	private viewerSubscription: Subscription = new Subscription();
 	private vehicleTypesSubscription: Subscription = new Subscription();
 
+	parameterList: Array<string> = new Array<string>();
+	manipOptionList: Array<string> = new Array<string>();
+	savedSimulationsList: Array<string> = new Array<string>();
 	transportModeList: Map<string, boolean> = new Map<string, boolean>();
 
 	constructor(
@@ -42,6 +45,7 @@ export class SidebarComponent implements OnInit {
 		private pathHandler: EntityPathHandlerService,
 		private dateParser: DateParserService,
 		private snackBar: MatSnackBar,
+		private dataSaver: DataSaverService,
 		private dataReader: DataReaderService
 	) {
 		this.isRunning = false;
@@ -62,13 +66,15 @@ export class SidebarComponent implements OnInit {
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
 				this.enableButton('replay-menu-button');
-
 				this.loadTime();
 			}
+
+			this.savedSimulationsList = [];
 		});
 
 		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-replay') as HTMLElement);
+		this.subMenuList.push(document.getElementById('sub-menu-savelist') as HTMLElement);
 	}
 
 	ngOnDestroy() {
@@ -99,6 +105,8 @@ export class SidebarComponent implements OnInit {
 			this.subMenuList[id].style.opacity = '0';
 		}
 
+		this.listSimulations();
+
 		this.toggleContainer(id);
 	}
 
@@ -125,7 +133,9 @@ export class SidebarComponent implements OnInit {
 		}
 	}
 
-	openSimulationModal(): void {
+	openSimulationModal(isFromServer: boolean, filename?: string): void {
+		this.setSimulationOrigin(isFromServer);
+		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}
@@ -138,6 +148,12 @@ export class SidebarComponent implements OnInit {
 		this.dialog.open(SaveModalComponent, {
 			height: '400px',
 			width: '600px',
+		});
+	}
+
+	listSimulations(): void {
+		this.commService.listSimulations().subscribe((res) => {
+			this.savedSimulationsList = res as string[];
 		});
 	}
 
@@ -218,6 +234,10 @@ export class SidebarComponent implements OnInit {
 				duration: 5000,
 			});
 		}
+	}
+
+	setSimulationOrigin(isFromServer: boolean): void {
+		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
 	}
 
 	launchRealTimeSimulation(): void {

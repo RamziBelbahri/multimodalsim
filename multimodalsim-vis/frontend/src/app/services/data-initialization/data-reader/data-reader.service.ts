@@ -6,6 +6,7 @@ import { FileType } from 'src/app/classes/file-classes/file-type';
 import { Viewer } from 'cesium';
 import { StopLookupService } from '../../util/stop-lookup.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root',
@@ -17,8 +18,10 @@ export class DataReaderService {
 	private ignored: string[];
 	private directories: string[];
 	private readonly COMBINED = 'combined-trips-vehicle';
-	private zipInput: HTMLInputElement | undefined;
+	private zipInput: HTMLInputElement | undefined; 
 	private csvInput: Blob;
+	isSavedSimulationFromServer: BehaviorSubject<boolean>;
+	zipfileNameFromServer = '';
 
 	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
 		this.zipper = JSZip();
@@ -27,6 +30,7 @@ export class DataReaderService {
 		this.directories = [];
 		this.ignored = [];
 		this.csvInput = new Blob();
+		this.isSavedSimulationFromServer = new BehaviorSubject(false);
 	}
 
 	launchSimulation(viewer: Viewer, isRealTime: boolean): void {
@@ -51,6 +55,13 @@ export class DataReaderService {
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
+
+	async readZipContentFromServer(data: Buffer): Promise<void> {
+		const zip = await this.zipper.loadAsync(data);
+		await this.readFiles(zip);
+		this.zipfileNameFromServer = '';
+	}
+	
 
 	private async readFiles(zip: JSZip): Promise<void> {
 		if (zip.files) {
