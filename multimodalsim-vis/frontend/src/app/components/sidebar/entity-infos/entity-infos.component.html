@@ -8,6 +8,8 @@
         <div >lat:{{lat}}</div>
         <div >lon:{{lon}}</div>
         <div >Nombre de passagers:{{passengerAmount}}</div>
-        <div *ngFor="let passenger of passengerList">{{passenger}}</div>
+        <br>
+        <div >Liste des passagers</div>
+        <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div>
     </div>
 </div>

@@ -1,18 +1,27 @@
 <i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
-    <div class="sub-menu-button" (click)="openSimulationModal()">Charger Simulation</div>
+    <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
+        Liste des sauvegardes
+    </div>
+    <div class="sub-menu" id="sub-menu-savelist">
+        <div class="sub-menu-option" *ngFor="let sim of savedSimulationsList" (click)="openSimulationModal(true, sim)">{{sim}}</div>
+    </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openUploadStopsFile()">
         Upload le fichier des stops
+    </div>
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
     </div>
     <div id="mode-menu-button" class="sub-menu-button" (click)="toggleSubMenu(0, transportModeList.size)">Modes de transport</div>
     <div id="sub-menu-mode" class="sub-menu">
@@ -26,40 +35,51 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
+    <div id="replay-menu-button" class="sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer la visualisation</div>
+    <div id="sub-menu-replay" class="sub-menu">
+        <div class="sub-menu-replay-option">
+            <div id="replay-button" class="fa fa-refresh" (click)="replay()"></div>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="year-input" class="time-input">
+            <a class="separator">-</a>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="month-input" class="time-input">
+            <a class="separator">-</a>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="day-input" class="time-input">
+            <a class="separator"> </a>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="hour-input" class="time-input">
+            <a class="separator">:</a>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="minute-input" class="time-input">
+            <a class="separator">:</a>
+            <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
+        </div>
+    </div>
+    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
         Lancer la simulation
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
+
+    <div class="sub-menu-button" id="sub-menu-launch-realtime-DELETE-THIS-LATER" (click)="launchRealTimeSimulation()">
         Lancer la simulation en temps réel (A MODIFIER)
     </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
-        Pauser la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
-        Continuer la simulation
-    </div>
     <div class="sub-menu-button" id="param-menu" (click)="openSimulationParamModal()"> Parametres </div>
-    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()" style="height:60px !important">
+    <div class="sub-menu-button" id="menu-past-sims" style="height:60px !important">
         Simulations passées
         <br>
         <br>
         <select style="width: 200px; font-size:20px">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-        </select>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+    </select>
     </div>
 
+    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
 
-    <div class="sub-menu">
+    <!-- <div class="sub-menu">
         <div class="sub-menu-option"></div>
-    </div>
-</div>
+
+
+        <div class="sub-menu">
+            <div class="sub-menu-option"></div>
+        </div>
+    </div> -->

@@ -1,8 +1,7 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
 <div class="selection">
-    <input type="text" name="gtfs-folder">
-    <label for="gtfs-folder"> Nom du repertoire GTFS</label>
-    <br>
+    <p class="selection-title">Dossier de la simulation:</p>
+    <input id="gtfsinput" class="selection-input" type='file' webkitdirectory=true (change)="selectFile($event)">
     <input type="text" name="req-file">
     <label for="req-file"> Path to the file containing the requests (folder-name/file-name)</label>
     <br>
@@ -13,16 +12,16 @@
     <label for="nodes-file"> Path to the file containing the nodes (folder-name/file-name) </label>
     <br>
     <input type="text" name="gtfs-folder">
-    <label for="gtfs-folder"> Path to the folder containing the files in the GTFS format</label>
+    <label for="gtfs-folder"> Path to folder containing files in the GTFS format (folder-name/folder-name)</label>
     <br>
     <input type="text" name="connections">
-    <label for="connections"> Path to the connections file</label>
+    <label for="connections"> Path to the connections file (folder-name/file-name)</label>
     <br>
     <input type="text" name="graph">
-    <label for="graph"> Path to the graph file</label>
+    <label for="graph"> Path to the graph file (folder-name/file-name)</label>
     <br>
     <input type="text" name="coord">
-    <label for="coord"> Path to the coordinates file</label>
+    <label for="coord"> Path to the coordinates file (folder-name/file-name)</label>
     <br>
     <input type="checkbox" name="osrm">
     <label for="osrm"> Utiliser un serveur OSRM? (Necessaire pour les polylines)</label>
@@ -40,14 +39,7 @@
     <label for="fixed"> fixed </label>
     <input type="radio" name="optimization-type" value="shuttle">
     <label for="shuttle"> suttle </label>
-    <!-- <p>====================================Pour les simulations deja faites====================================</p>
-    <input type="text" name="stops-file">
-    <label for="stops-file">Fichier des stops</label>
-    <br>
-    <input type="text" name="passenger-file">
-    <label for="passenger-file">Fichier des passagers</label>
-    <br>
-    <input type="text" name="bus-event-file">
-    <label for="bus-event-file">Fichier des bus</label> -->
+
 </div>
-<button class="modal-button">OK</button>
+
+<button class="modal-button">Lancer la simulation</button>

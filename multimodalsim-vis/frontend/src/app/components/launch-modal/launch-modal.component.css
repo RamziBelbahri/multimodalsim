@@ -8,10 +8,6 @@
     margin-left: 50px;
 }
 
-input[type=text] {
-    width: 35%;
-}
-
 .modal-button {
     display: block;
     position: relative;
@@ -40,8 +36,8 @@ input[type=text] {
     display: block;
     position: relative;
     left: 5%;
-    margin-top: 30px;
-    width: 100%;
+    margin-top: 50px;
+    width: 90%;
     height: 15%;
     border-radius: 40px;
     background-color: #ddeeed;
@@ -53,6 +49,10 @@ input[type=text] {
 
 .selection:hover {
     background-color: #c7e6e3;
+}
+
+input[type=text] {
+    width: 35%;
 }
 
 .selection-input {

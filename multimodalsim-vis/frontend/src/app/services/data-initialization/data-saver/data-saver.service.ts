@@ -6,6 +6,7 @@ import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/pas
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { FileType } from 'src/app/classes/file-classes/file-type';
 import { SimulationParserService } from '../simulation-parser/simulation-parser.service';
+import { CommunicationService } from '../../communication/communication.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -15,7 +16,8 @@ export class DataSaverService {
 	private passengerEvents: PassengerEvent[];
 	private eventObservations: EventObservation[];
 	private stops: any[] = [];
-	constructor(private parser: SimulationParserService) {
+	private simulationId = 0;
+	constructor(private parser: SimulationParserService, private commService: CommunicationService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.eventObservations = [];
@@ -27,8 +29,10 @@ export class DataSaverService {
 		zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.passengerEvents));
 		zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.eventObservations));
 		zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
-		const zipfile = await zipper.generateAsync({ type: 'blob' });
-		saveAs(zipfile, 'simulation.zip');
+		const zipfile = await zipper.generateAsync({ type: 'array' });
+		this.simulationId += 1;
+		const filename = 'simulation'+this.simulationId.toString()+'.zip';
+		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename }).subscribe((res)=> console.log(res));
 	}
 
 	saveSimulationState(vehicleEvents: VehicleEvent[], passengerEvents: PassengerEvent[], eventObservations: EventObservation[], stops: any[]): void {

@@ -49,7 +49,7 @@
 	top: 37vh;
 	opacity: 0.8;
 	color: blue;
-	cursor: grab;
+	cursor: pointer;
 	transform: scale(2);
 	enable-background: 0%;
 }
