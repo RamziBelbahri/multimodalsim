@@ -13,27 +13,33 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class StatsModalComponent {
 	private readonly APIURL = 'http://localhost:8000/api/';
+	private entityNumber: Stat[];
 
 	sanitizedBlobUrl: SafeUrl | undefined;
 	isShowingStats = false;
-	stats: Stat[];
+	showedStats: Stat[];
+	customStats: Map<string, string>;
 
 	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService, private sanitizer: DomSanitizer) {
-		this.stats = new Array<Stat>();
+		this.showedStats = new Array<Stat>();
+		this.entityNumber = new Array<Stat>();
+		this.customStats = new Map<string, string>();
 	}
 
 	loadEntityNumber(): void {
-		this.stats.length = 0;
+		this.showedStats.length = 0;
 
-		this.stats.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
-		this.stats.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
+		this.entityNumber.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
+		this.entityNumber.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
+
+		this.showedStats = this.entityNumber;
 
 		this.isShowingStats = true;
 	}
 
 	requestStats(): void {
 		this.isShowingStats = true;
-		this.stats.length = 0;
+		this.showedStats.length = 0;
 
 		this.http
 			.get(this.APIURL + 'get-stats')
@@ -43,9 +49,13 @@ export class StatsModalComponent {
 				const statDictionnary = res['values'] as object;
 				for (const key in statDictionnary) {
 					if (statDictionnary.hasOwnProperty.call(statDictionnary, key)) {
-						this.stats.push(new Stat(key, res['values'][key]));
+						this.customStats.set(key, res['values'][key]);
 					}
 				}
+
+				this.customStats.forEach((value: string, field: string) => {
+					this.showedStats.push(new Stat(field, value));
+				});
 
 				this.saveStats();
 			});
@@ -54,8 +64,8 @@ export class StatsModalComponent {
 	private saveStats(): void {
 		const json = [];
 
-		for (const stat of this.stats) {
-			json.push(stat.field, stat.value);
+		for (const stat of this.customStats) {
+			json.push(stat[0], stat[1]);
 		}
 
 		const blob = new Blob([JSON.stringify(json)], { type: 'application/json' });

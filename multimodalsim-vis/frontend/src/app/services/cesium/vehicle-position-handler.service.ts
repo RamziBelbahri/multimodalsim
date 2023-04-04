@@ -5,7 +5,6 @@ import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { Vehicle } from 'src/app/classes/data-classes/vehicles';
-import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { ReplaySubject } from 'rxjs';
 import { DateParserService } from '../util/date-parser.service';
 import { PolylineDecoderService } from '../util/polyline-decoder.service';
@@ -50,7 +49,6 @@ export class VehiclePositionHandlerService {
 		}
 
 		if (!this.pathIdMapping.has(vehicleId)) {
-			
 			const polylines = this.polylineDecoder.parsePolyline(vehicleEvent.polylines);
 			this.pathIdMapping.set(vehicleId, polylines);
 		}
@@ -76,7 +74,7 @@ export class VehiclePositionHandlerService {
 			this.vehicleTypeList.push(vehicleType);
 			this.vehicleTypeListSource.next(this.vehicleTypeList);
 		}
-		
+
 		if (!this.vehicleIdMapping.has(vehicleId)) {
 			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
 			this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
@@ -127,25 +125,25 @@ export class VehiclePositionHandlerService {
 		return section ? section : new TimedPolyline();
 	}
 
-
-	setLiveEventsPositions(event:VehicleEvent) {
-		const realtimePolylines:RealTimePolyline = event.polylines;
+	setLiveEventsPositions(event: VehicleEvent) {
+		const realtimePolylines: RealTimePolyline = event.polylines;
 		const startTime = this.dateParser.parseTimeFromSeconds(event.time.toString());
 		const duration = Number(event.duration);
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
 		const segments = realtimePolylines.stopsPolylineLookup.get(event.previous_stops[event.previous_stops.length - 1]);
 		let fraction = 0;
-		if(segments) {
+		if (segments) {
 			const positions = segments[0];
 			const timeFractions = segments[1];
-			for(let i = 0; i < timeFractions.length; i++) {
+			for (let i = 0; i < timeFractions.length; i++) {
 				fraction += timeFractions[i];
 				const position = positions[i + 1];
 				const time = this.dateParser.addDuration(startTime, (duration * fraction).toString());
-				realtimePolylines.timesDone.push(Cesium.JulianDate.toDate(time).getTime())
-				vehicle.path.addSample(time,position);
+				realtimePolylines.timesDone.push(Cesium.JulianDate.toDate(time).getTime());
+				vehicle.path.addSample(time, position);
 			}
-		}	}
+		}
+	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextLeg(vehicleEvent: VehicleEvent): void {
