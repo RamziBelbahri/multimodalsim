@@ -37,7 +37,7 @@ export class BoardingHandlerService {
 					}
 					if (this.stopHandler.getPassengerAmount(stopId) == 0) console.log('is a stop'); else console.log('has passengers');
 					
-					this.stopHandler.updateIcon(viewer, this.lastEvent.originId);
+					this.stopHandler.updateIcon(viewer, stopId);
 					this.lastEvent = this.stopHandler.boardingEventPop();
 					if (!this.lastEvent) {
 						break;
