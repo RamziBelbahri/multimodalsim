@@ -6,7 +6,6 @@ import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/p
 import { Stop } from 'src/app/classes/data-classes/stop';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
-import { pick } from 'lodash';
 
 @Injectable({
 	providedIn: 'root',
