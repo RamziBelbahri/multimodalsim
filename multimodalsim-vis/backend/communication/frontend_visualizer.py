@@ -39,7 +39,8 @@ class FrontendVisualizer(Visualizer):
             except:
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x))
             self.connection.send(ConnectionCredentials.EVENT_QUEUE, body = body)
-        self.__print_statistics()
+        if self.__data_analyzer is not None:
+            self.__print_statistics()
 
     def __print_debug(self, env, current_event, event_index, event_priority):
         debug_dict = dict()
@@ -154,11 +155,23 @@ class FrontendVisualizer(Visualizer):
             input()
         else:
             self.connection.send(ConnectionCredentials.INFO_QUEUE, json.dumps(debug_dict,default=lambda x: str(x)))
-        self.__print_statistics()
-
-    def __get_statistics(self): 
-        return "nb_trips: {}, nb_vehicles: {}, distance: {}, ghg-e: {}".format(self.__data_analyzer.nb_trips, self.__data_analyzer.nb_vehicles, self.__data_analyzer.total_distance_travelled, self.__data_analyzer.total_ghg_e)
 
     def __print_statistics(self):
-        logger.info("nb_events: {}".format(self.__data_analyzer.get_trips_statistics()))
+        vehicles_stats = self.__data_analyzer.get_vehicles_statistics()
+        logger.info(vehicles_stats)
+        modes = self.__data_analyzer.modes
+        if len(modes) > 1:
+            for mode in modes:
+                mode_vehicles_stats = \
+                    self.__data_analyzer.get_vehicles_statistics(mode)
+                logger.info("{}: {}".format(mode, mode_vehicles_stats))
+
+        trips_stats = self.__data_analyzer.get_trips_statistics()
+        logger.info(trips_stats)
+        modes = self.__data_analyzer.modes
+        if len(modes) > 1:
+            for mode in modes:
+                mode_trips_stats = \
+                    self.__data_analyzer.get_trips_statistics(mode)
+                logger.info("{}: {}".format(mode, mode_trips_stats))
 

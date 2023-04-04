@@ -100,6 +100,31 @@ def configure_logger(log_level=logging.INFO, log_filename=None):
 
     root_logger.info("log_level={}".format(log_level))
 
+def print_statistics(data_container):
+    events_table_name = "events"
+    data_analyzer = FrontendVisualizer(data_container)
+    description_df = data_analyzer.get_description(events_table_name)
+    logger.info(description_df)
+
+    logger.info("nb_events: {}".format(data_analyzer.nb_events))
+    logger.info("nb_event_types: {}".format(data_analyzer.nb_event_types))
+    logger.info("nb_events_by_type: \n{}".format(data_analyzer.
+                                                 nb_events_by_type))
+    logger.info("nb_trips: {}".format(data_analyzer.get_total_nb_trips()))
+    logger.info("nb_active_trips: {}".format(
+        data_analyzer.get_nb_active_trips()))
+    logger.info("nb_vehicles: {}".format(data_analyzer.get_total_nb_vehicles()))
+    logger.info("nb_active_vehicles: {}".format(
+        data_analyzer.get_nb_active_vehicles()))
+
+    logger.info(data_analyzer.get_vehicle_status_duration_statistics())
+    logger.info(data_analyzer.get_trip_status_duration_statistics())
+    logger.info(data_analyzer.get_boardings_alightings_stats())
+    logger.info(data_analyzer.get_nb_legs_by_trip_stats())
+    logger.info(data_analyzer.get_trip_duration_stats())
+    logger.info(data_analyzer.get_route_duration_stats())
+    logger.info(data_analyzer.get_max_load_by_vehicle())
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -187,6 +212,7 @@ def main():
                             environment_observer=environment_observer,
                             coordinates=coordinates)
     simulation.simulate()
+    print_statistics()
     ActiveMQController().getConnection().send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)
     
 

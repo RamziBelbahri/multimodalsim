@@ -114,7 +114,7 @@ export class EntityPathHandlerService {
 
 					this.pickedEntityID = entity.id.toString();
 
-					if (entity.name == 'vehicle' && this.isLeftClicked) {
+					if ((entity.name == 'bus1' || entity.name == 'bus2') && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
 						if (realtimePolyline) {
@@ -125,12 +125,14 @@ export class EntityPathHandlerService {
 							const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 							done.push(todo[0]);
 
+							console.log(done, todo);
+
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
 										positions: done,
 										width: 5,
-										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
+										material: Cesium.Color.fromCssColorString(this.completedColor),
 									},
 								})
 							);
@@ -139,7 +141,7 @@ export class EntityPathHandlerService {
 									polyline: {
 										positions: todo,
 										width: 5,
-										material: Cesium.Color.fromCssColorString(this.completedColor),
+										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
 									},
 								})
 							);
