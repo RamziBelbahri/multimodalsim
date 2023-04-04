@@ -26,7 +26,7 @@ const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
-let stats = {'Total number of trips': '0', 'Number of active trips': '0', 'Distance travelled': '0.0', 'Greenhouse gas emissions': 0.0};
+let stats:{'Total number of trips': '0', 'Number of active trips': '0', 'Distance travelled': '0.0', 'Greenhouse gas emissions': '0.0'};
 
 app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
     res.header("Access-Control-Allow-Origin", 
@@ -50,16 +50,20 @@ const getsArgs = (req: Request):string[] => {
 	return args;
 };
 
+interface myObjet {
+	field: string,
+	value: string
+}
 const updateStats = (output: string) => {
 	const outputString:string = output.toString();
 		if(outputString.includes("Total")) {
 			const jsonStart = outputString.indexOf("{");
 			const jsonEnd = outputString.indexOf("}")+1;
 			const jsonString = outputString.slice(jsonStart, jsonEnd);
-			const stringify = JSON.stringify(jsonString);
-			const json = JSON.parse(stringify);
+			const clean = jsonString.replaceAll('\'','"');
+			const json = JSON.parse(clean);
 			stats = json;
-			console.log(`${stats}`);
+			console.log(`${json}`);
 		}
 };
 
@@ -81,7 +85,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 
 	runSim.stderr.on('data', (output: any) => {
 		updateStats(output);
-		console.log()
+		// console.log()
 	} )
 
 	res.status(200).json({ status: "RUNNING" });
