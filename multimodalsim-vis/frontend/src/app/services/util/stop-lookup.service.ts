@@ -15,7 +15,6 @@ export class StopLookupService {
 		if (stop) {
 			return stop;
 		} else {
-			// console.log('stop not found');
 			return CesiumClass.cartesianDegrees(0, 0);
 		}
 	}
