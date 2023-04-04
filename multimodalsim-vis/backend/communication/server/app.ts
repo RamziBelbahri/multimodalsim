@@ -9,7 +9,8 @@ import { readdirSync, existsSync, mkdirSync, readFileSync, createWriteStream } f
 import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import JSZip from 'jszip';
-
+import multer from 'multer';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -56,7 +57,7 @@ const getsArgs = (req: Request):string[] => {
 	];
 	return args;
 };
-
+console.log('if you see this something went right');
 
 app.get('/api/status', (req: Request, res: Response) =>  {
 	res.status(200).json({ status: 'UP' });
@@ -142,4 +143,64 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 		runSim.kill();
 	}
 	res.status(200).json({ status: 'TERMINATED' });
+});
+
+const upload = multer({ dest: '../../tmp' });
+
+
+app.post('/api/upload-file', upload.any(), (req:Request, res:Response) => {
+	const files = req.files;
+	if(!files) {
+		res.status(500).json({status: 'no file received'});
+		return;
+	}
+	const file = (files as Array<any>)[0];
+	if(!file) {
+		res.status(500).json({status: 'received file is undefined'});
+		return;
+	}
+	fs.readFile(file.path, (err, data) => {
+		if (err) {
+			res.status(500).send('Error reading file');
+		}
+
+		const filePath = decodeURIComponent(file.fieldname);
+		const directories = filePath.split('/');
+		let directory = '../../simulations/';
+
+		for(let i = 0; i < directories.length - 1; i ++) {
+			directory += (directories[i] + '/');
+			if(!fs.existsSync(directory)) {
+				fs.mkdirSync(directory);
+			}
+		}
+		fs.writeFile('../../simulations/' + filePath, data, (err) => {
+			if (err) {
+			  console.error(err);
+			  return;
+			}
+		});
+
+		// Do something with the file contents
+		// Send response to client
+		// res.send('File uploaded successfully');
+	});
+	res.status(200).json({ status: 'got file'});
+	console.log(file);
+	// if(filePath){
+	// 	fs.readFile(filePath, (err, data) => {
+	// 		if (err) {
+	// 			console.error(err.cause);
+	// 			res.status(500).send('Error reading file');
+	// 		}
+
+	// 		// File contents are stored in the `data` buffer
+	// 		// console.log(data.toString());
+
+	// 		// Do something with the file contents
+	// 		// Send response to client
+	// 		res.send('File uploaded successfully');
+	// 	});
+	}
+
 });

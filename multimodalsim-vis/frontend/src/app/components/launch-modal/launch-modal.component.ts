@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
+import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 
 @Component({
 	selector: 'app-launch-modal',
@@ -9,23 +12,49 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 })
 export class LaunchModalComponent {
 	folder: string | undefined;
-	constructor(private dialogRef: MatDialogRef<LaunchModalComponent>, private commService: CommunicationService) {}
+	target: HTMLInputElement | undefined;
+	constructor(
+		private dialogRef: MatDialogRef<LaunchModalComponent>,
+		private commService: CommunicationService,
+		private simulationParserService:SimulationParserService,
+		private dataReaderService:DataReaderService,
+		private stopPositionHandlerService:StopPositionHandlerService
+	) {}
 
 	selectFile(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		const selectedFile = (target.files as FileList)[0];
+		// console.log(target.files)
 		this.folder = selectedFile.webkitRelativePath.split('/')[0];
+		this.target = target;
 	}
 
 	launchSimulation(): void {
-		const body = {
-			...(this.folder && { folder: this.folder }),
-		};
-		console.log(body);
-		this.commService.startSimulation(body).subscribe((res) => {
-			console.log(res);
-		});
-		this.dialogRef.close({ isRunning: true });
+		// const body = {
+		// 	...(this.folder && { folder: this.folder }),
+		// };
+		// console.log(body);
+		// this.commService.startSimulation(body).subscribe((res) => {
+		// 	console.log(res);
+		// });
+		// this.dialogRef.close({ isRunning: true });
+		if(this.target && this.target.files) {
+			for(let i = 0; i < this.target.files?.length; i++) {
+				const formData = new FormData();
+				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
+				formData.append(path, this.target.files[i], this.target.files[i].name);
+				
+				this.commService.uploadFile(formData);
+
+				if(this.target.files[i].name.endsWith('stops.txt')) {
+					this.target.files[i].text().then((txt:string) => {
+						const csvData = this.simulationParserService.parseFile(txt).data;
+						this.dataReaderService.parseStopsFile(csvData);
+						this.stopPositionHandlerService.initStops();
+					});
+				}
+			}
+		}
 	}
 
 	closeModal(): void {

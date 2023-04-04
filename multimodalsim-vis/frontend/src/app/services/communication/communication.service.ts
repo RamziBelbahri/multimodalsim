@@ -7,7 +7,7 @@ import { catchError } from 'rxjs/operators';
 	providedIn: 'root',
 })
 export class CommunicationService {
-	private readonly APIURL = 'http://localhost:8000/api/';
+	private readonly APIURL = 'http://127.0.0.1:8000/api/';
 	constructor(private http: HttpClient) {}
 
 	getStatus() {
@@ -16,6 +16,13 @@ export class CommunicationService {
 
 	startSimulation(args: object) {
 		return this.http.post(this.APIURL + 'start-simulation', args).pipe(catchError(this.handleError));
+	}
+
+	uploadFile(args:object) {
+		return this.http.post(this.APIURL + 'upload-file', args).subscribe(
+			(response) => console.log(response),
+			(error) => console.log(error)
+		);
 	}
 
 	pauseSimulation() {
@@ -36,7 +43,9 @@ export class CommunicationService {
 		} else {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
+		console.log(error);
 		return throwError(() => new Error('Something bad happened; please try again later.'));
+		
 	}
 
 	saveSimulation(zipData: { zipContent: number[]; zipFileName: string }) {
