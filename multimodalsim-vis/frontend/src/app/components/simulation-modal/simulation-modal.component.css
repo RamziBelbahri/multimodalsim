@@ -37,6 +37,11 @@
 	background-color: red;
 }
 
+#spinner {
+	margin: auto;
+	margin-top: 20px;
+}
+
 .selection {
 	display: block;
 	position: relative;

@@ -34,6 +34,11 @@
 	background-color: #dadada;
 }
 
+#spinner {
+	margin: auto;
+	margin-top: 20px;
+}
+
 .selection {
 	display: block;
 	width: 90%;

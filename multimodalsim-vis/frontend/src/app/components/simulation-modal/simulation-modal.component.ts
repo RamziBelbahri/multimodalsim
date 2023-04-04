@@ -89,7 +89,6 @@ export class SimulationModalComponent {
 		if (filename) {
 			this.startProgressSpinner();
 			this.commService.deleteSavedSimulation(filename).subscribe((res) => {
-				console.log(res);
 				this.endProgressSpinner();
 			});
 			this.closeModal();

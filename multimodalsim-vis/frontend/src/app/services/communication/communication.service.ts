@@ -41,11 +41,9 @@ export class CommunicationService {
 	}
 
 	saveSimulation(zipData: { zipContent: Blob; zipFileName: string }) {
-		console.log(zipData);
 		const formData = new FormData();
 		formData.append('zipContent', zipData.zipContent);
 		formData.append('zipFileName', zipData.zipFileName);
-		console.log(formData);
 		return this.http.post(this.APIURL + 'save-simulation', formData).pipe(catchError(this.handleError));
 	}
 
