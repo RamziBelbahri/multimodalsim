@@ -149,8 +149,7 @@ export class EntityPathHandlerService {
 				const currentTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
 				const index = realtimePolyline?.getClosestIndex(currentTime);
 
-				console.log(index, this.pickedIndex);
-				if (index >= 0 && this.pickedIndex != index) {
+				if(index >= 0 && this.pickedIndex != index) {
 					const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
 					const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 					done.push(todo[0]);

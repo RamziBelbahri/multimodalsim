@@ -28,7 +28,6 @@ export class StopsFileModalComponent {
 		files[0].text().then((txt:string) => {
 			const csvData = this.simulationParserService.parseFile(txt).data;
 			this.dataReaderService.parseStopsFile(csvData);
-			console.log(csvData)
 			this.stopPositionHandlerService.initStops();
 		})
 	}

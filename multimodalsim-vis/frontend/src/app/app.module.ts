@@ -10,7 +10,7 @@ import { SimulationModalComponent } from './components/simulation-modal/simulati
 import { StopsFileModalComponent } from './components/stops-file-modal/stops-file-modal.component';
 import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-infos.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
@@ -21,12 +21,39 @@ import { SaveModalComponent } from './components/save-modal/save-modal.component
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
 import { InteractionComponent } from './components/interaction/interaction.component';
 import { LaunchModalComponent } from './components/launch-modal/launch-modal.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-	declarations: [AppComponent, CesiumContainerComponent, SidebarComponent, DebugReceiverComponentComponent, SimulationModalComponent, SaveModalComponent, EntityInfosComponent, StatsModalComponent, StopsFileModalComponent, LaunchModalComponent, InteractionComponent],
-	imports: [BrowserModule, BrowserAnimationsModule, FormsModule, MatDialogModule, MatProgressSpinnerModule, HttpClientModule, MatIconModule, MatButtonToggleModule, MatButtonModule, MatSnackBarModule],
+	declarations: [
+		AppComponent,
+		CesiumContainerComponent,
+		SidebarComponent,
+		DebugReceiverComponentComponent,
+		SimulationModalComponent,
+		SaveModalComponent,
+		EntityInfosComponent,
+		StatsModalComponent,
+		StopsFileModalComponent,
+		LaunchModalComponent,
+		InteractionComponent,
+	],
+	imports: [
+		BrowserModule,
+		BrowserAnimationsModule,
+		FormsModule,
+		MatDialogModule,
+		MatProgressSpinnerModule,
+		HttpClientModule,
+		MatIconModule,
+		MatButtonToggleModule,
+		MatButtonModule,
+		MatSnackBarModule,
+		MatFormFieldModule,
+		MatInputModule,
+		ReactiveFormsModule
+	],
 	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
 	bootstrap: [AppComponent],
 })
-
 export class AppModule {}

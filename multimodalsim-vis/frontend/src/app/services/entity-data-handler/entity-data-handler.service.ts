@@ -142,7 +142,6 @@ export class EntityDataHandlerService {
 			if (i >= this.combined.length) {
 				await new Promise((resolve) => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
 			}
-
 			const event = this.combined[i];
 
 			if (!this.simulationRunning) {
