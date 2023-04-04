@@ -19,7 +19,7 @@ export class CommunicationService {
 	}
 
 	uploadFile(args:object) {
-		return this.http.post(this.APIURL + 'upload-file', args).subscribe(
+		return this.http.post(this.APIURL + 'upload-file-realtime', args).subscribe(
 			(response) => console.log(response),
 			(error) => console.log(error)
 		);

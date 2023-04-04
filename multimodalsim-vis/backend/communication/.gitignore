@@ -6,6 +6,10 @@
 /out-tsc
 /bazel-out
 
+# big files
+/data
+/server/saved-simulations
+
 # Node
 */*/node_modules
 npm-debug.log

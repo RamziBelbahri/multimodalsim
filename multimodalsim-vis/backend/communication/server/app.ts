@@ -13,6 +13,10 @@ import fs from 'fs';
 import { rm, writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
+// import * as archiver from 'archiver';
+import archiver from 'archiver';
+
+
 
 
 dotenv.config();
@@ -25,6 +29,8 @@ const upload = multer({
 	storage: multer.memoryStorage(),
 	limits: { files: 1 },
 });
+
+
 const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
@@ -71,8 +77,8 @@ console.log('if you see this something went right');
 app.get('/api/status', (req: Request, res: Response) =>  {
 	res.status(200).json({ status: 'UP' });
 });
-app.post('/api/start-simulation', (req: Request, res: Response) => {
-	const args = getsArgs(req);
+
+function startSim(args:string[]) {
 	runSim = spawn('python', args, {cwd:'../../'});
 
 	runSim.on('spawn', () => {
@@ -88,7 +94,11 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 	runSim.stderr.on('data', (err: any) => {
 		console.log(`${err}`);
 	} );
+}
 
+app.post('/api/start-simulation', (req: Request, res: Response) => {
+	const args = getsArgs(req);
+	startSim(args);
 	res.status(200).json({ status: 'RUNNING' });
 });
 
@@ -182,31 +192,75 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 const upload_multiple_files = multer({
 	storage: multer.memoryStorage()
 });
-app.post('/api/upload-file', upload_multiple_files.any(), (req:Request, res:Response) => {
+app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;
-	console.log(files)
+	let networkfile = '';
 	if(!files) {
 		res.status(500).json({status: 'no file received'});
 		return;
 	}
 	for(const file of (files as Array<any>)) {
+		
 		const filePath = decodeURIComponent(file.fieldname);
+		if(filePath.includes('_network_')){
+			networkfile = filePath.split('/')[filePath.split('/').length - 1];
+		}
 		const directories = filePath.split('/');
-		let directory = '../data/';
-
+		let directory = '../data/' + req.body['simulationName'] + '/';
+		if(!fs.existsSync(directory)) {
+			fs.mkdirSync(directory);
+		}
 		for(let i = 0; i < directories.length - 1; i ++) {
 			directory += (directories[i] + '/');
 			if(!fs.existsSync(directory)) {
 				fs.mkdirSync(directory);
 			}
 		}
-		fs.writeFile('../data/' + filePath, file.buffer, (err) => {
+		fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
 			if (err) {
 				console.error(err);
 				return;
 			}
 		});
 	}
+	const toplevelFolder = 'communication/data/' + req.body['simulationName'] + '/' + decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
+	const config = {
+		'osrm': req.body['osrm'] == 'true',
+		'log-level': req.body['log-level'],
+		'gtfs-folder': toplevelFolder + '/gtfs',
+		'request-filepath': toplevelFolder + '/requests.csv',
+		'networkfile': toplevelFolder + '/' + networkfile,
+		'isLive' : true
+	};
+
+	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
+
+	// move the whole thing to a zip
+	const output = fs.createWriteStream('saved-simulations/' + req.body['simulationName'] + '.zip');
+	const archive = archiver('zip');
+	archive.pipe(output);
+	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
+	archive.finalize();
+
+	const args = [
+		'-m',
+		'communication',
+		'fixed',
+		'--gtfs-folder',
+		config['gtfs-folder'],
+		'-r',
+		config['request-filepath'],
+		'--multimodal',
+		'--log-level',
+		config['log-level'],
+		'-g',
+		config['networkfile'],
+	];
+	if(config['osrm']) {
+		args.push('--osrm');
+	}
+	startSim(args);
+
 	res.status(200).json({ status: 'got file'});
 });
 
