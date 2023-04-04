@@ -130,3 +130,5 @@ dmypy.json
 
 # Server node modules
 node_modules
+*.zip
+/backend/communication/server/saved-simulations/

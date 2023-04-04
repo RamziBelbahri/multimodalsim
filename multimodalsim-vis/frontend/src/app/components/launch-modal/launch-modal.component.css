@@ -10,16 +10,15 @@
 
 .modal-button {
 	display: block;
-	position: relative;
-	left: 40%;
-	top: 15%;
+    position: relative;
+    left: 40%;
+    top: 40%;
 	width: 20%;
 	height: 40px;
 	border: black;
 	border-radius: 10px;
 	border-style: solid;
 	border-width: 2px;
-	margin-bottom: 5px;
 	color: #5c5c5c;
 	background-color: #e7e7e7;
 	cursor: pointer;
@@ -33,20 +32,11 @@
 	background-color: #dadada;
 }
 
-#delete-button {
-	background-color: red;
-}
-
-#spinner {
-	margin: auto;
-	margin-top: 20px;
-}
-
 .selection {
 	display: block;
-	position: relative;
-	left: 5%;
-	margin-top: 50px;
+    position: relative;
+    left: 5%;
+    margin-top: 50px;
 	width: 90%;
 	height: 15%;
 	border-radius: 40px;
@@ -63,13 +53,13 @@
 
 .selection-input {
 	display: block;
-	position: relative;
-	padding: 1%;
-	left: 25%;
-	width: 50%;
-	background-color: rgb(229, 229, 229);
+    position: relative;
+    padding: 1%;
+    left: 25%;
+    width: 50%;
+    background-color: rgb(229, 229, 229);
 	color: black;
-	border: 2px solid black;
+    border: 2px solid black;
 	cursor: pointer;
 	font-size: 16px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;

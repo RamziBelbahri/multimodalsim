@@ -1,13 +1,19 @@
 <i id="open-button" class="fa fa-bars" aria-hidden="true" (click)="open()"></i>
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
-    <div class="sub-menu-button" (click)="openSimulationModal()">Charger Simulation</div>
+    <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
     <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
+        Liste des sauvegardes
+    </div>
+    <div class="sub-menu" id="sub-menu-savelist">
+        <div class="sub-menu-option" *ngFor="let sim of savedSimulationsList" (click)="openSimulationModal(true, sim)">{{sim}}</div>
+    </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
@@ -46,28 +52,16 @@
             <input type="text" (click)="changeTimeInputsColor('black')" oninput="this.value=this.value.replace(/[^\d]/,'')" id="second-input" class="time-input">
         </div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-launch" (click)="launchSimulation()">
+    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
         Lancer la simulation
     </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
-    </div>
     <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="launchRealTimeSimulation()">
         Lancer la simulation en temps réel (A MODIFIER)
     </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <div class="sub-menu-button" id="sub-menu-pause" (click)="pauseSimulation()">
-        Pauser la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
-    <div class="sub-menu-button" id="sub-menu-continue" (click)="continueSimulation()">
-        Continuer la simulation
-    </div>
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
+    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
 </div>
