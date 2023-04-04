@@ -113,7 +113,7 @@ export class SidebarComponent implements OnInit {
 	private disableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
 		element.style.backgroundColor = '#b1b1b1';
-		element.style.marginBottom = '10px';
+		if (id != 'replay-menu-button') element.style.marginBottom = '10px';
 		element.style.pointerEvents = 'none';
 	}
 

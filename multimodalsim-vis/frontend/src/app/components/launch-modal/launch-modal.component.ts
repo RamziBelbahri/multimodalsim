@@ -30,31 +30,23 @@ export class LaunchModalComponent {
 	}
 
 	launchSimulation(): void {
-		// const body = {
-		// 	...(this.folder && { folder: this.folder }),
-		// };
-		// console.log(body);
-		// this.commService.startSimulation(body).subscribe((res) => {
-		// 	console.log(res);
-		// });
-		// this.dialogRef.close({ isRunning: true });
+		const formData = new FormData();
 		if(this.target && this.target.files) {
 			for(let i = 0; i < this.target.files?.length; i++) {
-				const formData = new FormData();
 				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
 				formData.append(path, this.target.files[i], this.target.files[i].name);
-				
-				this.commService.uploadFile(formData);
-
 				if(this.target.files[i].name.endsWith('stops.txt')) {
 					this.target.files[i].text().then((txt:string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
+						console.log(csvData);
 						this.dataReaderService.parseStopsFile(csvData);
 						this.stopPositionHandlerService.initStops();
 					});
 				}
 			}
 		}
+		this.commService.uploadFile(formData);
+
 	}
 
 	closeModal(): void {

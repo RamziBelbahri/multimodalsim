@@ -101,9 +101,7 @@ export class MessageQueueStompService {
 	// JSON object, you can't know what is will be
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private eventJSONToObject = (eventJson:any):VehicleEvent|PassengerEvent => {
-		// if(eventJson['status'] == VehicleStatus.ENROUTE) {
-		// 	console.log(eventJson['duration'])
-		// }
+		
 		if(eventJson['event_type'] == 'PASSENGER') {
 			return new PassengerEvent(
 				eventJson['id'],
@@ -118,7 +116,6 @@ export class MessageQueueStompService {
 				true
 			);
 		} else {
-			// console.log(eventJson)
 			return new VehicleEvent(
 				eventJson['id'],
 				eventJson['time'],
@@ -192,10 +189,7 @@ export class MessageQueueStompService {
 
 		const nextTimestampOver = this.nextTimeStamp != undefined ?
 			(new Date(entityEvent.time).getTime() > new Date(this.nextTimeStamp).getTime()) : false;
-		// if (nextTimestampOver){
-		// 	console.log(entityEvent.time, this.nextTimeStamp, this.currentTimeStamp)
-		// }
-		// set current timestamp	
+
 		if(this.currentTimeStamp == undefined) {
 			this.currentTimeStamp = entityEvent.time;
 		}
@@ -299,7 +293,6 @@ export class MessageQueueStompService {
 				}
 				// if it's ENROUTE, we can just use the time it takes to get to the next stop since we already have this info
 				else if (MessageQueueStompService.USE_NEXT_STOP.has(currentEvent.status)) {
-					// console.log(currentEvent.duration);
 					toSend.push(currentEvent);
 				}
 			}

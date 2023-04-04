@@ -2,6 +2,7 @@
 <div class="selection">
     <p class="selection-title">Dossier de la simulation:</p>
     <input id="gtfsinput" class="selection-input" type='file' webkitdirectory=true (change)="selectFile($event)">
+    <!-- 
     <input type="text" name="req-file">
     <label for="req-file"> Path to the file containing the requests (folder-name/file-name)</label>
     <br>
@@ -22,23 +23,25 @@
     <br>
     <input type="text" name="coord">
     <label for="coord"> Path to the coordinates file (folder-name/file-name)</label>
-    <br>
-    <input type="checkbox" name="osrm">
+    <br> -->
+    <input type="checkbox" name="osrm" id="osrm-server">
     <label for="osrm"> Utiliser un serveur OSRM? (Necessaire pour les polylines)</label>
     <p>Log levels</p>
-    <select>
+    <select id="log-levels">
         <option>INFO</option>
         <option>DEBUG</option>
         <option>WARNING</option>
     </select>
-    <br>
+
+
+    <!-- <br>
     <input type="checkbox" name="multimodal">
     <label for="multimodal">multimodal?</label>
     <p>Type d'optimization</p>
     <input type="radio" name="optimization-type" value="fixed">
     <label for="fixed"> fixed </label>
     <input type="radio" name="optimization-type" value="shuttle">
-    <label for="shuttle"> suttle </label>
+    <label for="shuttle"> suttle </label> -->
 
 </div>
 

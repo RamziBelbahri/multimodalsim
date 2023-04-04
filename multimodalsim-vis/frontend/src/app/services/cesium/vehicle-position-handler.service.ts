@@ -130,11 +130,10 @@ export class VehiclePositionHandlerService {
 
 	setLiveEventsPositions(event:VehicleEvent) {
 		const realtimePolylines:RealTimePolyline = event.polylines;
-		let startTime = this.dateParser.parseTimeFromSeconds(event.time.toString());
-		let duration = Number(event.duration);
+		const startTime = this.dateParser.parseTimeFromSeconds(event.time.toString());
+		const duration = Number(event.duration);
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
-		// console.log(event);
-		let segments = realtimePolylines.stopsPolylineLookup.get(event.previous_stops[event.previous_stops.length - 1]);
+		const segments = realtimePolylines.stopsPolylineLookup.get(event.previous_stops[event.previous_stops.length - 1]);
 		let fraction = 0;
 		if(segments) {
 			const positions = segments[0];
@@ -146,9 +145,7 @@ export class VehiclePositionHandlerService {
 				realtimePolylines.timesDone.push(Cesium.JulianDate.toDate(time).getTime())
 				vehicle.path.addSample(time,position);
 			}
-		}
-		// console.log("realtimePolylines.timesDone.length", realtimePolylines.timesDone.length)
-	}
+		}	}
 
 	// Ajoute un échantillon au chemin d'un véhicule
 	private setNextLeg(vehicleEvent: VehicleEvent): void {

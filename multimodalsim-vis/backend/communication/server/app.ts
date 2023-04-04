@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-types */
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
@@ -5,32 +7,39 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import suspend from 'psuspend';
-import { readdirSync, existsSync, mkdirSync, readFileSync, createWriteStream } from 'fs';
-import { writeFile } from  'fs/promises';
-import { ParamsDictionary } from 'express-serve-static-core';
+import { readdirSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import JSZip from 'jszip';
-import multer from 'multer';
 import fs from 'fs';
+import { rm, writeFile } from  'fs/promises';
+import { ParamsDictionary } from 'express-serve-static-core';
+import multer from 'multer';
+
 
 dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + '/dist/';
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { files: 1 },
+});
 const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
+
+const stats = {'Total number of trips': '55', 'Number of active trips': '12', 'Distance travelled': '402km'};
 
 app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
 	res.header('Access-Control-Allow-Origin', 
 		'http://localhost:4200');
 	res.header('Access-Control-Allow-Headers', 
 		'Origin, X-Requested-With, Content-Type, Accept');
+	res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
 	next();
 });
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '100mb'}));
 app.use(express.static(distDir));
 
 app.listen(port, () => {
@@ -72,6 +81,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 	});
 
 	runSim.on('error', (err: { message: any; }) => {
+		//TODO: Modifier stats quand on reçoit des stats
 		console.error('Exited runSim with error:', err.message);
 	});
 
@@ -97,43 +107,66 @@ app.get('/api/continue-simulation', (req:Request, res:Response) => {
 });
 
 // création du dossier des simulations sauvegardées
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function createSavedSimulationsDir(dirName: string): void {
+function createSavedSimulationsDir(): void {
 	if ( !savedSimulationsDirExists ){
 		mkdirSync(savedSimulationsDir);
 		savedSimulationsDirExists = true;
 	}
 }
 
-app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Blob, {}, {filename: string}>, res:Response) => {
-	createSavedSimulationsDir(savedSimulationsDir);
-	const filename = savedSimulationsDir + req.query.filename;
-	const buffer: Buffer = readFileSync(filename);
-	const zip = await new JSZip().loadAsync(buffer);
-	const zipContent = await zip.generateAsync({ type: 'array' });
-	res.send(zipContent);
+app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, ArrayBuffer, {}, {filename: string}>, res:Response) => {
+	createSavedSimulationsDir();
+	const fullPath = savedSimulationsDir + req.query.filename;
+	if (req.query.filename && existsSync(fullPath)) {
+		const buffer: Buffer = readFileSync(fullPath);
+		res.type('arraybuffer');
+		return res.send(buffer);
+	}
+	return res.status(500).send(Buffer.from([]));
 });
 
 app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
-	createSavedSimulationsDir(savedSimulationsDir);
+	createSavedSimulationsDir();
 	let zipfiles: string[] = readdirSync(savedSimulationsDir);
 	zipfiles = zipfiles.filter(file => path.extname(file) === '.zip');
 	res.send(zipfiles.sort());
 });
 
-app.post('/api/save-simulation', async (req:Request, res:Response) => {
-	const data: {zipContent: number[], zipFileName: string} = req.body;
-	createSavedSimulationsDir(savedSimulationsDir);
+app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request, res:Response) => {
+	const data: Buffer = req.file?.buffer as Buffer;
+	const { zipFileName }: {zipFileName: string} = req.body;
+	createSavedSimulationsDir();
 	try {
-		await writeFile(savedSimulationsDir + data.zipFileName, Buffer.from(data.zipContent));
-		console.log('sauvegarde de ' + data.zipFileName + ' réussie');
+		await writeFile(savedSimulationsDir + zipFileName, data);
+		console.log('sauvegarde de ' + zipFileName + ' réussie');
 	}
 	catch (e) {
 		console.log('echec de sauvegarde: ', e);
 		return res.status(500).json({ status: 'Sauvegarde échouée' });
 	}
-	return res.status(201).json({ status: 'sauvegarde de ' + data.zipFileName + ' réussie' });
+	return res.status(201).json({ status: 'sauvegarde de ' + zipFileName + ' réussie' });
 });
+
+app.delete('/api/delete-simulation', async (req:Request<ParamsDictionary, ArrayBuffer, {}, {filename: string}>, res:Response) => {
+	const { filename } = req.query as {filename: string};
+	const fullPath = savedSimulationsDir + filename;
+
+	if (filename && existsSync(fullPath)) {
+		console.log('Deletion');
+		try {
+			await rm(fullPath);
+		}
+		catch (e) {
+			console.log(`La suppression du fichier ${filename} n'a pas réussi`);
+			return res.status(500).send({ status: `La suppression du fichier ${filename} n'a pas réussi` });
+		}
+
+		return res.sendStatus(204);
+	}
+
+	return res.status(500).send({ status: `Le fichier ${filename} n'existe pas` });
+});
+
 app.get('/api/end-simulation', (req:Request, res:Response) => {
 	if(runSim) {
 		runSim.on('close', (code, signal) => {
@@ -145,28 +178,21 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 	res.status(200).json({ status: 'TERMINATED' });
 });
 
-const upload = multer({ dest: '../../tmp' });
 
-
-app.post('/api/upload-file', upload.any(), (req:Request, res:Response) => {
+const upload_multiple_files = multer({
+	storage: multer.memoryStorage()
+});
+app.post('/api/upload-file', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;
+	console.log(files)
 	if(!files) {
 		res.status(500).json({status: 'no file received'});
 		return;
 	}
-	const file = (files as Array<any>)[0];
-	if(!file) {
-		res.status(500).json({status: 'received file is undefined'});
-		return;
-	}
-	fs.readFile(file.path, (err, data) => {
-		if (err) {
-			res.status(500).send('Error reading file');
-		}
-
+	for(const file of (files as Array<any>)) {
 		const filePath = decodeURIComponent(file.fieldname);
 		const directories = filePath.split('/');
-		let directory = '../../simulations/';
+		let directory = '../data/';
 
 		for(let i = 0; i < directories.length - 1; i ++) {
 			directory += (directories[i] + '/');
@@ -174,33 +200,16 @@ app.post('/api/upload-file', upload.any(), (req:Request, res:Response) => {
 				fs.mkdirSync(directory);
 			}
 		}
-		fs.writeFile('../../simulations/' + filePath, data, (err) => {
+		fs.writeFile('../data/' + filePath, file.buffer, (err) => {
 			if (err) {
-			  console.error(err);
-			  return;
+				console.error(err);
+				return;
 			}
 		});
-
-		// Do something with the file contents
-		// Send response to client
-		// res.send('File uploaded successfully');
-	});
-	res.status(200).json({ status: 'got file'});
-	console.log(file);
-	// if(filePath){
-	// 	fs.readFile(filePath, (err, data) => {
-	// 		if (err) {
-	// 			console.error(err.cause);
-	// 			res.status(500).send('Error reading file');
-	// 		}
-
-	// 		// File contents are stored in the `data` buffer
-	// 		// console.log(data.toString());
-
-	// 		// Do something with the file contents
-	// 		// Send response to client
-	// 		res.send('File uploaded successfully');
-	// 	});
 	}
+	res.status(200).json({ status: 'got file'});
+});
 
+app.get('/api/get-stats', (req: Request, res: Response) => {
+	res.status(200).json({ status: 'COMPLETED', values: stats});
 });

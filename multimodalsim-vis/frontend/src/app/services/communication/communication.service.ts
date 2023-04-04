@@ -38,6 +38,7 @@ export class CommunicationService {
 	}
 
 	private handleError(error: HttpErrorResponse) {
+		console.log(error.message);
 		if (error.status === 0) {
 			console.error('An error occurred:', error.error);
 		} else {
@@ -48,8 +49,11 @@ export class CommunicationService {
 		
 	}
 
-	saveSimulation(zipData: { zipContent: number[]; zipFileName: string }) {
-		return this.http.post(this.APIURL + 'save-simulation', zipData).pipe(catchError(this.handleError));
+	saveSimulation(zipData: { zipContent: Blob; zipFileName: string }) {
+		const formData = new FormData();
+		formData.append('zipContent', zipData.zipContent);
+		formData.append('zipFileName', zipData.zipFileName);
+		return this.http.post(this.APIURL + 'save-simulation', formData).pipe(catchError(this.handleError));
 	}
 
 	listSimulations() {
@@ -57,6 +61,10 @@ export class CommunicationService {
 	}
 
 	getSimulationContent(filename: string) {
-		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`).pipe(catchError(this.handleError));
+		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`, {responseType: 'arraybuffer'}).pipe(catchError(this.handleError));
+	}
+
+	deleteSavedSimulation(filename: string) {
+		return this.http.delete(this.APIURL + `delete-simulation/?filename=${filename}`).pipe(catchError(this.handleError));
 	}
 }

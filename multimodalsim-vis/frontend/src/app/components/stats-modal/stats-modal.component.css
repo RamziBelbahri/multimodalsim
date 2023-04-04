@@ -46,6 +46,10 @@
 	text-align: center;
 }
 
+#download-button {
+	color: blue;
+}
+
 .table-container {
 	width: 100%;
 	text-align: center;
