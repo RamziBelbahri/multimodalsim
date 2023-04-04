@@ -4,18 +4,18 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./multimodalsim-vis/backend:/app
-      - /app/communication/server/node_modules
-      - /app/venv
+      - ./multimodalsim-vis/backend:/backend
+      - /backend/communication/server/node_modules
+      - /backend/venv
     env_file:
       - ./multimodalsim-vis/backend/communication/server/.env
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
-      - "4200:4200"
+      - "4200:80"
     volumes:
-      - ./multimodalsim-vis/frontend:/app
-      - /app/node_modules
+      - ./multimodalsim-vis/frontend:/frontend
+      - /frontend/node_modules
   activemq:
     image: rmohr/activemq:latest
     ports:
