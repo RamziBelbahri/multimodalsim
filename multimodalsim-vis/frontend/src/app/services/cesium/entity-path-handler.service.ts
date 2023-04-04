@@ -25,9 +25,9 @@ export class EntityPathHandlerService {
 	lastEntityType = '';
 
 	private pickedIndex = -1;
-	private pickedEntityID:string = '';
+	private pickedEntityID = '';
 
-	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService:EntityDataHandlerService) {
+	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService: EntityDataHandlerService) {
 		this.lastEntities = new Array<any>();
 		this.progressPath = [new Array<Cartesian3>(), new Array<Cartesian3>()];
 		this.timeList = new Array<JulianDate>();
@@ -38,7 +38,7 @@ export class EntityPathHandlerService {
 	initHandler(viewer: Viewer): void {
 		this.readViewerConfig();
 		viewer.scene.preRender.addEventListener(() => {
-			if(this.isRealtime) {
+			if (this.isRealtime) {
 				return;
 			}
 			if (this.currentMousePosition) {
@@ -81,10 +81,9 @@ export class EntityPathHandlerService {
 			}
 		});
 
-		if(!this.isRealtime) {
+		if (!this.isRealtime) {
 			this.enableClick(viewer);
 		}
-
 	}
 
 	enableClick(viewer: Viewer) {
@@ -101,11 +100,10 @@ export class EntityPathHandlerService {
 		}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 	}
 
-	initRealTimeHandler(viewer:Viewer) {
+	initRealTimeHandler(viewer: Viewer) {
 		this.readViewerConfig();
 		viewer.scene.preRender.addEventListener(() => {
 			if (this.currentMousePosition) {
-
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);
 				if (pickedObject) {
 					const entity = pickedObject.id;
@@ -116,7 +114,7 @@ export class EntityPathHandlerService {
 					if (entity.name == 'vehicle' && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
-						if(realtimePolyline) {
+						if (realtimePolyline) {
 							const index = realtimePolyline.getClosestIndex(currentTime);
 							this.pickedIndex = index;
 
@@ -127,25 +125,24 @@ export class EntityPathHandlerService {
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
-										positions:done,
+										positions: done,
 										width: 5,
 										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
-									}
+									},
 								})
 							);
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
-										positions:todo,
+										positions: todo,
 										width: 5,
 										material: Cesium.Color.fromCssColorString(this.completedColor),
-									}
+									},
 								})
 							);
 						}
 					}
 				}
-
 			}
 			const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(this.pickedEntityID);
 			if (this.lastEntities.length > 0 && realtimePolyline) {
@@ -159,7 +156,6 @@ export class EntityPathHandlerService {
 					this.pickedIndex = index;
 					this.lastEntities[0].polyline.positions = done;
 					this.lastEntities[1].polyline.positions = todo;
-
 				}
 			}
 		});
@@ -172,7 +168,7 @@ export class EntityPathHandlerService {
 		let completedPath = new Array<Cartesian3>();
 		let uncompletedPath = new Array<Cartesian3>();
 		let busReached = false;
-		for (let i = 0; i < Math.min(positions.length, times.length) ; i++) {
+		for (let i = 0; i < Math.min(positions.length, times.length); i++) {
 			if (Cesium.JulianDate.lessThan(times[i][times[i].length - 1], currentTime)) {
 				completedPath = completedPath.concat(positions[i]);
 				this.timeList = this.timeList.concat(times[i]);

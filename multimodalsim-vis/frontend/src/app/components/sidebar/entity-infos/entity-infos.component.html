@@ -3,13 +3,17 @@
 </button>
 <div id="entity-infos-menu" class="entity-infos-sidebar">
     <a id="close" (click)="close()">&times;</a>
-    <div class="sub-menu-button" id="entity-infos">
-        Informations de l'entité <br><br>
-        <div >lat:{{lat}}</div>
-        <div >lon:{{lon}}</div>
-        <div >Nombre de passagers:{{passengerAmount}}</div>
+    <div class="infos-container" id="entity-infos">
+        <strong> Informations de l'entité </strong> <br><br>
+        <div >lat: {{lat}}</div>
         <br>
-        <div >Liste des passagers</div>
-        <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div>
+        <div >lon: {{lon}}</div>
+        <br>
+        <div >Nombre de passagers: {{passengerAmount}}</div>
+        <br>
+        <div *ngIf="passengerAmount != 0">
+            <div >Liste des passagers</div>
+            <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div>
+        </div>
     </div>
 </div>
