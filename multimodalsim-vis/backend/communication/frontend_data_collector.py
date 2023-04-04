@@ -2,6 +2,8 @@ import json
 import logging
 import pandas as pd
 
+from copy import deepcopy
+
 from datetime import datetime
 
 import multimodalsim.simulator.request
@@ -44,15 +46,6 @@ class FrontendDataCollector(DataCollector):
         return self.__data_container
     
     def __get_duration(self, duration_in_seconds:int):
-        # duration_in_seconds = # en secondes
-        # days    = int(duration_in_seconds / N_SECONDS_DAY)
-        # hours   = int((duration_in_seconds - days * N_SECONDS_DAY) / N_SECONDS_HOUR)
-        # minutes = int((duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR)/60)
-        # seconds = int(duration_in_seconds - days* N_SECONDS_DAY - hours * N_SECONDS_HOUR - minutes * N_SECONDS_MINUTE)
-        # duration = str(days) + ' days ' + \
-        #     (str(hours)     if len(str(hours))      >= 2 else ('0' + str(hours)  )) + ':' + \
-        #     (str(minutes)   if len(str(minutes))    >= 2 else ('0' + str(minutes))) + ':' + \
-        #     (str(seconds)   if len(str(seconds))    >= 2 else ('0' + str(seconds)))
         return duration_in_seconds
     
     def collect(self, env, current_event=None, event_index=None,
@@ -135,22 +128,19 @@ class FrontendDataCollector(DataCollector):
                     "lat": lat,
                     "polylines": polylines,
                     "mode": mode}
-        # import pprint
-        # pprint.pprint(polylines)
-        # for k, v in polylines.items():
-        #     print(k, v)
-
+        
+        new_obs_dict = deepcopy(obs_dict)
         self.__data_container.add_observation(
             "vehicles", obs_dict, "id")
 
         self.__update_trip_cumulative_distance_by_vehicle(route.vehicle)
-        obs_dict['event_type'] = 'VEHICLE'
+        new_obs_dict['event_type'] = 'VEHICLE'
         if route.status == VehicleStatus.ENROUTE:
             duration = self.__get_duration(route.next_stops[0].arrival_time - route.previous_stops[-1].departure_time)
             print("duration", route.status, duration)
-            obs_dict["duration"] = duration
+            new_obs_dict["duration"] = duration
             
-        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
+        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(new_obs_dict, default= lambda x: str(x)))
 
     def __update_trip_cumulative_distance_by_vehicle(self, veh):
 
@@ -210,12 +200,14 @@ class FrontendDataCollector(DataCollector):
                     "current_leg": current_leg,
                     "next_legs": next_legs,
                     "name": trip.name}
+        
+        new_obs_dict = deepcopy(obs_dict)
 
         self.__data_container.add_observation("trips", obs_dict, "id")
 
         self.__update_trip_cumulative_distance_by_trip(trip)
-        obs_dict['event_type'] = 'PASSENGER'
-        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(obs_dict, default= lambda x: str(x)))
+        new_obs_dict['event_type'] = 'PASSENGER'
+        self.connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, json.dumps(new_obs_dict, default= lambda x: str(x)))
         
 
     def __get_assigned_vehicle_id(self, trip):
