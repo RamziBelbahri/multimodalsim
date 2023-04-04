@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Viewer } from 'cesium';
+import { Cartesian2, Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
@@ -98,6 +98,22 @@ export class StopPositionHandlerService {
 
 	removePassenger(passengerid: string, stopId: string): void {
 		this.stopIdMapping.get(stopId)?.removePassenger(passengerid);
+	}
+
+	updateIcon(viewer: Viewer, stopId:string): void {
+		console.log('calling updating icon function');
+		const stop = this.stopIdMapping.get(stopId);
+		if (stop) {
+			const position:Cartesian2 = {x: stop.position.x, y: stop.position.y} as Cartesian2;
+			const picketObject = viewer.scene.pick(position);
+			if (picketObject) {
+				const entity = picketObject.id;
+				console.log('updating icon');
+				entity.ellipse.material = this.getPassengerAmount(stopId) == 0 ? 
+					new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }) : 
+					new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
+			}
+		}
 	}
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile

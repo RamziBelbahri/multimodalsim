@@ -24,7 +24,6 @@ export class EntityLabelHandlerService {
 
 	initHandler(viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
-			// event.preventDefault();
 			let displayedEntity: any;
 			if (this.currentMousePosition) {
 				const pickedObject = viewer.scene.pick(this.currentMousePosition);

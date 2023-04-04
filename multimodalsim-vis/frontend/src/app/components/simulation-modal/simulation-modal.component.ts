@@ -16,13 +16,12 @@ export class SimulationModalComponent {
 	private viewerSubscription: Subscription = new Subscription();
 	isSavedSimulationFromServer: boolean;
 	private isSavedSimulationFromServerSubscription: Subscription; 
-	mode: ProgressSpinnerMode;
-	value: number;
+	mode!: ProgressSpinnerMode;
+	value!: number;
 
 	constructor(private dataReader: DataReaderService, private viewerSharer: ViewerSharingService,
 				private commService: CommunicationService) {
-		this.mode = 'determinate';
-		this.value = 0;
+		this.initProgressSpinner();
 		this.isSavedSimulationFromServer = this.dataReader.isSavedSimulationFromServer.value;
 		this.isSavedSimulationFromServerSubscription = this.dataReader.isSavedSimulationFromServer.subscribe((isFromServer) => (this.isSavedSimulationFromServer = isFromServer));
 	}
@@ -35,6 +34,20 @@ export class SimulationModalComponent {
 		this.isSavedSimulationFromServerSubscription.unsubscribe();
 	}
 
+	initProgressSpinner(): void {
+		this.mode = 'determinate';
+		this.value = 0;
+	}
+
+	startProgressSpinner(): void {
+		this.mode = 'indeterminate';
+	}
+
+	endProgressSpinner(): void {
+		this.mode = 'determinate';
+		this.value = 100;
+	}
+
 	selectFile(event: Event): void {
 		this.dataReader.selectFile(event);
 	}
@@ -45,19 +58,24 @@ export class SimulationModalComponent {
 
 	async readContent(): Promise<void> {
 		if (this.isSavedSimulationFromServer){
-			let simulationData: Buffer = Buffer.from('');
 			const filename = this.dataReader.zipfileNameFromServer;
-			this.commService.getSimulationContent(filename).subscribe((res) => simulationData = res as Buffer);
-			this.dataReader.readZipContentFromServer(simulationData);
+			if (filename) {
+				this.startProgressSpinner();
+				this.commService.getSimulationContent(filename).subscribe(async (res) => {
+					if (res.byteLength > 0) {
+						await this.dataReader.readZipContentFromServer(res);
+						this.endProgressSpinner();
+					}
+				});			
+			}
 		}
 		else {	
-			this.mode = 'indeterminate';
+			this.startProgressSpinner();
 			const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
 			if (csvInput.value != '') this.dataReader.readCSV();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
 			if (zipInput.value != '') await this.dataReader.readZipContent();
-			this.mode = 'determinate';
-			this.value = 100;
+			this.endProgressSpinner();
 		}
 	}
 
@@ -66,8 +84,20 @@ export class SimulationModalComponent {
 		this.closeModal();
 	}
 
+	deleteSavedSimulation(): void {
+		const filename = this.dataReader.zipfileNameFromServer;
+		if (filename) {
+			this.startProgressSpinner();
+			this.commService.deleteSavedSimulation(filename).subscribe((res) => {
+				this.endProgressSpinner();
+			});
+			this.closeModal();
+		}
+	}
+
 	closeModal(): void {
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'hidden';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'hidden';
+		this.initProgressSpinner();
 	}
 }

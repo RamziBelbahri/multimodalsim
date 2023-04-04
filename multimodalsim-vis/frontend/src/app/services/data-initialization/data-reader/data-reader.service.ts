@@ -56,7 +56,7 @@ export class DataReaderService {
 		}
 	}
 
-	async readZipContentFromServer(data: Buffer): Promise<void> {
+	async readZipContentFromServer(data: ArrayBuffer): Promise<void> {
 		const zip = await this.zipper.loadAsync(data);
 		await this.readFiles(zip);
 		this.zipfileNameFromServer = '';
