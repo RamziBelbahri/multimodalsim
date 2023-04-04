@@ -63,7 +63,6 @@ const updateStats = (output: string) => {
 			const clean = jsonString.replaceAll('\'','"');
 			const json = JSON.parse(clean);
 			stats = json;
-			console.log(`${json}`);
 		}
 };
 
@@ -85,7 +84,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 
 	runSim.stderr.on('data', (output: any) => {
 		updateStats(output);
-		// console.log()
+		console.log(`${output}`);
 	} )
 
 	res.status(200).json({ status: "RUNNING" });
