@@ -101,18 +101,11 @@ export class StopPositionHandlerService {
 	}
 
 	updateIcon(viewer: Viewer, stopId:string): void {
-		console.log('calling updating icon function');
-		const stop = this.stopIdMapping.get(stopId);
-		if (stop) {
-			const position:Cartesian2 = {x: stop.position.x, y: stop.position.y} as Cartesian2;
-			const picketObject = viewer.scene.pick(position);
-			if (picketObject) {
-				const entity = picketObject.id;
-				console.log('updating icon');
-				entity.ellipse.material = this.getPassengerAmount(stopId) == 0 ? 
-					new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }) : 
-					new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
-			}
+		const entity = viewer.entities.getById(stopId);
+		if(entity && entity.ellipse) {
+			entity.ellipse.material = this.getPassengerAmount(stopId) == 0 ? 
+				new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }) : 
+				new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
 		}
 	}
 
@@ -124,7 +117,7 @@ export class StopPositionHandlerService {
 				semiMinorAxis: 10,
 				semiMajorAxis: 10,
 				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true }),
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',

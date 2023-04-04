@@ -29,6 +29,10 @@
 	transition: 0.3s;
 }
 
+.infos-container {
+	margin-top: 20px;
+}
+
 #close {
 	color: #5c5c5c;
 	cursor: pointer;
