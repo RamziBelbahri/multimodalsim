@@ -264,6 +264,11 @@ app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request,
 	res.status(200).json({ status: 'got file'});
 });
 
+app.get('/api/stops-file', (req:Request, res:Response) => {
+	
+});
+
+
 app.get('/api/get-stats', (req: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
 });

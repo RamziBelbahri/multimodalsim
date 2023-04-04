@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -35,6 +35,11 @@ export class CommunicationService {
 
 	endSimulation() {
 		return this.http.get(this.APIURL + 'end-simulation').pipe(catchError(this.handleError));
+	}
+
+	getStopsFile(simName:string) {
+		const params = new HttpParams().set('simName', simName);
+		return this.http.get(this.APIURL + 'stops-file', {params});
 	}
 
 	private handleError(error: HttpErrorResponse) {
