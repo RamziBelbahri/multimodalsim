@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import suspend from 'psuspend';
 import { readdirSync, existsSync, mkdirSync, readFileSync } from 'fs';
-import JSZip from 'jszip';
 import fs from 'fs';
 import { rm, writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
@@ -62,7 +61,8 @@ const getsArgs = (req: Request):string[] => {
 		'--gtfs',
 		'--gtfs-folder',
 		`multimodal-simulator/data/${folder}/gtfs/`,
-		'-r',`multimodal-simulator/data/${folder}/requests.csv`,
+		'-r',
+		`multimodal-simulator/data/${folder}/requests.csv`,
 		'--multimodal',
 		'--log-level',
 		'INFO',
@@ -79,7 +79,7 @@ app.get('/api/status', (req: Request, res: Response) =>  {
 });
 
 function startSim(args:string[]) {
-	runSim = spawn('python', args, {cwd:'../../'});
+	runSim = spawn('py', args, {cwd:'../../'});
 
 	runSim.on('spawn', () => {
 		console.log('Started runSim:');
@@ -227,7 +227,7 @@ app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request,
 	const config = {
 		'osrm': req.body['osrm'] == 'true',
 		'log-level': req.body['log-level'],
-		'gtfs-folder': toplevelFolder + '/gtfs',
+		'gtfs-folder': toplevelFolder + '/gtfs/',
 		'request-filepath': toplevelFolder + '/requests.csv',
 		'networkfile': toplevelFolder + '/' + networkfile,
 		'isLive' : true
@@ -246,6 +246,7 @@ app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request,
 		'-m',
 		'communication',
 		'fixed',
+		'--gtfs',
 		'--gtfs-folder',
 		config['gtfs-folder'],
 		'-r',
@@ -265,7 +266,29 @@ app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request,
 });
 
 app.get('/api/stops-file', (req:Request, res:Response) => {
-	
+	const simName:string|undefined = req.query['simName']?.toString();
+	if(simName) {
+		const simulationFolderName = simName.replace('.zip', '');
+		const configPath = '../data/' + simulationFolderName + '/config.json';
+		const stopsFilePath = JSON.parse(fs.readFileSync(configPath).toString())['gtfs-folder'].replace('communication/', '../') + '/stops.txt';
+		const data = fs.readFileSync(stopsFilePath).toString();
+		res.setHeader('Content-Type', 'text/plain');
+		res.end(data);
+		// res.send();
+	}
+
+	// res.status(200).json({status:200});
+	// fs.readFile('myfile.txt', (err, data) => {
+	// 	if (err) {
+	// 		// Handle errors
+	// 		res.writeHead(500);
+	// 		res.end('Error reading file');
+	// 	} else {
+	// 		// Set the content type and send the file
+	// 		res.setHeader('Content-Type', 'text/plain');
+	// 		res.end(data);
+	// 	}
+	// });
 });
 
 

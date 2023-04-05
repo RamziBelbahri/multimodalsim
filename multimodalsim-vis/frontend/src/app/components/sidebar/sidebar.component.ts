@@ -136,6 +136,7 @@ export class SidebarComponent implements OnInit {
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
 		this.setSimulationOrigin(isFromServer);
 		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
+		this.commService.simulationToFetch = filename;
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}

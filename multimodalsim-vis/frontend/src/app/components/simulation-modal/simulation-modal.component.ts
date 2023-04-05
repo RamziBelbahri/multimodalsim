@@ -84,6 +84,14 @@ export class SimulationModalComponent {
 		this.closeModal();
 	}
 
+	launchSavedSimulation():void {
+		// get the stops file
+		if(this.commService.simulationToFetch) {
+			this.commService.getStopsFile(this.commService.simulationToFetch);
+		}
+	}
+
+
 	deleteSavedSimulation(): void {
 		const filename = this.dataReader.zipfileNameFromServer;
 		if (filename) {

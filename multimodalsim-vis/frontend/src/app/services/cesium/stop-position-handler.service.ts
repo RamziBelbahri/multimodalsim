@@ -11,7 +11,7 @@ import { StopLookupService } from '../util/stop-lookup.service';
 	providedIn: 'root',
 })
 export class StopPositionHandlerService {
-	private stopIdMapping;
+	public stopIdMapping;
 	private boardingEventQueue;
 	private globalPassengerList;
 
@@ -22,13 +22,15 @@ export class StopPositionHandlerService {
 	}
 
 	// Initialise tous les stops de la liste de stop fournie
-	initStops(): void {
+	initStops():void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
 			if (id != 0) {
 				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
 				this.stopIdMapping.set(id.toString(), newStop);
 			}
 		});
+		// console.trace()
+		console.log('stopPositionHandler.initStops: this.stopIdMapping has', this.stopIdMapping.size, 'entries');
 	}
 
 	// Ajoute les moments ou les passagers sont présents à un arrêt
@@ -59,6 +61,7 @@ export class StopPositionHandlerService {
 
 	// Charge tous les arrêts qui contiennent des passagers
 	loadSpawnEvents(viewer: Viewer): void {
+		console.log('stopPositionHandler.loadSpawnEvents: this.stopIdMapping has', this.stopIdMapping.size, 'entries');
 		this.stopIdMapping.forEach((stop: Stop, id: string) => {
 			this.spawnEntity(id, stop, viewer);
 		});
@@ -111,6 +114,7 @@ export class StopPositionHandlerService {
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
+		console.log(stop.position);
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {

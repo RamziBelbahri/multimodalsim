@@ -2,12 +2,11 @@ import { Component } from '@angular/core';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
-import { StopLookupService } from 'src/app/services/util/stop-lookup.service';
 
 @Component({
-    selector: 'app-stops-file-modal',
-    templateUrl: './stops-file-modal.component.html',
-    styleUrls: ['./stops-file-modal.component.css']
+	selector: 'app-stops-file-modal',
+	templateUrl: './stops-file-modal.component.html',
+	styleUrls: ['./stops-file-modal.component.css']
 })
 export class StopsFileModalComponent {
 	constructor(
@@ -29,6 +28,6 @@ export class StopsFileModalComponent {
 			const csvData = this.simulationParserService.parseFile(txt).data;
 			this.dataReaderService.parseStopsFile(csvData);
 			this.stopPositionHandlerService.initStops();
-		})
+		});
 	}
 }

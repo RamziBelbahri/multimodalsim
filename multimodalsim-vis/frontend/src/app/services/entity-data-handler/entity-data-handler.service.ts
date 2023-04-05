@@ -128,8 +128,8 @@ export class EntityDataHandlerService {
 
 	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
+		console.log('CALLING FROM: this.runRealTimeSimulation');
 		this.stopHandler.initStops();
-
 		const clockState = viewer.animation.viewModel.clockViewModel;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
@@ -137,7 +137,7 @@ export class EntityDataHandlerService {
 				this.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
 		});
-
+		console.log('CALLING FROM: this.runRealTimeSimulation');
 		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
 			if (i >= this.combined.length) {

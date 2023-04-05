@@ -2,14 +2,23 @@ import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http'
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
+import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
+import { StopLookupService } from '../util/stop-lookup.service';
+import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CommunicationService {
+	public simulationToFetch:string|undefined;
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
-	constructor(private http: HttpClient) {}
-
+	constructor(
+		private http: HttpClient,
+		private stopLookup: StopLookupService,
+		private stopPositionHandlerService:StopPositionHandlerService,
+		private simulationParserService:SimulationParserService
+	) {}
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
 	}
@@ -19,10 +28,11 @@ export class CommunicationService {
 	}
 
 	uploadFile(args:object) {
-		return this.http.post(this.APIURL + 'upload-file-realtime', args).subscribe(
-			(response) => console.log(response),
-			(error) => console.log(error)
-		);
+		return this.http.post(this.APIURL + 'upload-file-realtime', args).subscribe({
+			next: data => {console.log(data);},
+			error: err => {console.log(err);},
+			complete: () => console.log(),
+		});
 	}
 
 	pauseSimulation() {
@@ -39,7 +49,22 @@ export class CommunicationService {
 
 	getStopsFile(simName:string) {
 		const params = new HttpParams().set('simName', simName);
-		return this.http.get(this.APIURL + 'stops-file', {params});
+		console.log(params);
+		return this.http.get(this.APIURL + 'stops-file', {responseType: 'text', params}).subscribe({
+			next: data => {
+				const stops = this.simulationParserService.parseFile(data).data;
+				for (const line of stops) {
+					this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
+				}
+				this.stopPositionHandlerService.initStops();
+			},
+			error: error => {
+				console.error('Error:', error);
+			},
+			complete: () => {
+				console.log('Request completed');
+			}
+		});
 	}
 
 	private handleError(error: HttpErrorResponse) {

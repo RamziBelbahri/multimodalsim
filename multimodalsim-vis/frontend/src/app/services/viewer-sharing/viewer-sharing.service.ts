@@ -9,8 +9,9 @@ export class ViewerSharingService {
 	private viewerSource = new ReplaySubject<Viewer>();
 
 	currentViewer = this.viewerSource.asObservable();
-
+	public viewer:Viewer|undefined;
 	setViewer(viewer: Viewer) {
+		this.viewer = viewer;
 		this.viewerSource.next(viewer);
 	}
 }
