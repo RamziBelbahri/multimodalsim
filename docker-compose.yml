@@ -7,8 +7,6 @@ services:
       - ./multimodalsim-vis/backend:/backend
       - /backend/communication/server/node_modules
       - /backend/venv
-    env_file:
-      - ./multimodalsim-vis/backend/communication/server/.env
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
