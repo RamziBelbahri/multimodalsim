@@ -1,0 +1,23 @@
+services:
+  server:
+    build: ./multimodalsim-vis/backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./multimodalsim-vis/backend:/backend
+      - /backend/communication/server/node_modules
+      - /backend/venv
+  multimodalsim-vis:
+    build: ./multimodalsim-vis/frontend
+    ports:
+      - "4200:80"
+    volumes:
+      - ./multimodalsim-vis/frontend:/frontend
+      - /frontend/node_modules
+  activemq:
+    image: rmohr/activemq:latest
+    ports:
+      - "61616:61616"
+      - "61613:61613"
+      - "61614:61614"
+      - "8161:8161"

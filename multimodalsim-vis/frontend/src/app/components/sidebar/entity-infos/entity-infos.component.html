@@ -1,0 +1,19 @@
+<button mat-icon-button id="open" (click)="open()">
+    <mat-icon>infos</mat-icon>
+</button>
+<div id="entity-infos-menu" class="entity-infos-sidebar">
+    <a id="close" (click)="close()">&times;</a>
+    <div class="infos-container" id="entity-infos">
+        <strong> Informations de l'entité </strong> <br><br>
+        <div >lat: {{lat}}</div>
+        <br>
+        <div >lon: {{lon}}</div>
+        <br>
+        <div >Nombre de passagers: {{passengerAmount}}</div>
+        <br>
+        <div *ngIf="passengerAmount != 0">
+            <div >Liste des passagers</div>
+            <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div>
+        </div>
+    </div>
+</div>

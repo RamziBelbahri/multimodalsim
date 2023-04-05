@@ -1,0 +1,70 @@
+.close-button {
+	color: #5c5c5c;
+	cursor: pointer;
+	position: absolute;
+	top: 0;
+	right: 25px;
+	font-size: 36px;
+	margin-left: 50px;
+}
+
+#return-button {
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	position: absolute;
+	left: 8px;
+	font-size: 24px;
+	border-radius: 5px;
+	opacity: 0.6;
+	background-color: none;
+	cursor: pointer;
+}
+
+#return-button:hover {
+	opacity: 1;
+}
+
+.json-load-button {
+	display: block;
+	position: relative;
+	left: 32%;
+	width: 36%;
+	height: 40px;
+	border: black;
+	border-radius: 10px;
+	border-style: solid;
+	border-width: 2px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	color: #5c5c5c;
+	background-color: #e7e7e7;
+	cursor: pointer;
+	font-size: 16px;
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	text-align: center;
+}
+
+#download-button {
+	color: blue;
+}
+
+.table-container {
+	width: 100%;
+	text-align: center;
+}
+
+.stat-field {
+	text-align: left;
+	width: 60%;
+}
+
+.stat-value {
+	width: 40%;
+}
+
+th,
+td {
+	border: 3px solid rgb(138, 138, 138);
+}

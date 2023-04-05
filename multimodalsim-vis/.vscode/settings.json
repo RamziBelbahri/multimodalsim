@@ -1,13 +1,5 @@
 {
-	"editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-	"editor.formatOnPaste": false,
-	"editor.formatOnType": false,
-	"editor.formatOnSave": true,
-	"editor.formatOnSaveMode": "file",
-	"editor.detectIndentation": false,
-	"editor.tabSize": 4,
-	"editor.insertSpaces": false,
-	"[html]": {
-		"editor.defaultFormatter": "vscode.html-language-features"
-	}
+    "python.analysis.extraPaths": [
+        "./backend/multimodal-simulator/python"
+    ]
 }
