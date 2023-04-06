@@ -66,6 +66,7 @@ export class SidebarComponent implements OnInit {
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
 				this.enableButton('replay-menu-button');
+				this.enableButton('stats-menu-button');
 				this.loadTime();
 			}
 
@@ -87,6 +88,7 @@ export class SidebarComponent implements OnInit {
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
 			this.disableButton('replay-menu-button');
+			this.disableButton('stats-menu-button');
 		} else {
 			this.loadTime();
 		}
