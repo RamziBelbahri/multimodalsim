@@ -332,7 +332,6 @@ app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	}
 });
 
-
 app.get('/api/get-stats', (req: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
 });
