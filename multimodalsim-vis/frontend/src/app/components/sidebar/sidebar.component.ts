@@ -6,13 +6,13 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
-import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
 
 @Component({
 	selector: 'app-sidebar',
@@ -45,8 +45,8 @@ export class SidebarComponent implements OnInit {
 		private pathHandler: EntityPathHandlerService,
 		private dateParser: DateParserService,
 		private snackBar: MatSnackBar,
-		private dataSaver: DataSaverService,
-		private dataReader: DataReaderService
+		private dataReader: DataReaderService,
+		private menuNotifier: MenuNotifierService
 	) {
 		this.isRunning = false;
 	}
@@ -187,6 +187,7 @@ export class SidebarComponent implements OnInit {
 
 	openStats(): void {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
+		this.menuNotifier.notify('stats-container');
 	}
 
 	private loadTime(): void {
