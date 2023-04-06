@@ -21,7 +21,6 @@ import { SaveModalComponent } from './components/save-modal/save-modal.component
 import { StatsModalComponent } from './components/stats-modal/stats-modal.component';
 import { InteractionComponent } from './components/interaction/interaction.component';
 import { LaunchModalComponent } from './components/launch-modal/launch-modal.component';
-import { SimulationParameterModalComponent } from './components/simulation-parameter-modal/simulation-parameter-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
@@ -36,7 +35,6 @@ import { MatInputModule } from '@angular/material/input';
 		EntityInfosComponent,
 		StatsModalComponent,
 		StopsFileModalComponent, 
-		SimulationParameterModalComponent,
 		LaunchModalComponent,
 		InteractionComponent
 	],
