@@ -7,6 +7,7 @@ class ConnectionCredentials:
     USERNAME                    = 'admin'
     PASSWORD                    = 'admin'
     HOST                        = 'activemq'
+    LOCALHOST                   = 'localhost'
     PORT                        = 61613
     ENTITY_EVENTS_QUEUE 		= '/queue/entity_events'
     SIMULATION_COMPLETED		= 'SIMULATION_COMPLETED'

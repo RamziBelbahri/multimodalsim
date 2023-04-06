@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -17,7 +17,7 @@ export class CommunicationService {
 		private http: HttpClient,
 		private stopLookup: StopLookupService,
 		private stopPositionHandlerService:StopPositionHandlerService,
-		private simulationParserService:SimulationParserService
+		private simulationParserService:SimulationParserService,
 	) {}
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
@@ -28,8 +28,10 @@ export class CommunicationService {
 	}
 
 	uploadFile(args:object) {
-		return this.http.post(this.APIURL + 'upload-file-realtime', args).subscribe({
-			next: data => {console.log(data);},
+		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
+			next: _ => {
+				(document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
+			},
 			error: err => {console.log(err);},
 			complete: () => console.log(),
 		});
@@ -47,24 +49,16 @@ export class CommunicationService {
 		return this.http.get(this.APIURL + 'end-simulation').pipe(catchError(this.handleError));
 	}
 
-	getStopsFile(simName:string) {
+	requestStopsFile(simName:string) {
 		const params = new HttpParams().set('simName', simName);
-		console.log(params);
-		return this.http.get(this.APIURL + 'stops-file', {responseType: 'text', params}).subscribe({
-			next: data => {
-				const stops = this.simulationParserService.parseFile(data).data;
-				for (const line of stops) {
-					this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
-				}
-				this.stopPositionHandlerService.initStops();
-			},
-			error: error => {
-				console.error('Error:', error);
-			},
-			complete: () => {
-				console.log('Request completed');
-			}
-		});
+		return this.http.get(this.APIURL + 'stops-file', {responseType: 'text', params});
+	}
+
+	launchExistingBackendSimulation(simName:string) {
+		const body = {
+			simName: simName,
+		};
+		return this.http.post(this.APIURL + 'launch-saved-sim',body);
 	}
 
 	private handleError(error: HttpErrorResponse) {

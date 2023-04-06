@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import suspend from 'psuspend';
-import { readdirSync, existsSync, mkdirSync, readFileSync } from 'fs';
+import { readdirSync, existsSync, mkdirSync, readFileSync, rmSync, rmdirSync } from 'fs';
 import fs from 'fs';
 import { rm, writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
@@ -198,7 +198,8 @@ app.delete('/api/delete-simulation', async (req:Request<ParamsDictionary, ArrayB
 	if (filename && existsSync(fullPath)) {
 		console.log('Deletion');
 		try {
-			await rm(fullPath);
+			rmSync(fullPath);
+			rmSync(__dirname + '\\..\\..\\data\\' + filename.replace('.zip', ''),{ recursive: true, force: true });
 		}
 		catch (e) {
 			console.log(`La suppression du fichier ${filename} n'a pas réussi`);
@@ -227,7 +228,29 @@ const upload_multiple_files = multer({
 	storage: multer.memoryStorage()
 });
 
-app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request, res:Response) => {
+function getArgsFromConfig(config:any):any {
+	const args = [
+		'-m',
+		'communication',
+		'fixed',
+		'--gtfs',
+		'--gtfs-folder',
+		config['gtfs-folder'],
+		'-r',
+		config['request-filepath'],
+		'--multimodal',
+		'--log-level',
+		config['log-level'],
+		'-g',
+		config['networkfile'],
+	];
+	if(config['osrm']) {
+		args.push('--osrm');
+	}
+	return args;
+}
+
+app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;
 	let networkfile = '';
 	if(!files) {
@@ -277,25 +300,8 @@ app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request,
 	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
 	archive.finalize();
 
-	const args = [
-		'-m',
-		'communication',
-		'fixed',
-		'--gtfs',
-		'--gtfs-folder',
-		config['gtfs-folder'],
-		'-r',
-		config['request-filepath'],
-		'--multimodal',
-		'--log-level',
-		config['log-level'],
-		'-g',
-		config['networkfile'],
-	];
-	if(config['osrm']) {
-		args.push('--osrm');
-	}
-	startSim(args);
+
+	startSim(getArgsFromConfig(config));
 
 	res.status(200).json({ status: 'got file'});
 });
@@ -309,21 +315,21 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 		const data = fs.readFileSync(stopsFilePath).toString();
 		res.setHeader('Content-Type', 'text/plain');
 		res.end(data);
-		// res.send();
 	}
-
-	// res.status(200).json({status:200});
-	// fs.readFile('myfile.txt', (err, data) => {
-	// 	if (err) {
-	// 		// Handle errors
-	// 		res.writeHead(500);
-	// 		res.end('Error reading file');
-	// 	} else {
-	// 		// Set the content type and send the file
-	// 		res.setHeader('Content-Type', 'text/plain');
-	// 		res.end(data);
-	// 	}
-	// });
+});
+// console.log('launch saved sim is listening')
+app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
+	const simName:string|undefined = req.body['simName']?.toString();
+	console.log(req.body);
+	if(simName) {
+		const simulationFolderName = simName.replace('.zip', '');
+		const configPath = '../data/' + simulationFolderName + '/config.json';
+		const config = JSON.parse(fs.readFileSync(configPath).toString());
+		startSim(getArgsFromConfig(config));
+		res.status(200).json({ status: 'launched'});
+	} else {
+		res.status(500).json({ error: 'simulation name was null'});
+	}
 });
 
 

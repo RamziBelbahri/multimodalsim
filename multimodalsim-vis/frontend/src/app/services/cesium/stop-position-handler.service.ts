@@ -114,7 +114,6 @@ export class StopPositionHandlerService {
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
-		console.log(stop.position);
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {
