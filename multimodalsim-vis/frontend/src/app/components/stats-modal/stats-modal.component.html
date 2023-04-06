@@ -3,7 +3,9 @@
     <!--À modifier-->
     <a *ngIf="false && this.customStats.size > 0" id="download-button" class="json-load-button" [href]="sanitizedBlobUrl" [download]="'résultats_simulation'">Enregistrer les statistiques de la simulation</a>
     
-    <h1> Statisques de simulation</h1>  
+    <h1> Statisques de simulation </h1>  
+    
+    <h2> Nombre d'entités</h2>  
     <table class="table table-striped">  
         <thead>  
             <tr>  
@@ -12,10 +14,44 @@
             </tr>  
         </thead>  
         <tbody>  
-          <tr *ngFor="let stat of showedStats">  
+          <tr *ngFor="let stat of numberStats">  
             <td class="stat-field">{{ stat.field }}</td>  
             <td class="stat-value">{{ stat.value }}</td>  
           </tr>  
         </tbody>  
       </table>  
+      <br>
+
+      <h2> Statistiques de véhicules </h2>  
+      <table class="table table-striped">  
+          <thead>  
+              <tr>  
+                <th>Statistique</th>  
+                <th>Valeur</th>  
+              </tr>  
+          </thead>  
+          <tbody>  
+            <tr *ngFor="let stat of vehicleStats">  
+              <td class="stat-field">{{ stat.field }}</td>  
+              <td class="stat-value">{{ stat.value }}</td>  
+            </tr>  
+          </tbody>  
+        </table>  
+        <br>
+
+        <h2> Statistiques de voyages </h2>  
+        <table class="table table-striped">  
+            <thead>  
+                <tr>  
+                  <th>Statistique</th>  
+                  <th>Valeur</th>  
+                </tr>  
+            </thead>  
+            <tbody>  
+              <tr *ngFor="let stat of tripsStats">  
+                <td class="stat-field">{{ stat.field }}</td>  
+                <td class="stat-value">{{ stat.value }}</td>  
+              </tr>  
+            </tbody>  
+          </table>  
 </div>

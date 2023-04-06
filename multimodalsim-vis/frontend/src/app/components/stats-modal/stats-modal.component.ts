@@ -14,11 +14,12 @@ import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service
 })
 export class StatsModalComponent {
 	private readonly APIURL = 'http://localhost:8000/api/';
-	private entityNumber: Stat[];
 	private notifSubscription: Subscription = new Subscription();
 
 	sanitizedBlobUrl: SafeUrl | undefined;
-	showedStats: Stat[];
+	numberStats: Stat[];
+	vehicleStats: Stat[];
+	tripsStats: Stat[];
 	customStats: Map<string, string>;
 
 	constructor(
@@ -28,8 +29,9 @@ export class StatsModalComponent {
 		private sanitizer: DomSanitizer,
 		private menuNotifier: MenuNotifierService
 	) {
-		this.showedStats = new Array<Stat>();
-		this.entityNumber = new Array<Stat>();
+		this.numberStats = new Array<Stat>();
+		this.vehicleStats = new Array<Stat>();
+		this.tripsStats = new Array<Stat>();
 		this.customStats = new Map<string, string>();
 	}
 
@@ -37,21 +39,20 @@ export class StatsModalComponent {
 		this.notifSubscription = this.menuNotifier.state.subscribe((name) => {
 			if (name == 'stats-container') {
 				this.loadEntityNumber();
+				this.requestStats();
 			}
 		});
 	}
 
 	loadEntityNumber(): void {
-		this.showedStats.length = 0;
+		this.numberStats.length = 0;
 
-		this.entityNumber.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
-		this.entityNumber.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
-
-		this.showedStats = this.entityNumber;
+		this.numberStats.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
+		this.numberStats.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
 	}
 
 	requestStats(): void {
-		this.showedStats.length = 0;
+		this.vehicleStats.length = 0;
 
 		this.http
 			.get(this.APIURL + 'get-stats')
@@ -66,7 +67,12 @@ export class StatsModalComponent {
 				}
 
 				this.customStats.forEach((value: string, field: string) => {
-					this.showedStats.push(new Stat(field, value));
+					//TODO: vérifier si c'est une bonne séparation quand le simulateur sera mieux accessible.
+					if (field.includes('trip')) {
+						this.tripsStats.push(new Stat(field, value));
+					} else {
+						this.vehicleStats.push(new Stat(field, value));
+					}
 				});
 
 				this.saveStats();
