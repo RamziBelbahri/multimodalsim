@@ -5,6 +5,9 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
+import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
+import { CommunicationService } from 'src/app/services/communication/communication.service';
+import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -15,7 +18,14 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private viewerSubscription: Subscription = new Subscription();
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private viewerSharer: ViewerSharingService, private pathHandler: EntityPathHandlerService) {}
+	constructor(
+		private element: ElementRef,
+		private cameraHandler: CameraHandlerService,
+		private viewerSharer: ViewerSharingService,
+		private pathHandler: EntityPathHandlerService,
+		private dataReaderService:DataReaderService,
+		private communicationService:CommunicationService,
+	) {}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
@@ -36,6 +46,12 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	ngAfterViewInit() {
 		// met à jour le viewer une fois que les composants sont abonnés.
 		this.viewerSharer.setViewer(this.viewer);
+		const simName = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
+		if(!simName || simName == '') return;
+		this.pathHandler.isRealtime = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH) == 'true';
+		// console.log(this.viewerSharingService.viewer);
+		this.dataReaderService.launchSimulation(this.viewer, true);
+		this.communicationService.launchExistingBackendSimulation(simName);
 	}
 
 	ngOnDestroy() {

@@ -13,6 +13,7 @@ import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-p
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 
 @Component({
 	selector: 'app-sidebar',
@@ -136,7 +137,11 @@ export class SidebarComponent implements OnInit {
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
 		this.setSimulationOrigin(isFromServer);
 		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-		this.commService.simulationToFetch = filename;
+		window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, filename ? filename : '');
+
+		// TODO
+		window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
+
 		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 	}

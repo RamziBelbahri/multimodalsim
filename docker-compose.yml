@@ -7,6 +7,10 @@ services:
       - ./multimodalsim-vis/backend:/backend
       - /backend/communication/server/node_modules
       - /backend/venv
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - multimodalsim_vis_network
+    command: bash -c "apt-get update && apt-get install -y docker.io"
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
@@ -14,6 +18,8 @@ services:
     volumes:
       - ./multimodalsim-vis/frontend:/frontend
       - /frontend/node_modules
+    networks:
+      - multimodalsim_vis_network
   activemq:
     image: rmohr/activemq:latest
     ports:
@@ -26,3 +32,9 @@ services:
         soft: 122880
         hard: 122880
     mem_limit: 3g
+    networks:
+      - multimodalsim_vis_network
+
+networks:
+  multimodalsim_vis_network:
+    driver: bridge

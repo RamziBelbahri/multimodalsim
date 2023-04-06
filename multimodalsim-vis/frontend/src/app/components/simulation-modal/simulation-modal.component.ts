@@ -97,8 +97,9 @@ export class SimulationModalComponent {
 
 	async launchSavedSimulation():Promise<void> {
 		// get the stops file
-		if(this.commService.simulationToFetch && this.viewer) {
-			this.commService.requestStopsFile(this.commService.simulationToFetch).subscribe({
+		const simulationToFetch = window.localStorage.getItem('simulationToFetch');
+		if(simulationToFetch && this.viewer) {
+			this.commService.requestStopsFile(simulationToFetch).subscribe({
 				next: data => {
 					const stops = this.simulationParserService.parseFile(data).data;
 					for (const line of stops) {
@@ -106,9 +107,9 @@ export class SimulationModalComponent {
 					}
 					console.log(stops);
 					this.stopPositionHandlerService.initStops();
-					console.log(this.viewer == undefined, this.commService.simulationToFetch == undefined);
-					if(this.viewer && this.commService.simulationToFetch) {
-						this.commService.launchExistingBackendSimulation(this.commService.simulationToFetch).subscribe({
+					console.log(this.viewer == undefined, simulationToFetch == undefined);
+					if(this.viewer && simulationToFetch) {
+						this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
 							next: data => {console.log(data);},
 							error: err => {console.log(err);},
 							complete: () => {console.log('complete');}

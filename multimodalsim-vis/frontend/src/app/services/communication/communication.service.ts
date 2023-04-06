@@ -2,22 +2,19 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
-import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
-import { StopLookupService } from '../util/stop-lookup.service';
-import { CesiumClass } from 'src/app/shared/cesium-class';
+// import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
+// import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
+// import { StopLookupService } from '../util/stop-lookup.service';
+// import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CommunicationService {
-	public simulationToFetch:string|undefined;
+	// public simulationToFetch:string|undefined;
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
 	constructor(
 		private http: HttpClient,
-		private stopLookup: StopLookupService,
-		private stopPositionHandlerService:StopPositionHandlerService,
-		private simulationParserService:SimulationParserService,
 	) {}
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));

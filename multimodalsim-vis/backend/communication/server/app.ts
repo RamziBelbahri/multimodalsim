@@ -7,13 +7,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import suspend from 'psuspend';
-import { readdirSync, existsSync, mkdirSync, readFileSync, rmSync, rmdirSync } from 'fs';
+import { readdirSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import fs from 'fs';
 import { rm, writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
 // import * as archiver from 'archiver';
 import archiver from 'archiver';
+import { exec, execSync } from 'child_process';
 
 
 
@@ -317,10 +318,11 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 		res.end(data);
 	}
 });
+
+
 // console.log('launch saved sim is listening')
 app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	const simName:string|undefined = req.body['simName']?.toString();
-	console.log(req.body);
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
 		const configPath = '../data/' + simulationFolderName + '/config.json';
@@ -332,6 +334,17 @@ app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	}
 });
 
-app.get('/api/get-stats', (req: Request, res: Response) => {
+app.get('/api/get-stats', (_: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
+});
+
+app.post('api/restart', (_:Request, res:Response) => {
+	try{// restart docker container for activemq
+		execSync('docker restart multimodalsim-vis-activemq-1');
+		// kill the current simulation
+		runSim?.kill('SIGKILL');
+		res.status(200).json({status:'activemq cleared, waiting for signal to restart simulation'});
+	} catch(e) {
+		res.status(500).json(e);
+	}
 });
