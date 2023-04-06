@@ -1,8 +1,5 @@
 <a class="close-button" (click)="closeModal()">&times;</a>
-<div class="table-container">
-    <!--À modifier-->
-    <a *ngIf="false && this.customStats.size > 0" id="download-button" class="json-load-button" [href]="sanitizedBlobUrl" [download]="'résultats_simulation'">Enregistrer les statistiques de la simulation</a>
-    
+<div class="table-container">    
     <h1> Statisques de simulation </h1>  
     
     <h2> Nombre d'entités</h2>  
@@ -54,4 +51,7 @@
               </tr>  
             </tbody>  
           </table>  
+          <br>
+
+          <a *ngIf="this.customStats.size > -1" id="download-button" class="json-load-button" [href]="sanitizedBlobUrl" [download]="'résultats_simulation'">Enregistrer les statistiques de la simulation</a>
 </div>

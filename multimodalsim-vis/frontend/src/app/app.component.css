@@ -72,3 +72,7 @@
 	z-index: 8;
 	position: absolute;
 }
+
+#stats-container {
+	width: 60%;
+}
