@@ -34,7 +34,7 @@ const port = process.env['PORT'] || '8000';
 const app: Express = express();
 let runSim:ChildProcessWithoutNullStreams|undefined;
 
-const stats = {'Total number of trips': '55', 'Number of active trips': '12', 'Distance travelled': '402km'};
+let stats:{'Total number of trips': '0', 'Number of active trips': '0', 'Distance travelled': '0.0', 'Greenhouse gas emissions': '0.0'};
 
 app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
 	res.header('Access-Control-Allow-Origin', 
@@ -54,25 +54,58 @@ app.listen(port, () => {
 const getsArgs = (req: Request):string[] => {
 	const defaultFolder  = '20191101';
 	const folder = req.body.folder ? req.body.folder : defaultFolder;
+	// const args = [
+	// 	'-m',
+	// 	'communication',
+	// 	'fixed',
+	// 	'--gtfs',
+	// 	'--gtfs-folder',
+	// 	`multimodal-simulator/data/${folder}/gtfs/`,
+	// 	'-r',
+	// 	`multimodal-simulator/data/${folder}/requests.csv`,
+	// 	'--multimodal',
+	// 	'--log-level',
+	// 	'INFO',
+	// 	'-g',
+	// 	`multimodal-simulator/data/${folder}/bus_network_graph_${folder}.txt`,
+	// 	'--osrm'
+	// ];
 	const args = [
 		'-m',
 		'communication',
 		'fixed',
 		'--gtfs',
 		'--gtfs-folder',
-		`multimodal-simulator/data/${folder}/gtfs/`,
-		'-r',
-		`multimodal-simulator/data/${folder}/requests.csv`,
+		`data/${folder}/gtfs/`,'-r',
+		`data/${folder}/requests.csv`,
 		'--multimodal',
 		'--log-level',
 		'INFO',
 		'-g',
-		`multimodal-simulator/data/${folder}/bus_network_graph_${folder}.txt`,
+		`data/${folder}/bus_network_graph_${folder}.txt`,
 		'--osrm'
 	];
 	return args;
 };
 console.log('if you see this something went right');
+interface myObjet {
+	field: string,
+	value: string
+}
+// app.get('/api/status', (req: Request, res: Response) =>  {
+// 	res.status(200).json({ status: 'UP' });
+
+const updateStats = (output: string) => {
+	const outputString:string = output.toString();
+	if(outputString.includes('Total')) {
+		const jsonStart = outputString.indexOf('{');
+		const jsonEnd = outputString.indexOf('}')+1;
+		const jsonString = outputString.slice(jsonStart, jsonEnd);
+		const clean = jsonString.replaceAll('\'','"');
+		const json = JSON.parse(clean);
+		stats = json;
+	}
+};
 
 app.get('/api/status', (req: Request, res: Response) =>  {
 	res.status(200).json({ status: 'UP' });
@@ -91,9 +124,10 @@ function startSim(args:string[]) {
 		console.error('Exited runSim with error:', err.message);
 	});
 
-	runSim.stderr.on('data', (err: any) => {
-		console.log(`${err}`);
-	} );
+	runSim.stderr.on('data', (output: any) => {
+		updateStats(output);
+		console.log(`${output}`);
+	});
 }
 
 app.post('/api/start-simulation', (req: Request, res: Response) => {
@@ -192,6 +226,7 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 const upload_multiple_files = multer({
 	storage: multer.memoryStorage()
 });
+
 app.post('/api/upload-file-realtime', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;
 	let networkfile = '';

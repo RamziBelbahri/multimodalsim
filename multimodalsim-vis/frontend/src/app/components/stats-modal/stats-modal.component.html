@@ -3,7 +3,7 @@
 <div class="table-container">
     <div *ngIf="!isShowingStats" class="json-load-button" (click)="loadEntityNumber()">Nombres d'entités de la simulation</div>
     <div *ngIf="!isShowingStats" class="json-load-button" (click)="requestStats()">Charger statistiques personnalisées</div>
-    <a *ngIf="!isShowingStats && this.stats.length > 0" id="download-button" class="json-load-button" [href]="sanitizedBlobUrl" [download]="'résultats_simulation'">Enregistrer les statistiques de la simulation</a>
+    <a *ngIf="!isShowingStats && this.customStats.size > 0" id="download-button" class="json-load-button" [href]="sanitizedBlobUrl" [download]="'résultats_simulation'">Enregistrer les statistiques de la simulation</a>
     
     <h1 *ngIf="isShowingStats"> Statisques de simulation</h1>  
     <table *ngIf="isShowingStats" class="table table-striped">  
@@ -14,7 +14,7 @@
             </tr>  
         </thead>  
         <tbody>  
-          <tr *ngFor="let stat of stats">  
+          <tr *ngFor="let stat of showedStats">  
             <td class="stat-field">{{ stat.field }}</td>  
             <td class="stat-value">{{ stat.value }}</td>  
           </tr>  

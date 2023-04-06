@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, Entity, JulianDate, Viewer } from 'cesium';
+import { Cartesian2, Cartesian3, JulianDate, Viewer } from 'cesium';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
 import { HttpClient } from '@angular/common/http';
@@ -47,16 +47,19 @@ export class EntityPathHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if (entity.name == 'bus1' || (entity.name == 'bus2' && this.isLeftClicked)) {
+					if ((entity.name == 'bus1' || entity.name == 'bus2') && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						this.lastEntityType = entity.name;
 						const sections = this.vehicleHandler.getPolylines(entity.id);
 						this.progressPath = this.compileSections(sections.positions, sections.times, viewer.clock.currentTime);
 
+						const uncompleted = new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]);
+						const completed = this.progressPath[0].concat(this.progressPath[1][0]);
+
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: new Array<Cartesian3>(this.progressPath[0][this.progressPath[0].length - 1]).concat(this.progressPath[1]),
+									positions: this.progressPath[0].length > 0 ? uncompleted : this.progressPath[1],
 									width: 5,
 									material: Cesium.Color.fromCssColorString(this.uncompletedColor),
 								},
@@ -66,7 +69,7 @@ export class EntityPathHandlerService {
 						this.lastEntities.push(
 							viewer.entities.add({
 								polyline: {
-									positions: this.progressPath[0].concat(this.progressPath[1][0]),
+									positions: this.progressPath[1].length > 0 ? completed : this.progressPath[0],
 									width: 5,
 									material: Cesium.Color.fromCssColorString(this.completedColor),
 								},
@@ -111,7 +114,7 @@ export class EntityPathHandlerService {
 
 					this.pickedEntityID = entity.id.toString();
 
-					if (entity.name == 'vehicle' && this.isLeftClicked) {
+					if ((entity.name == 'bus1' || entity.name == 'bus2') && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
 						if (realtimePolyline) {
@@ -122,12 +125,14 @@ export class EntityPathHandlerService {
 							const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 							done.push(todo[0]);
 
+							console.log(done, todo);
+
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
 										positions: done,
 										width: 5,
-										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
+										material: Cesium.Color.fromCssColorString(this.completedColor),
 									},
 								})
 							);
@@ -136,7 +141,7 @@ export class EntityPathHandlerService {
 									polyline: {
 										positions: todo,
 										width: 5,
-										material: Cesium.Color.fromCssColorString(this.completedColor),
+										material: Cesium.Color.fromCssColorString(this.uncompletedColor),
 									},
 								})
 							);
@@ -149,7 +154,7 @@ export class EntityPathHandlerService {
 				const currentTime = Cesium.JulianDate.toDate(viewer.clock.currentTime).getTime();
 				const index = realtimePolyline?.getClosestIndex(currentTime);
 
-				if(index >= 0 && this.pickedIndex != index) {
+				if (index >= 0 && this.pickedIndex != index) {
 					const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
 					const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 					done.push(todo[0]);

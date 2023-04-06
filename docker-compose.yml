@@ -7,8 +7,6 @@ services:
       - ./multimodalsim-vis/backend:/backend
       - /backend/communication/server/node_modules
       - /backend/venv
-    env_file:
-      - ./multimodalsim-vis/backend/communication/server/.env
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
@@ -23,3 +21,8 @@ services:
       - "61613:61613"
       - "61614:61614"
       - "8161:8161"
+    ulimits:
+      nofile:
+        soft: 122880
+        hard: 122880
+    mem_limit: 3g
