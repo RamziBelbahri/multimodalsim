@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
@@ -100,12 +100,13 @@ export class StopPositionHandlerService {
 		this.stopIdMapping.get(stopId)?.removePassenger(passengerid);
 	}
 
-	updateIcon(viewer: Viewer, stopId:string): void {
+	updateIcon(viewer: Viewer, stopId: string): void {
 		const entity = viewer.entities.getById(stopId);
-		if(entity && entity.ellipse) {
-			entity.ellipse.material = this.getPassengerAmount(stopId) == 0 ? 
-				new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }) : 
-				new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
+		if (entity && entity.ellipse) {
+			entity.ellipse.material =
+				this.getPassengerAmount(stopId) == 0
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
 		}
 	}
 

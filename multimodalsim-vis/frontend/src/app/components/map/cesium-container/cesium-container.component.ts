@@ -22,7 +22,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 			//assetId 4 est la carte 2D et 1 est la carte 3D par défaut
 			CesiumClass.imagery({ assetId: 4 })
 		);
-		this.cameraHandler.initCameraData(this.viewer.camera);
+		this.cameraHandler.initCameraData(this.viewer);
 
 		this.pathHandler.initHandler(this.viewer);
 		this.pathHandler.initRealTimeHandler(this.viewer);
