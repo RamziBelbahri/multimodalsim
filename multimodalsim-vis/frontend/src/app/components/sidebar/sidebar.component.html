@@ -2,15 +2,13 @@
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
     <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
+    </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
         Liste des sauvegardes
     </div>

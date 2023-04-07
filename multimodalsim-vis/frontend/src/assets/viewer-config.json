@@ -1,4 +1,9 @@
 {
 	"uncompleted_color": "blue",
-	"completed_color": "#808080"
+	"completed_color": "#808080",
+	"tier0_size": 20,
+	"tier1_size": 30,
+	"tier2_size": 40,
+	"tier3_size": 60,
+	"tier4_size": 90
 }
