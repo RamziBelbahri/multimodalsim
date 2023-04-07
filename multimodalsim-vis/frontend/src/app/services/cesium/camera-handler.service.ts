@@ -17,11 +17,7 @@ export class CameraHandlerService {
 	private scratchCartesian2 = new Cesium.Cartesian3();
 	private endPos = new Cesium.Cartesian3();
 	private lastTier = -1;
-	private tier0_size = 0;
-	private tier1_size = 0;
-	private tier2_size = 0;
-	private tier3_size = 0;
-	private tier4_size = 0;
+	private tierSizes = new Array<number>(0, 0, 0, 0, 0);
 
 	camera: Camera | undefined;
 
@@ -30,11 +26,11 @@ export class CameraHandlerService {
 			.get(this.CONFIG_PATH, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
 			.subscribe((data) => {
-				this.tier0_size = data.tier0_size.toString();
-				this.tier1_size = data.tier1_size.toString();
-				this.tier2_size = data.tier2_size.toString();
-				this.tier3_size = data.tier3_size.toString();
-				this.tier4_size = data.tier4_size.toString();
+				this.tierSizes.push(data.tier0_size.toString());
+				this.tierSizes.push(data.tier1_size.toString());
+				this.tierSizes.push(data.tier2_size.toString());
+				this.tierSizes.push(data.tier3_size.toString());
+				this.tierSizes.push(data.tier4_size.toString());
 			});
 	}
 
@@ -48,19 +44,19 @@ export class CameraHandlerService {
 			const endHeight = Cesium.Cartographic.fromCartesian(this.endPos).height;
 
 			if (endHeight < 1000 && this.lastTier != 0) {
-				this.changeStopSize(viewer, this.tier0_size);
+				this.changeStopSize(viewer, this.tierSizes[0]);
 				this.lastTier = 0;
 			} else if (endHeight >= 1000 && endHeight < 2000 && this.lastTier != 1) {
-				this.changeStopSize(viewer, this.tier1_size);
+				this.changeStopSize(viewer, this.tierSizes[1]);
 				this.lastTier = 1;
 			} else if (endHeight >= 2000 && endHeight < 3000 && this.lastTier != 2) {
-				this.changeStopSize(viewer, this.tier2_size);
+				this.changeStopSize(viewer, this.tierSizes[2]);
 				this.lastTier = 2;
 			} else if (endHeight >= 3000 && endHeight < 7500 && this.lastTier != 3) {
-				this.changeStopSize(viewer, this.tier3_size);
+				this.changeStopSize(viewer, this.tierSizes[3]);
 				this.lastTier = 3;
 			} else if (endHeight >= 7500 && this.lastTier != 4) {
-				this.changeStopSize(viewer, this.tier4_size);
+				this.changeStopSize(viewer, this.tierSizes[4]);
 				this.lastTier = 4;
 			}
 		});
@@ -68,20 +64,20 @@ export class CameraHandlerService {
 
 	// Retourne la taille qui devrait être utilisée pour les stops.
 	getCurrentStopSize(): number {
-		let result = this.tier0_size;
+		let result = this.tierSizes[0];
 
 		switch (this.lastTier) {
 		case 1:
-			result = this.tier1_size;
+			result = this.tierSizes[1];
 			break;
 		case 2:
-			result = this.tier2_size;
+			result = this.tierSizes[2];
 			break;
 		case 3:
-			result = this.tier3_size;
+			result = this.tierSizes[3];
 			break;
 		case 4:
-			result = this.tier4_size;
+			result = this.tierSizes[4];
 			break;
 		}
 
