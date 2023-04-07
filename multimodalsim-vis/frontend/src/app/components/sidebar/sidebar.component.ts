@@ -13,6 +13,7 @@ import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
+import { SimulationModalComponent } from '../simulation-modal/simulation-modal.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -22,7 +23,6 @@ import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
-	isRunning: boolean;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
@@ -35,6 +35,8 @@ export class SidebarComponent implements OnInit {
 	manipOptionList: Array<string> = new Array<string>();
 	savedSimulationsList: Array<string> = new Array<string>();
 	transportModeList: Map<string, boolean> = new Map<string, boolean>();
+	isRunning: boolean;
+	isSimulationActive: boolean;
 
 	constructor(
 		private dialog: MatDialog,
@@ -49,6 +51,7 @@ export class SidebarComponent implements OnInit {
 		private menuNotifier: MenuNotifierService
 	) {
 		this.isRunning = false;
+		this.isSimulationActive = false;
 	}
 
 	ngOnInit() {
@@ -136,10 +139,17 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
+		//(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
+
 		this.setSimulationOrigin(isFromServer);
 		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
+
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+		const dialogRef = this.dialog.open(SimulationModalComponent, {
+			height: '70%',
+			width: '50%',
+		});
+		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(false, result.isRunning));
 	}
 
 	openUploadStopsFile(): void {
@@ -164,11 +174,12 @@ export class SidebarComponent implements OnInit {
 			height: '400px',
 			width: '600px',
 		});
-		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning));
+		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning, result.isRunning));
 	}
 
-	setSimulationState(isRunning: boolean): void {
+	setSimulationState(isRunning: boolean, isActive: boolean): void {
 		this.isRunning = isRunning;
+		this.isSimulationActive = isActive;
 	}
 
 	// Changer la visibilité d'un mode de transport

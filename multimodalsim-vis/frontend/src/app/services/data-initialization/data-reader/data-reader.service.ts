@@ -18,7 +18,7 @@ export class DataReaderService {
 	private ignored: string[];
 	private directories: string[];
 	private readonly COMBINED = 'combined-trips-vehicle';
-	private zipInput: HTMLInputElement | undefined; 
+	private zipInput: HTMLInputElement | undefined;
 	private csvInput: Blob;
 	isSavedSimulationFromServer: BehaviorSubject<boolean>;
 	zipfileNameFromServer = '';
@@ -61,7 +61,6 @@ export class DataReaderService {
 		await this.readFiles(zip);
 		this.zipfileNameFromServer = '';
 	}
-	
 
 	private async readFiles(zip: JSZip): Promise<void> {
 		if (zip.files) {
