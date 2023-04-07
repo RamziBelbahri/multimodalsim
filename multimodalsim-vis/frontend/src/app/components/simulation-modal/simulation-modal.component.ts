@@ -72,11 +72,11 @@ export class SimulationModalComponent {
 			}
 		} else {
 			this.startProgressSpinner();
-			const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
-			if (csvInput.value != '') this.dataReader.readCSV();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
 			if (zipInput.files) await this.dataReader.readZipContent();
 			this.endProgressSpinner();
+
+			this.launchSimulation();
 		}
 	}
 
