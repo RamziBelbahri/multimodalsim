@@ -139,17 +139,21 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
-		//(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
+		if (!this.isSimulationActive) {
+			this.setSimulationOrigin(isFromServer);
+			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 
-		this.setSimulationOrigin(isFromServer);
-		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-
-		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
-		const dialogRef = this.dialog.open(SimulationModalComponent, {
-			height: '70%',
-			width: '50%',
-		});
-		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(false, result.isRunning));
+			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+			const dialogRef = this.dialog.open(SimulationModalComponent, {
+				height: '70%',
+				width: '50%',
+			});
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(false, result.isRunning));
+		} else {
+			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
+				duration: 5000,
+			});
+		}
 	}
 
 	openUploadStopsFile(): void {
@@ -170,11 +174,17 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openLaunchModal(): void {
-		const dialogRef = this.dialog.open(LaunchModalComponent, {
-			height: '400px',
-			width: '600px',
-		});
-		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning, result.isRunning));
+		if (!this.isSimulationActive) {
+			const dialogRef = this.dialog.open(LaunchModalComponent, {
+				height: '400px',
+				width: '600px',
+			});
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning, result.isRunning));
+		} else {
+			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
+				duration: 5000,
+			});
+		}
 	}
 
 	setSimulationState(isRunning: boolean, isActive: boolean): void {
