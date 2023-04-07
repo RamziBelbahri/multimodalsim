@@ -32,7 +32,6 @@ export class CameraHandlerService {
 				this.tierSizes.push(data.tier2_size.toString());
 				this.tierSizes.push(data.tier3_size.toString());
 				this.tierSizes.push(data.tier4_size.toString());
-				console.log(this.tierSizes);
 			});
 	}
 
