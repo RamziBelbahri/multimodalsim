@@ -1,4 +1,6 @@
-<a class="close-button" (click)="closeModal(false)">&times;</a>
+<div class="button-container">
+    <a class="close-button" (click)="closeModal(false)">&times;</a>
+</div>
 <div *ngIf = "!isSavedSimulationFromServer" >
     <div class="selection">
         <p class="selection-title">Choisissez un fichier zip</p>
