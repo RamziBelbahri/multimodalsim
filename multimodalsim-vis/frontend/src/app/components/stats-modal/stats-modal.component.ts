@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { Stat } from 'src/app/classes/data-classes/stat';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { Subscription, catchError, throwError } from 'rxjs';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
 
 @Component({
 	selector: 'app-stats-modal',
@@ -13,33 +14,48 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class StatsModalComponent {
 	private readonly APIURL = 'http://localhost:8000/api/';
-	private entityNumber: Stat[];
+	private notifSubscription: Subscription = new Subscription();
 
 	sanitizedBlobUrl: SafeUrl | undefined;
-	isShowingStats = false;
-	showedStats: Stat[];
+	numberStats: Stat[];
+	vehicleStats: Stat[];
+	tripsStats: Stat[];
 	customStats: Map<string, string>;
+	filterState: Map<string, boolean>;
 
-	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private stopHandler: StopPositionHandlerService, private sanitizer: DomSanitizer) {
-		this.showedStats = new Array<Stat>();
-		this.entityNumber = new Array<Stat>();
+	constructor(
+		private http: HttpClient,
+		private vehicleHandler: VehiclePositionHandlerService,
+		private stopHandler: StopPositionHandlerService,
+		private sanitizer: DomSanitizer,
+		private menuNotifier: MenuNotifierService
+	) {
+		this.numberStats = new Array<Stat>();
+		this.vehicleStats = new Array<Stat>();
+		this.tripsStats = new Array<Stat>();
 		this.customStats = new Map<string, string>();
+		this.filterState = new Map<string, boolean>();
+	}
+
+	ngOnInit() {
+		this.notifSubscription = this.menuNotifier.state.subscribe((name) => {
+			if (name == 'stats-container') {
+				this.loadEntityNumber();
+				this.requestStats();
+			}
+		});
 	}
 
 	loadEntityNumber(): void {
-		this.showedStats.length = 0;
+		this.numberStats.length = 0;
+		this.filterState.set('Nombre d\'entités', true);
 
-		this.entityNumber.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
-		this.entityNumber.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
-
-		this.showedStats = this.entityNumber;
-
-		this.isShowingStats = true;
+		this.numberStats.push(new Stat('Nombre de bus dans la simulation', this.vehicleHandler.getVehicleIdMapping().size.toString()));
+		this.numberStats.push(new Stat('Nombre de passagers dans la simulation', this.stopHandler.getTotalPassengerAmount().toString()));
 	}
 
 	requestStats(): void {
-		this.isShowingStats = true;
-		this.showedStats.length = 0;
+		this.vehicleStats.length = 0;
 
 		this.http
 			.get(this.APIURL + 'get-stats')
@@ -54,11 +70,19 @@ export class StatsModalComponent {
 				}
 
 				this.customStats.forEach((value: string, field: string) => {
-					this.showedStats.push(new Stat(field, value));
+					//TODO: vérifier si c'est une bonne séparation quand le simulateur sera mieux accessible.
+					if (field.includes('trip')) {
+						this.tripsStats.push(new Stat(field, value));
+					} else {
+						this.vehicleStats.push(new Stat(field, value));
+					}
 				});
 
 				this.saveStats();
 			});
+
+		this.filterState.set('Stats de véhicules', true);
+		this.filterState.set('Stats de voyages', true);
 	}
 
 	private saveStats(): void {
@@ -73,12 +97,7 @@ export class StatsModalComponent {
 		this.sanitizedBlobUrl = this.sanitizer.bypassSecurityTrustUrl(url);
 	}
 
-	return(): void {
-		this.isShowingStats = false;
-	}
-
 	closeModal(): void {
-		this.return();
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'hidden';
 	}
 
@@ -89,5 +108,10 @@ export class StatsModalComponent {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
 		return throwError(() => new Error('Something bad happened; please try again later.'));
+	}
+
+	filterStats(id: string): void {
+		const newValue = !(this.filterState.get(id) as boolean);
+		this.filterState.set(id, newValue);
 	}
 }

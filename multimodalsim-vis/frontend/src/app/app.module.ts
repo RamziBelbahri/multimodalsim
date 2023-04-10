@@ -11,7 +11,7 @@ import { StopsFileModalComponent } from './components/stops-file-modal/stops-fil
 import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-infos.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinner, MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonToggle, MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -51,9 +51,17 @@ import { MatInputModule } from '@angular/material/input';
 		MatSnackBarModule,
 		MatFormFieldModule,
 		MatInputModule,
-		ReactiveFormsModule
+		ReactiveFormsModule,
 	],
-	providers: [MatProgressSpinner, MatIcon, MatButtonToggle],
+	providers: [
+		MatProgressSpinner,
+		MatIcon,
+		MatButtonToggle,
+		{
+			provide: MatDialogRef,
+			useValue: {},
+		},
+	],
 	bootstrap: [AppComponent],
 })
 export class AppModule {}

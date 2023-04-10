@@ -2,15 +2,13 @@
 <div id="sidebar-menu" class="sidebar">
     <a class="close-button" (click)="close()">&times;</a>
     <div class="sub-menu-button" (click)="openSimulationModal(false)">Charger Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
-    <div class="sub-menu">
-        <div class="sub-menu-option"></div>
-    </div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <div class="sub-menu-button" (click)="openSaveModal()">Sauvegarder Simulation</div>
-    <!--Important pour conserver le bon spacing dans le sidebar, même si c'est vide.-->
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
+    </div>
     <div class="sub-menu-button" (click)="toggleSubMenu(2, savedSimulationsList.length)">
         Liste des sauvegardes
     </div>
@@ -34,7 +32,7 @@
             {{pair.key}}
         </label>
     </div>
-    <div class="sub-menu-button" (click)="openStats()">Statistiques</div>
+    <div id="stats-menu-button" class="sub-menu-button" (click)="openStats()">Statistiques</div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
@@ -56,37 +54,16 @@
         </div>
     </div>
     <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
-        Lancer la simulation
+        Lancer une simulation en live
     </div>
     <div id="restart-sim-menu-button" class="sub-menu-button">Recommencer la simulation</div>
 
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <!-- <div class="sub-menu-button" id="sub-menu-launch-realtime-DELETE-THIS-LATER" (click)="launchRealTimeSimulation()">
-        Lancer la simulation en temps réel (A MODIFIER)
-    </div>
-    <div class="sub-menu-button" id="param-menu" (click)="openSimulationParamModal()"> Parametres </div>
-    <div class="sub-menu-button" id="menu-past-sims" style="height:60px !important">
-        Simulations passées
-        <br>
-        <br>
-        <select style="width: 200px; font-size:20px">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-    </select>
-    </div> -->
 
-    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
-
-    <!-- <div class="sub-menu">
+    <div class="sub-menu">
         <div class="sub-menu-option"></div>
-
-
-        <div class="sub-menu">
-            <div class="sub-menu-option"></div>
-        </div>
-    </div> -->
+    </div>
+    <app-interaction (isTerminated)="setSimulationState(false, false)" *ngIf="isRunning"></app-interaction>
+</div>
