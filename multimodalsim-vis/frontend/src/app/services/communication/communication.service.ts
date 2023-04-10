@@ -24,7 +24,7 @@ export class CommunicationService {
 		return this.http.post(this.APIURL + 'start-simulation', args).pipe(catchError(this.handleError));
 	}
 
-	uploadFile(args:object) {
+	uploadFilesAndLaunch(args:object) {
 		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
 			next: _ => {
 				(document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
@@ -58,6 +58,10 @@ export class CommunicationService {
 		return this.http.post(this.APIURL + 'launch-saved-sim',body);
 	}
 
+	restartSimulation() {
+		return this.http.post(this.APIURL + 'restart', {});
+	}
+
 	private handleError(error: HttpErrorResponse) {
 		console.log(error.message);
 		if (error.status === 0) {
@@ -68,6 +72,10 @@ export class CommunicationService {
 		console.log(error);
 		return throwError(() => new Error('Something bad happened; please try again later.'));
 		
+	}
+
+	sendPreloadedSimulation(formData:FormData) {
+		return this.http.post(this.APIURL + 'preloaded-simulation', formData);
 	}
 
 	saveSimulation(zipData: { zipContent: Blob; zipFileName: string }) {
@@ -88,4 +96,6 @@ export class CommunicationService {
 	deleteSavedSimulation(filename: string) {
 		return this.http.delete(this.APIURL + `delete-simulation/?filename=${filename}`).pipe(catchError(this.handleError));
 	}
+
+
 }

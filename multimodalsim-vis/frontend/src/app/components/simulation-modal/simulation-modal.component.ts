@@ -9,6 +9,7 @@ import { StopLookupService } from 'src/app/services/util/stop-lookup.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
+import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -97,7 +98,7 @@ export class SimulationModalComponent {
 
 	async launchSavedSimulation():Promise<void> {
 		// get the stops file
-		const simulationToFetch = window.localStorage.getItem('simulationToFetch');
+		const simulationToFetch = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
 		if(simulationToFetch && this.viewer) {
 			this.commService.requestStopsFile(simulationToFetch).subscribe({
 				next: data => {

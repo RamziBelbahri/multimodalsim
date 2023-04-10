@@ -7,6 +7,9 @@ import { Viewer } from 'cesium';
 import { StopLookupService } from '../../util/stop-lookup.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { BehaviorSubject } from 'rxjs';
+import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import { CommunicationService } from '../../communication/communication.service';
+
 
 @Injectable({
 	providedIn: 'root',
@@ -23,7 +26,14 @@ export class DataReaderService {
 	isSavedSimulationFromServer: BehaviorSubject<boolean>;
 	zipfileNameFromServer = '';
 
-	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
+	// CHANGE THIS LATER THE CODE IS GETTING WAY TOO MESSY
+	private formData = new FormData();
+
+	constructor(
+		private simulationParserService: SimulationParserService,
+		private entityDataHandlerService: EntityDataHandlerService,
+		private stopLookup: StopLookupService,
+		private commService:CommunicationService) {
 		this.zipper = JSZip();
 		this.csvData = new Set<string>();
 		this.errors = [];
@@ -52,6 +62,14 @@ export class DataReaderService {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
 			await this.readFiles(zip);
+			this.commService.sendPreloadedSimulation(this.formData).subscribe({
+				next: (data) => {console.log(data);},
+				error: (err) => {console.log(err);},
+				complete: () => {
+					console.log('complete');
+					this.formData = new FormData();
+				}
+			});
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
@@ -86,6 +104,12 @@ export class DataReaderService {
 					this.ignored.push(filePath);
 				}
 			}
+			const simName = (document.getElementById('preloaded-sim-name') as HTMLInputElement).value;
+			if(simName) {
+				this.formData.append('simulationName', simName);
+			}
+			window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
+			window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
 		}
 	}
 
@@ -99,6 +123,8 @@ export class DataReaderService {
 	private readFileData(txt: string, filePath: string): void {
 		try {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
+			const encodedFilePath = encodeURIComponent(filePath);
+			this.formData.append(encodedFilePath, txt);
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
 				this.setStops(csvArray);
@@ -118,6 +144,11 @@ export class DataReaderService {
 		} catch (error) {
 			this.errors.push((error as Error).message as string);
 		}
+	}
+
+	private sendFileToServer() {
+		//TODO
+
 	}
 
 	private setFileData(filePath: string, csvArray: any): void {

@@ -251,37 +251,9 @@ function getArgsFromConfig(config:any):any {
 	return args;
 }
 
-app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Request, res:Response) => {
-	const files = req.files;
-	let networkfile = '';
-	if(!files) {
-		res.status(500).json({status: 'no file received'});
-		return;
-	}
-	for(const file of (files as Array<any>)) {
-		
-		const filePath = decodeURIComponent(file.fieldname);
-		if(filePath.includes('_network_')){
-			networkfile = filePath.split('/')[filePath.split('/').length - 1];
-		}
-		const directories = filePath.split('/');
-		let directory = '../data/' + req.body['simulationName'] + '/';
-		if(!fs.existsSync(directory)) {
-			fs.mkdirSync(directory);
-		}
-		for(let i = 0; i < directories.length - 1; i ++) {
-			directory += (directories[i] + '/');
-			if(!fs.existsSync(directory)) {
-				fs.mkdirSync(directory);
-			}
-		}
-		fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
-			if (err) {
-				console.error(err);
-				return;
-			}
-		});
-	}
+type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
+
+function zipWithConfig(req:Request, files: MulterFiles, networkfile='', isLive=true):any {
 	const toplevelFolder = 'communication/data/' + req.body['simulationName'] + '/' + decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
 	const config = {
 		'osrm': req.body['osrm'] == 'true',
@@ -289,7 +261,7 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 		'gtfs-folder': toplevelFolder + '/gtfs/',
 		'request-filepath': toplevelFolder + '/requests.csv',
 		'networkfile': toplevelFolder + '/' + networkfile,
-		'isLive' : true
+		'isLive' : isLive
 	};
 
 	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
@@ -300,12 +272,65 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 	archive.pipe(output);
 	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
 	archive.finalize();
+	return config;
+}
+
+function saveFile(filePath:string, req:Request, file:any) {
+	const directories = filePath.split('/');
+	let directory = '../data/' + req.body['simulationName'] + '/';
+	if(!fs.existsSync(directory)) {
+		fs.mkdirSync(directory);
+	}
+	for(let i = 0; i < directories.length - 1; i ++) {
+		directory += (directories[i] + '/');
+		if(!fs.existsSync(directory)) {
+			fs.mkdirSync(directory);
+		}
+	}
+	fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
+		if (err) {
+			console.error(err);
+			return;
+		}
+	});
+}
 
 
+app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Request, res:Response) => {
+	const files = req.files;
+	let networkfile = '';
+	if(!files) {
+		res.status(500).json({status: 'no file received'});
+		return;
+	}
+	for(const file of (files as Array<any>)) {
+		const filePath = decodeURIComponent(file.fieldname);
+		if(filePath.includes('_network_')){
+			networkfile = filePath.split('/')[filePath.split('/').length - 1];
+		}
+		saveFile(filePath,req,file);
+	}
+	const config = zipWithConfig(req, files, networkfile,true);
 	startSim(getArgsFromConfig(config));
 
 	res.status(200).json({ status: 'got file'});
 });
+
+
+
+app.post('/api/preloaded-simulation', (req:Request, res:Response) => {
+	const files = req.files;
+	if(!files) {
+		res.status(500).json({status: 'no file received'});
+		return;
+	}
+	for(const file of (files as Array<any>)) {
+		const filePath = decodeURIComponent(file.fieldname);
+		saveFile(filePath,req,file);
+	}
+	zipWithConfig(req, files,'',false);
+});
+
 
 app.get('/api/stops-file', (req:Request, res:Response) => {
 	const simName:string|undefined = req.query['simName']?.toString();
@@ -339,7 +364,8 @@ app.get('/api/get-stats', (_: Request, res: Response) => {
 });
 
 app.post('api/restart', (_:Request, res:Response) => {
-	try{// restart docker container for activemq
+	try {
+		// restart docker container for activemq
 		execSync('docker restart multimodalsim-vis-activemq-1');
 		// kill the current simulation
 		runSim?.kill('SIGKILL');

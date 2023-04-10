@@ -14,6 +14,7 @@ import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 
 @Component({
 	selector: 'app-sidebar',
@@ -65,8 +66,8 @@ export class SidebarComponent implements OnInit {
 			}
 
 			if (this.transportModeList.size > 0) {
-				this.enableButton('mode-menu-button');
-				this.enableButton('replay-menu-button');
+				enableButton('mode-menu-button');
+				enableButton('replay-menu-button');
 				this.loadTime();
 			}
 
@@ -76,6 +77,8 @@ export class SidebarComponent implements OnInit {
 		this.subMenuList.push(document.getElementById('sub-menu-mode') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-replay') as HTMLElement);
 		this.subMenuList.push(document.getElementById('sub-menu-savelist') as HTMLElement);
+
+		disableButton('restart-sim-menu-button');
 	}
 
 	ngOnDestroy() {
@@ -86,8 +89,8 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('sidebar-menu') as HTMLElement).style.width = '340px';
 
 		if (this.transportModeList.size <= 0) {
-			this.disableButton('mode-menu-button');
-			this.disableButton('replay-menu-button');
+			disableButton('mode-menu-button');
+			disableButton('replay-menu-button');
 		} else {
 			this.loadTime();
 		}
@@ -111,19 +114,11 @@ export class SidebarComponent implements OnInit {
 		this.toggleContainer(id);
 	}
 
-	private disableButton(id: string): void {
-		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#b1b1b1';
-		if (id != 'replay-menu-button') element.style.marginBottom = '10px';
-		element.style.pointerEvents = 'none';
+	restartSim() {
+		alert('WARNING: this will reload the page');
+		this.commService.restartSimulation();
 	}
 
-	private enableButton(id: string): void {
-		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#e7e7e7';
-		element.style.marginBottom = '5px';
-		element.style.pointerEvents = 'auto';
-	}
 
 	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';

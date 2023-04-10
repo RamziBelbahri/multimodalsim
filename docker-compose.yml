@@ -10,7 +10,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - multimodalsim_vis_network
-    command: bash -c "apt-get update && apt-get install -y docker.io"
+    mem_limit: 4g
+
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:

@@ -64,7 +64,7 @@ export class LaunchModalComponent {
 						if(this.viewerSharingService.viewer){
 							this.dataReaderService.launchSimulation(this.viewerSharingService.viewer, true);
 						}
-						this.commService.uploadFile(formData);
+						this.commService.uploadFilesAndLaunch(formData);
 					});
 				}
 			}
