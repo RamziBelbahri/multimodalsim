@@ -181,6 +181,16 @@ export class VehiclePositionHandlerService {
 		this.vehicleIdMapping.set(vehicleEvent.id.toString(), vehicle);
 	}
 
+	updateIcon(viewer: Viewer, busId: string): void {
+		const entity = viewer.entities.getById(busId);
+		if (entity && entity.ellipse) {
+			entity.ellipse.material =
+				this.getPassengerAmount(busId) <= 0
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/filled_bus.png', transparent: true });
+		}
+	}
+
 	// Ajoute une entité sur la carte avec le chemin spécifié
 	private spawnEntity(id: string, positionProperty: SampledPositionProperty, viewer: Viewer): void {
 		viewer.entities.add({
@@ -189,7 +199,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: 80,
 				semiMajorAxis: 80,
 				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/filledBus.png', transparent: true }),
+				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true }),
 			},
 			label: {
 				font: '20px sans-serif',
