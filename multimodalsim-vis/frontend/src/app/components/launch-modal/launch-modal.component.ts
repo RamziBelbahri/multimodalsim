@@ -34,7 +34,7 @@ export class LaunchModalComponent {
 		this.target = target;
 	}
 
-	launchSimulation(): void {
+	launchSimulationOnBackend(): void {
 		const formData = new FormData();
 		if(this.target && this.target.files) {
 			for(let i = 0; i < this.target.files?.length; i++) {
@@ -62,7 +62,7 @@ export class LaunchModalComponent {
 						this.pathHandler.isRealtime = true;
 						// console.log(this.viewerSharingService.viewer);
 						if(this.viewerSharingService.viewer){
-							this.dataReaderService.launchSimulation(this.viewerSharingService.viewer, true);
+							this.dataReaderService.launchSimulationOnFrontend(this.viewerSharingService.viewer, true);
 						}
 						this.commService.uploadFilesAndLaunch(formData);
 					});

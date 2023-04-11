@@ -50,7 +50,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		if(!simName || simName == '') return;
 		this.pathHandler.isRealtime = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH) == 'true';
 		// console.log(this.viewerSharingService.viewer);
-		this.dataReaderService.launchSimulation(this.viewer, true);
+		this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
 		this.communicationService.launchExistingBackendSimulation(simName);
 	}
 

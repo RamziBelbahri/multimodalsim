@@ -43,7 +43,7 @@ export class DataReaderService {
 		this.isSavedSimulationFromServer = new BehaviorSubject(false);
 	}
 
-	launchSimulation(viewer: Viewer, isRealTime: boolean): void {
+	launchSimulationOnFrontend(viewer: Viewer, isRealTime: boolean): void {
 		this.entityDataHandlerService.runVehiculeSimulation(viewer, isRealTime);
 	}
 
@@ -57,19 +57,21 @@ export class DataReaderService {
 		this.csvInput = (target.files as FileList)[0];
 	}
 
-	async readZipContent(): Promise<void> {
+	async readZipContent(isFromServer=false): Promise<void> {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
 			await this.readFiles(zip);
-			this.commService.sendPreloadedSimulation(this.formData).subscribe({
-				next: (data) => {console.log(data);},
-				error: (err) => {console.log(err);},
-				complete: () => {
-					console.log('complete');
-					this.formData = new FormData();
-				}
-			});
+			if(!isFromServer) {
+				this.commService.sendPreloadedSimulation(this.formData).subscribe({
+					next: (data) => {console.log(data);},
+					error: (err) => {console.log(err);},
+					complete: () => {
+						console.log('complete');
+						this.formData = new FormData();
+					}
+				});
+			}
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
@@ -103,12 +105,15 @@ export class DataReaderService {
 					this.ignored.push(filePath);
 				}
 			}
-			const simName = (document.getElementById('preloaded-sim-name') as HTMLInputElement).value;
-			if(simName) {
+			// try {
+			const simNameElement = (document.getElementById('preloaded-sim-name') as HTMLInputElement);
+			if(simNameElement) {
+				const simName = simNameElement.value;
 				this.formData.append('simulationName', simName);
+				window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
+				window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
 			}
-			window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
-			window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
+			// } catch(e) {console.log(e);}
 		}
 	}
 

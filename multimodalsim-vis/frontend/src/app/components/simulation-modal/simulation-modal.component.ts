@@ -25,6 +25,7 @@ export class SimulationModalComponent {
 	isSavedSimulationFromServer: boolean;
 	mode!: ProgressSpinnerMode;
 	value!: number;
+	simulationIsLive = false;
 
 	constructor(
 		private ref: MatDialogRef<SimulationModalComponent>,
@@ -73,7 +74,7 @@ export class SimulationModalComponent {
 	}
 
 	async readContent(): Promise<void> {
-		if (this.isSavedSimulationFromServer) {
+		if (this.isSavedSimulationFromServer && !this.simulationIsLive) {
 			const filename = this.dataReader.zipfileNameFromServer;
 			if (filename) {
 				this.startProgressSpinner();
@@ -84,6 +85,8 @@ export class SimulationModalComponent {
 					}
 				});
 			}
+		} else if(this.isSavedSimulationFromServer && this.simulationIsLive) {
+			// todo
 		} else {
 			this.startProgressSpinner();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
@@ -95,11 +98,11 @@ export class SimulationModalComponent {
 	}
 
 	launchSimulation(): void {
-		if (this.viewer) this.dataReader.launchSimulation(this.viewer, false);
+		if (this.viewer) this.dataReader.launchSimulationOnFrontend(this.viewer, false);
 		this.closeModal(true);
 	}
 
-	async launchSavedSimulation():Promise<void> {
+	async launchSavedSimulationOnBackend():Promise<void> {
 		// get the stops file
 		const simulationToFetch = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
 		if(simulationToFetch && this.viewer) {
@@ -118,7 +121,7 @@ export class SimulationModalComponent {
 							error: err => {console.log(err);},
 							complete: () => {console.log('complete');}
 						});
-						this.dataReader.launchSimulation(this.viewer, true);
+						this.dataReader.launchSimulationOnFrontend(this.viewer, true);
 					}
 				},
 				error: error => {

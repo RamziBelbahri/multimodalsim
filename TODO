@@ -1,0 +1,12 @@
+// if not from server send all the stuff to server
+// add an if else if structure
+/*
+1. if not from server --> just same
+2. if from server:
+    a. get config
+    b.
+    if islive:
+        launch the live simulation <-------
+    else
+        do the same as they are doing now
+*/

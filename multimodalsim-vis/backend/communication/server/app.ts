@@ -9,68 +9,39 @@ import { ChildProcessWithoutNullStreams, spawn } from 'node:child_process';
 import suspend from 'psuspend';
 import { readdirSync, existsSync, mkdirSync, readFileSync, rmSync } from 'fs';
 import fs from 'fs';
-import { rm, writeFile } from  'fs/promises';
+import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
-// import * as archiver from 'archiver';
+import { execSync } from 'child_process';
 import archiver from 'archiver';
-import { exec, execSync } from 'child_process';
 
 
+type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
+function zipWithConfig(req:Request, files: MulterFiles, networkfile='', isLive=true):any {
+	const toplevelFolder = 'communication/data/' + req.body['simulationName'] + '/' + decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
+	const config = {
+		'osrm': req.body['osrm'] == 'true',
+		'log-level': req.body['log-level'],
+		'gtfs-folder': toplevelFolder + '/gtfs/',
+		'request-filepath': toplevelFolder + '/requests.csv',
+		'networkfile': toplevelFolder + '/' + networkfile,
+		'isLive' : isLive
+	};
 
-dotenv.config();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const distDir = __dirname + '/dist/';
-const savedSimulationsDir =  __dirname + '/../saved-simulations/';
-let savedSimulationsDirExists = existsSync(savedSimulationsDir);
-const upload = multer({
-	storage: multer.memoryStorage(),
-	limits: { files: 1 },
-});
+	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
 
-
-const port = process.env['PORT'] || '8000';
-const app: Express = express();
-let runSim:ChildProcessWithoutNullStreams|undefined;
-
-let stats:{'Total number of trips': '0', 'Number of active trips': '0', 'Distance travelled': '0.0', 'Greenhouse gas emissions': '0.0'};
-
-app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
-	res.header('Access-Control-Allow-Origin', 
-		'http://localhost:4200');
-	res.header('Access-Control-Allow-Headers', 
-		'Origin, X-Requested-With, Content-Type, Accept');
-	res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
-	next();
-});
-app.use(bodyParser.json({limit: '100mb'}));
-app.use(express.static(distDir));
-
-app.listen(port, () => {
-	console.log(`[server]: Server is running at http://localhost:${port}`);
-});
-
+	// move the whole thing to a zip
+	const output = fs.createWriteStream('saved-simulations/' + req.body['simulationName'] + '.zip');
+	const archive = archiver('zip');
+	archive.pipe(output);
+	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
+	archive.finalize();
+	return config;
+}
 const getsArgs = (req: Request):string[] => {
 	const defaultFolder  = '20191101';
 	const folder = req.body.folder ? req.body.folder : defaultFolder;
-	// const args = [
-	// 	'-m',
-	// 	'communication',
-	// 	'fixed',
-	// 	'--gtfs',
-	// 	'--gtfs-folder',
-	// 	`multimodal-simulator/data/${folder}/gtfs/`,
-	// 	'-r',
-	// 	`multimodal-simulator/data/${folder}/requests.csv`,
-	// 	'--multimodal',
-	// 	'--log-level',
-	// 	'INFO',
-	// 	'-g',
-	// 	`multimodal-simulator/data/${folder}/bus_network_graph_${folder}.txt`,
-	// 	'--osrm'
-	// ];
 	const args = [
 		'-m',
 		'communication',
@@ -88,14 +59,6 @@ const getsArgs = (req: Request):string[] => {
 	];
 	return args;
 };
-console.log('if you see this something went right');
-interface myObjet {
-	field: string,
-	value: string
-}
-// app.get('/api/status', (req: Request, res: Response) =>  {
-// 	res.status(200).json({ status: 'UP' });
-
 const updateStats = (output: string) => {
 	const outputString:string = output.toString();
 	if(outputString.includes('Total')) {
@@ -104,12 +67,83 @@ const updateStats = (output: string) => {
 		const jsonString = outputString.slice(jsonStart, jsonEnd);
 		const clean = jsonString.replaceAll('\'','"');
 		const json = JSON.parse(clean);
-		stats = json;
+		return json;
 	}
 };
+function getArgsFromConfig(config:any):any {
+	const args = [
+		'-m',
+		'communication',
+		'fixed',
+		'--gtfs',
+		'--gtfs-folder',
+		config['gtfs-folder'],
+		'-r',
+		config['request-filepath'],
+		'--multimodal',
+		'--log-level',
+		config['log-level'],
+		'-g',
+		config['networkfile'],
+	];
+	if(config['osrm']) {
+		args.push('--osrm');
+	}
+	return args;
+}
+function saveFile(filePath:string, req:Request, file:any) {
+	const directories = filePath.split('/');
+	let directory = '../data/' + req.body['simulationName'] + '/';
+	if(!fs.existsSync(directory)) {
+		fs.mkdirSync(directory);
+	}
+	for(let i = 0; i < directories.length - 1; i ++) {
+		directory += (directories[i] + '/');
+		if(!fs.existsSync(directory)) {
+			fs.mkdirSync(directory);
+		}
+	}
+	fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
+		if (err) {
+			console.error(err);
+			return;
+		}
+	});
+}
 
-app.get('/api/status', (req: Request, res: Response) =>  {
-	res.status(200).json({ status: 'UP' });
+const upload_multiple_files = multer({
+	storage: multer.memoryStorage()
+});
+dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distDir = __dirname + '/dist/';
+const savedSimulationsDir =  __dirname + '/../saved-simulations/';
+const savedPreloadedSimulationsDir 	= savedSimulationsDir + 'preloaded';
+const savedLiveSimulationDir 		= savedSimulationsDir + 'live';
+
+let savedSimulationsDirExists = existsSync(savedSimulationsDir);
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { files: 1 },
+});
+const port = process.env['PORT'] || '8000';
+const app: Express = express();
+let runSim:ChildProcessWithoutNullStreams|undefined;
+
+let stats:{'Total number of trips': '0', 'Number of active trips': '0', 'Distance travelled': '0.0', 'Greenhouse gas emissions': '0.0'};
+app.use((req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) => {
+	res.header('Access-Control-Allow-Origin', 
+		'http://localhost:4200');
+	res.header('Access-Control-Allow-Headers', 
+		'Origin, X-Requested-With, Content-Type, Accept');
+	res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
+	next();
+});
+app.use(bodyParser.json({limit: '100mb'}));
+app.use(express.static(distDir));
+app.listen(port, () => {
+	console.log(`[server]: Server is running at http://localhost:${port}`);
 });
 
 function startSim(args:string[]) {
@@ -126,10 +160,14 @@ function startSim(args:string[]) {
 	});
 
 	runSim.stderr.on('data', (output: any) => {
-		updateStats(output);
+		stats = updateStats(output);
 		console.log(`${output}`);
 	});
 }
+
+app.get('/api/status', (req: Request, res: Response) =>  {
+	res.status(200).json({ status: 'UP' });
+});
 
 app.post('/api/start-simulation', (req: Request, res: Response) => {
 	const args = getsArgs(req);
@@ -173,16 +211,22 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	createSavedSimulationsDir();
 	let zipfiles: string[] = readdirSync(savedSimulationsDir);
+	// let zipfilesWithFullPaths = read
+	console.log(zipfiles);
 	zipfiles = zipfiles.filter(file => path.extname(file) === '.zip');
 	res.send(zipfiles.sort());
 });
 
+// this seems to be only for simulations that have been
 app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request, res:Response) => {
 	const data: Buffer = req.file?.buffer as Buffer;
 	const { zipFileName }: {zipFileName: string} = req.body;
 	createSavedSimulationsDir();
+	if(!existsSync(savedPreloadedSimulationsDir)) {
+		mkdirSync(savedPreloadedSimulationsDir);
+	}
 	try {
-		await writeFile(savedSimulationsDir + zipFileName, data);
+		await writeFile(savedPreloadedSimulationsDir + zipFileName, data);
 		console.log('sauvegarde de ' + zipFileName + ' réussie');
 	}
 	catch (e) {
@@ -224,78 +268,6 @@ app.get('/api/end-simulation', (req:Request, res:Response) => {
 	res.status(200).json({ status: 'TERMINATED' });
 });
 
-
-const upload_multiple_files = multer({
-	storage: multer.memoryStorage()
-});
-
-function getArgsFromConfig(config:any):any {
-	const args = [
-		'-m',
-		'communication',
-		'fixed',
-		'--gtfs',
-		'--gtfs-folder',
-		config['gtfs-folder'],
-		'-r',
-		config['request-filepath'],
-		'--multimodal',
-		'--log-level',
-		config['log-level'],
-		'-g',
-		config['networkfile'],
-	];
-	if(config['osrm']) {
-		args.push('--osrm');
-	}
-	return args;
-}
-
-type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
-
-function zipWithConfig(req:Request, files: MulterFiles, networkfile='', isLive=true):any {
-	const toplevelFolder = 'communication/data/' + req.body['simulationName'] + '/' + decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
-	const config = {
-		'osrm': req.body['osrm'] == 'true',
-		'log-level': req.body['log-level'],
-		'gtfs-folder': toplevelFolder + '/gtfs/',
-		'request-filepath': toplevelFolder + '/requests.csv',
-		'networkfile': toplevelFolder + '/' + networkfile,
-		'isLive' : isLive
-	};
-
-	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
-
-	// move the whole thing to a zip
-	const output = fs.createWriteStream('saved-simulations/' + req.body['simulationName'] + '.zip');
-	const archive = archiver('zip');
-	archive.pipe(output);
-	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
-	archive.finalize();
-	return config;
-}
-
-function saveFile(filePath:string, req:Request, file:any) {
-	const directories = filePath.split('/');
-	let directory = '../data/' + req.body['simulationName'] + '/';
-	if(!fs.existsSync(directory)) {
-		fs.mkdirSync(directory);
-	}
-	for(let i = 0; i < directories.length - 1; i ++) {
-		directory += (directories[i] + '/');
-		if(!fs.existsSync(directory)) {
-			fs.mkdirSync(directory);
-		}
-	}
-	fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
-		if (err) {
-			console.error(err);
-			return;
-		}
-	});
-}
-
-
 app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;
 	let networkfile = '';
@@ -316,8 +288,6 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 	res.status(200).json({ status: 'got file'});
 });
 
-
-
 app.post('/api/preloaded-simulation', (req:Request, res:Response) => {
 	const files = req.files;
 	if(!files) {
@@ -331,7 +301,6 @@ app.post('/api/preloaded-simulation', (req:Request, res:Response) => {
 	zipWithConfig(req, files,'',false);
 });
 
-
 app.get('/api/stops-file', (req:Request, res:Response) => {
 	const simName:string|undefined = req.query['simName']?.toString();
 	if(simName) {
@@ -344,8 +313,6 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 	}
 });
 
-
-// console.log('launch saved sim is listening')
 app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	const simName:string|undefined = req.body['simName']?.toString();
 	if(simName) {

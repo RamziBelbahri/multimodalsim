@@ -266,8 +266,8 @@ export class SidebarComponent implements OnInit {
 		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
 	}
 
-	launchRealTimeSimulation(): void {
-		this.pathHandler.isRealtime = true;
-		if (this.viewer) this.dataReader.launchSimulation(this.viewer, true);
-	}
+	// launchRealTimeSimulation(): void {
+	// 	this.pathHandler.isRealtime = true;
+	// 	if (this.viewer) this.dataReader.launchSimulationOnFrontend(this.viewer, true);
+	// }
 }
