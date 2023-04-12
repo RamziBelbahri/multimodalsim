@@ -26,6 +26,8 @@ export class EntityInfosComponent {
 	passengerAmount = 0;
 	passengerList = new Array<string>();
 
+	dragging = false;
+
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
@@ -45,11 +47,24 @@ export class EntityInfosComponent {
 		this.viewerSubscription.unsubscribe();
 	}
 
-	open(): void {
+	private open(): void {
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
+	}
+
+	handleDragStart(): void {
+		this.dragging = true;
+	}
+
+	handleClick(): void {
+		if (this.dragging) {
+			this.dragging = false;
+			return;
+		}
+
+		this.open();
 	}
 }
