@@ -93,6 +93,10 @@ export class StopPositionHandlerService {
 		}
 	}
 
+	stackBoardingEvent(event: BoardingEvent): void {
+		this.boardingEventQueue.unshift(event);
+	}
+
 	addPassenger(passengerid: string, stopId: string): void {
 		this.stopIdMapping.get(stopId)?.addPassenger(passengerid);
 	}
