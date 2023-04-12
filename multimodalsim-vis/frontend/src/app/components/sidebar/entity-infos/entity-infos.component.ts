@@ -17,6 +17,7 @@ export class EntityInfosComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 	private entityInfosSubscription: Subscription = new Subscription();
+	private isOpen = false;
 
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
@@ -48,10 +49,12 @@ export class EntityInfosComponent {
 	}
 
 	private open(): void {
+		this.isOpen = true;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
+		this.isOpen = false;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
 	}
 
@@ -65,6 +68,10 @@ export class EntityInfosComponent {
 			return;
 		}
 
-		this.open();
+		if (this.isOpen) {
+			this.close();
+		} else {
+			this.open();
+		}
 	}
 }
