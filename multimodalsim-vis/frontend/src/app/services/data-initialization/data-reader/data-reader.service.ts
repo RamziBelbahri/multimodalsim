@@ -57,11 +57,11 @@ export class DataReaderService {
 		this.csvInput = (target.files as FileList)[0];
 	}
 
-	async readZipContent(isFromServer=false): Promise<void> {
+	async readZipContent(): Promise<void> {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
-			await this.readFiles(zip, isFromServer);
+			await this.readFiles(zip);
 			// if(!isFromServer) {
 			// 	this.commService.sendPreloadedSimulation(this.formData).subscribe({
 			// 		next: (data) => {console.log(data);},
@@ -82,7 +82,7 @@ export class DataReaderService {
 		this.zipfileNameFromServer = '';
 	}
 
-	private async readFiles(zip: JSZip, isFromServer = false): Promise<void> {
+	private async readFiles(zip: JSZip): Promise<void> {
 		if (zip.files) {
 			for (const filePath in zip.files) {
 				let extension: string;

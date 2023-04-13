@@ -24,3 +24,11 @@ export function setCurrentSim(isLive:boolean, simName:string) {
 export function getCurrentSim():[string|null, boolean] {
 	return [getCurrentSimulationName(), isCurrentSimulationLive()];
 }
+
+export function removeIsLive() {
+	window.sessionStorage.removeItem(LOCAL_STORAGE_KEYS.IS_LIVESIM);
+}
+
+export function removeSimName() {
+	window.sessionStorage.removeItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
+}

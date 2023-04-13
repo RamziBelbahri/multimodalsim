@@ -12,11 +12,14 @@
     DONE
 7. check if we can still launch a simulation (live)
     DONE --> Polylines seems still buggy though
-
+8. replace the stuff that uses directly the session storage
+    DONE
 8. make make sure that the simulator knows if the simulation is either
-   1. live simulation --> server always involved
-   2. preloaded, from server
-   3. preloaded, not from server
-
-
-9. bind the restart() method to the button, let the user confirm it
+    1. live simulation --> server always involved
+    2. preloaded, from server
+    3. preloaded, not from server
+    DONE
+9. rename data to temp-sim-data and update app.ts
+    DONE
+10. for simulations that do not originate from server: upload that stuff to the tmp data folder
+    

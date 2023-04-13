@@ -8,6 +8,7 @@ import { SimulationParserService } from 'src/app/services/data-initialization/si
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 // import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import * as sessionStorage from 'src/app/helpers/session-storage';
+import { Viewer } from 'cesium';
 
 @Component({
 	selector: 'app-launch-modal',
@@ -17,6 +18,7 @@ import * as sessionStorage from 'src/app/helpers/session-storage';
 export class LaunchModalComponent {
 	folder: string | undefined;
 	target: HTMLInputElement | undefined;
+	viewer: Viewer|undefined;
 	constructor(
 		private dialogRef: MatDialogRef<LaunchModalComponent>,
 		private commService: CommunicationService,
@@ -25,12 +27,15 @@ export class LaunchModalComponent {
 		private stopPositionHandlerService:StopPositionHandlerService,
 		private pathHandler:EntityPathHandlerService,
 		private viewerSharingService: ViewerSharingService
-	) {}
+	) {
+		this.viewerSharingService.currentViewer.subscribe((viewer:Viewer) => {
+			this.viewer = viewer;
+		});
+	}
 
 	selectFile(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		const selectedFile = (target.files as FileList)[0];
-		// console.log(target.files)
 		this.folder = selectedFile.webkitRelativePath.split('/')[0];
 		this.target = target;
 	}
@@ -44,7 +49,6 @@ export class LaunchModalComponent {
 				if(this.target.files[i].name.endsWith('stops.txt')) {
 					this.target.files[i].text().then((txt:string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
-						// console.log(csvData);
 						this.dataReaderService.parseStopsFile(csvData);
 						this.stopPositionHandlerService.initStops();
 						const log_level_select = document.getElementById('log-levels') as HTMLSelectElement;
@@ -58,13 +62,10 @@ export class LaunchModalComponent {
 						const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 						const simulationName = simulationNameInput.value;
 						formData.append('simulationName', simulationName);
-						// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simulationName);
-						// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
 						sessionStorage.setCurrentSim(true, simulationName);
 						this.pathHandler.isRealtime = true;
-						// console.log(this.viewerSharingService.viewer);
-						if(this.viewerSharingService.viewer){
-							this.dataReaderService.launchSimulationOnFrontend(this.viewerSharingService.viewer, true);
+						if(this.viewer) {
+							this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
 						}
 						this.commService.uploadFilesAndLaunch(formData);
 					});

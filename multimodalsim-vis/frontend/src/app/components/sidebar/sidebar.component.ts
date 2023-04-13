@@ -140,13 +140,16 @@ export class SidebarComponent implements OnInit {
 		if (!this.isSimulationActive) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-			
-			const simulationName = filename?.replace('zip', '');
-			const isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live') : false;
-			sessionStorage.setCurrentSim(isLive, simulationName ? simulationName : '');
-			// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, filename ? filename.replace('.zip', '') : '');
-			// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
-			// console.log(filename);
+			if(filename) {
+				sessionStorage.setCurrentSimulationName(filename);
+				console.log('simulation name:', filename);
+			} else {
+				sessionStorage.removeSimName();
+			}
+			let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
+			isLive = isLive && isFromServer;
+			console.log('isLive', isLive);
+			sessionStorage.setIsSimulationLive(isLive);
 
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 			const dialogRef = this.dialog.open(SimulationModalComponent, {

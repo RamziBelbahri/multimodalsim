@@ -26,7 +26,6 @@ export class SimulationModalComponent {
 	isSavedSimulationFromServer: boolean;
 	mode!: ProgressSpinnerMode;
 	value!: number;
-	simulationIsLive = false;
 
 	constructor(
 		private ref: MatDialogRef<SimulationModalComponent>,
@@ -75,6 +74,14 @@ export class SimulationModalComponent {
 	}
 
 	async readContent(): Promise<void> {
+
+		if(!sessionStorage.getCurrentSimulationName()) {
+			sessionStorage.setCurrentSimulationName(
+				(document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value
+			);
+			console.log('simulation name:', (document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value);
+		}
+
 		if (this.isSavedSimulationFromServer) {
 			const filename = this.dataReader.zipfileNameFromServer;
 			if (filename) {
@@ -112,14 +119,18 @@ export class SimulationModalComponent {
 					for (const line of stops) {
 						this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
 					}
-					console.log(stops);
 					this.stopPositionHandlerService.initStops();
-					console.log(this.viewer == undefined, simulationToFetch == undefined);
 					if(this.viewer && simulationToFetch) {
 						this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
-							next: data => {console.log(data);},
-							error: err => {console.log(err);},
-							complete: () => {console.log('complete');}
+							next: data => {
+								// TODO
+							},
+							error: err => {
+								alert('une erreur s\'est produite');
+							},
+							complete: () => {
+								// TODO
+							}
 						});
 						this.dataReader.launchSimulationOnFrontend(this.viewer, true);
 					}

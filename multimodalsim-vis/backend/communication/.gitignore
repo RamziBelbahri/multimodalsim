@@ -7,7 +7,7 @@
 /bazel-out
 
 # big files
-/data
+/temp-sim-data
 /server/saved-simulations
 
 # Node
@@ -50,4 +50,5 @@ Thumbs.db
 /server/node_modules
 
 # communication
-/communication/data
+/communication/tmp
+/communication/temp-sim-data

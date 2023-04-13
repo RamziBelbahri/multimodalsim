@@ -20,7 +20,7 @@ type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multe
 
 function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
 	const toplevelFolder = 
-		'communication/data/' +
+		'communication/temp-sim-data/' +
 		req.body['simulationName'] + '/' +
 		decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
 
@@ -34,13 +34,13 @@ function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfil
 		'isLive' : true
 	};
 
-	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
+	fs.writeFileSync('../temp-sim-data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
 
 	// move the whole thing to a zip
 	const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
 	const archive = archiver('zip');
 	archive.pipe(output);
-	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
+	archive.directory( '../temp-sim-data/' + req.body['simulationName'] + '/', false);
 	archive.finalize();
 	return config;
 }
@@ -53,13 +53,13 @@ const getsArgs = (req: Request):string[] => {
 		'fixed',
 		'--gtfs',
 		'--gtfs-folder',
-		`data/${folder}/gtfs/`,'-r',
-		`data/${folder}/requests.csv`,
+		`temp-sim-data/${folder}/gtfs/`,'-r',
+		`temp-sim-data/${folder}/requests.csv`,
 		'--multimodal',
 		'--log-level',
 		'INFO',
 		'-g',
-		`data/${folder}/bus_network_graph_${folder}.txt`,
+		`temp-sim-data/${folder}/bus_network_graph_${folder}.txt`,
 		'--osrm'
 	];
 	return args;
@@ -98,7 +98,7 @@ function getArgsFromConfig(config:any):any {
 }
 function saveFile(filePath:string, req:Request, file:any) {
 	const directories = filePath.split('/');
-	let directory = '../data/' + req.body['simulationName'] + '/';
+	let directory = '../temp-sim-data/' + req.body['simulationName'] + '/';
 	if(!fs.existsSync(directory)) {
 		fs.mkdirSync(directory);
 	}
@@ -108,7 +108,7 @@ function saveFile(filePath:string, req:Request, file:any) {
 			fs.mkdirSync(directory);
 		}
 	}
-	fs.writeFile('../data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
+	fs.writeFile('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
 		if (err) {
 			console.error(err);
 			return;
@@ -263,7 +263,7 @@ app.delete('/api/delete-simulation', async (req:Request<ParamsDictionary, ArrayB
 		console.log('Deletion');
 		try {
 			rmSync(fullPath);
-			rmSync(__dirname + '\\..\\..\\data\\' + filename.replace('.zip', ''),{ recursive: true, force: true });
+			rmSync(__dirname + '\\..\\..\\temp-sim-data\\' + filename.replace('.zip', ''),{ recursive: true, force: true });
 		}
 		catch (e) {
 			console.log(`La suppression du fichier ${filename} n'a pas réussi`);
@@ -323,7 +323,7 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 	const simName:string|undefined = req.query['simName']?.toString();
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
-		const configPath = '../data/' + simulationFolderName + '/config.json';
+		const configPath = '../temp-sim-data/' + simulationFolderName + '/config.json';
 		const stopsFilePath = JSON.parse(fs.readFileSync(configPath).toString())['gtfs-folder'].replace('communication/', '../') + '/stops.txt';
 		const data = fs.readFileSync(stopsFilePath).toString();
 		res.setHeader('Content-Type', 'text/plain');
@@ -335,7 +335,7 @@ app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	const simName:string|undefined = req.body['simName']?.toString();
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
-		const configPath = '../data/' + simulationFolderName + '/config.json';
+		const configPath = '../temp-sim-data/' + simulationFolderName + '/config.json';
 		const config = JSON.parse(fs.readFileSync(configPath).toString());
 		startSim(getArgsFromConfig(config));
 		res.status(200).json({ status: 'launched'});
