@@ -16,6 +16,9 @@ services:
       - /frontend/node_modules
   activemq:
     image: rmohr/activemq:latest
+    platform:
+      -linux/amd64
+      -linux/arm64/v8
     ports:
       - "61616:61616"
       - "61613:61613"
