@@ -1,12 +1,22 @@
-// if not from server send all the stuff to server
-// add an if else if structure
-/*
-1. if not from server --> just same
-2. if from server:
-    a. get config
-    b.
-    if islive:
-        launch the live simulation <-------
-    else
-        do the same as they are doing now
-*/
+1. for preloaded simulations, upload it to the right directory in the server
+    DONE
+2. list all simulations, both live and preloaded
+    DONE
+3. replace local storage with session storage (needed for restarting simulation)
+    DONE
+4. add a "is restart", this should only be true after clicking the restart button 
+    DONE
+5. enable the restart button after starting a simulation
+    DONE
+6. check if we can still get a preloaded simulation from the backend
+    DONE
+7. check if we can still launch a simulation (live)
+    DONE --> Polylines seems still buggy though
+
+8. make make sure that the simulator knows if the simulation is either
+   1. live simulation --> server always involved
+   2. preloaded, from server
+   3. preloaded, not from server
+
+
+9. bind the restart() method to the button, let the user confirm it

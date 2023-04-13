@@ -2,6 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { enableButton } from '../util/toggle-button';
 // import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 // import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
 // import { StopLookupService } from '../util/stop-lookup.service';
@@ -30,7 +31,9 @@ export class CommunicationService {
 				(document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
 			},
 			error: err => {console.log(err);},
-			complete: () => console.log(),
+			complete: () => {
+				enableButton('restart-sim-menu-button');
+			},
 		});
 	}
 

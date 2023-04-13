@@ -6,7 +6,8 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
-import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+// import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import * as sessionStorage from 'src/app/helpers/session-storage';
 
 @Component({
 	selector: 'app-launch-modal',
@@ -57,8 +58,9 @@ export class LaunchModalComponent {
 						const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 						const simulationName = simulationNameInput.value;
 						formData.append('simulationName', simulationName);
-						window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simulationName);
-						window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
+						// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simulationName);
+						// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
+						sessionStorage.setCurrentSim(true, simulationName);
 						this.pathHandler.isRealtime = true;
 						// console.log(this.viewerSharingService.viewer);
 						if(this.viewerSharingService.viewer){

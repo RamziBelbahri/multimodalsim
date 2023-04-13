@@ -1,4 +1,3 @@
-
 export function disableButton(id: string): void {
 	const element = document.getElementById(id) as HTMLElement;
 	element.style.backgroundColor = '#b1b1b1';

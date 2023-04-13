@@ -46,12 +46,12 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	ngAfterViewInit() {
 		// met à jour le viewer une fois que les composants sont abonnés.
 		this.viewerSharer.setViewer(this.viewer);
-		const simName = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
-		if(!simName || simName == '') return;
-		this.pathHandler.isRealtime = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH) == 'true';
+		// const simName = window.sessionStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
+		// if(!simName || simName == '') return;
+		// this.pathHandler.isRealtime = window.sessionStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH) == 'true';
 		// console.log(this.viewerSharingService.viewer);
-		this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
-		this.communicationService.launchExistingBackendSimulation(simName);
+		// this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
+		// this.communicationService.launchExistingBackendSimulation(simName);
 	}
 
 	ngOnDestroy() {

@@ -61,17 +61,17 @@ export class DataReaderService {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
-			await this.readFiles(zip);
-			if(!isFromServer) {
-				this.commService.sendPreloadedSimulation(this.formData).subscribe({
-					next: (data) => {console.log(data);},
-					error: (err) => {console.log(err);},
-					complete: () => {
-						console.log('complete');
-						this.formData = new FormData();
-					}
-				});
-			}
+			await this.readFiles(zip, isFromServer);
+			// if(!isFromServer) {
+			// 	this.commService.sendPreloadedSimulation(this.formData).subscribe({
+			// 		next: (data) => {console.log(data);},
+			// 		error: (err) => {console.log(err);},
+			// 		complete: () => {
+			// 			console.log('complete');
+			// 			this.formData = new FormData();
+			// 		}
+			// 	});
+			// }
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
@@ -82,10 +82,11 @@ export class DataReaderService {
 		this.zipfileNameFromServer = '';
 	}
 
-	private async readFiles(zip: JSZip): Promise<void> {
+	private async readFiles(zip: JSZip, isFromServer = false): Promise<void> {
 		if (zip.files) {
 			for (const filePath in zip.files) {
 				let extension: string;
+				console.log(filePath);
 				try {
 					const tmp = filePath.toLowerCase().split('.');
 					extension = tmp[tmp.length - 1];
@@ -106,13 +107,13 @@ export class DataReaderService {
 				}
 			}
 			// try {
-			const simNameElement = (document.getElementById('preloaded-sim-name') as HTMLInputElement);
-			if(simNameElement) {
-				const simName = simNameElement.value;
-				this.formData.append('simulationName', simName);
-				window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
-				window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
-			}
+			// const simNameElement = (document.getElementById('preloaded-sim-name') as HTMLInputElement);
+			// if(simNameElement && isFromServer) {
+			// 	const simName = simNameElement.value;
+			// 	this.formData.append('simulationName', simName);
+			// 	window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
+			// 	window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
+			// }
 			// } catch(e) {console.log(e);}
 		}
 	}

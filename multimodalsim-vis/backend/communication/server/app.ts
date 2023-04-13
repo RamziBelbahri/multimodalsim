@@ -18,21 +18,26 @@ import archiver from 'archiver';
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
-function zipWithConfig(req:Request, files: MulterFiles, networkfile='', isLive=true):any {
-	const toplevelFolder = 'communication/data/' + req.body['simulationName'] + '/' + decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
+function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
+	const toplevelFolder = 
+		'communication/data/' +
+		req.body['simulationName'] + '/' +
+		decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
+
+	
 	const config = {
 		'osrm': req.body['osrm'] == 'true',
 		'log-level': req.body['log-level'],
 		'gtfs-folder': toplevelFolder + '/gtfs/',
 		'request-filepath': toplevelFolder + '/requests.csv',
 		'networkfile': toplevelFolder + '/' + networkfile,
-		'isLive' : isLive
+		'isLive' : true
 	};
 
 	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
 
 	// move the whole thing to a zip
-	const output = fs.createWriteStream('saved-simulations/' + req.body['simulationName'] + '.zip');
+	const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
 	const archive = archiver('zip');
 	archive.pipe(output);
 	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
@@ -119,8 +124,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + '/dist/';
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
-const savedPreloadedSimulationsDir 	= savedSimulationsDir + 'preloaded';
-const savedLiveSimulationDir 		= savedSimulationsDir + 'live';
+const savedPreloadedSimulationsDir 	= savedSimulationsDir + 'preloaded/';
+const savedLiveSimulationDir 		= savedSimulationsDir + 'live/';
 
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
 const upload = multer({
@@ -200,6 +205,7 @@ function createSavedSimulationsDir(): void {
 app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, ArrayBuffer, {}, {filename: string}>, res:Response) => {
 	createSavedSimulationsDir();
 	const fullPath = savedSimulationsDir + req.query.filename;
+	// console.log(fullPath)
 	if (req.query.filename && existsSync(fullPath)) {
 		const buffer: Buffer = readFileSync(fullPath);
 		res.type('arraybuffer');
@@ -210,14 +216,27 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 
 app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	createSavedSimulationsDir();
-	let zipfiles: string[] = readdirSync(savedSimulationsDir);
-	// let zipfilesWithFullPaths = read
-	console.log(zipfiles);
-	zipfiles = zipfiles.filter(file => path.extname(file) === '.zip');
+	const zipfiles:string[] = [];
+	// preloaded
+	let preloadedZipfiles: string[] = readdirSync(savedPreloadedSimulationsDir);
+	preloadedZipfiles = preloadedZipfiles.filter(file => path.extname(file) === '.zip');
+	for(let i = 0; i < preloadedZipfiles.length; i++) {
+		preloadedZipfiles[i] = 'preloaded/' + preloadedZipfiles[i];
+	}
+	// live
+	let liveZipfiles:string[] = readdirSync(savedLiveSimulationDir);
+	liveZipfiles = liveZipfiles.filter(file => path.extname(file) === '.zip');
+	for(let i = 0; i < liveZipfiles.length; i++) {
+		liveZipfiles[i] = 'live/' + liveZipfiles[i];
+	}
+
+	zipfiles.push(...preloadedZipfiles);
+	zipfiles.push(...liveZipfiles);
 	res.send(zipfiles.sort());
 });
 
-// this seems to be only for simulations that have been
+// this is used only for preloaded simulations
+// live simulations are saved by default
 app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request, res:Response) => {
 	const data: Buffer = req.file?.buffer as Buffer;
 	const { zipFileName }: {zipFileName: string} = req.body;
@@ -282,7 +301,7 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 		}
 		saveFile(filePath,req,file);
 	}
-	const config = zipWithConfig(req, files, networkfile,true);
+	const config = zipLiveSimulationWithConfig(req, files, networkfile);
 	startSim(getArgsFromConfig(config));
 
 	res.status(200).json({ status: 'got file'});
@@ -298,7 +317,6 @@ app.post('/api/preloaded-simulation', (req:Request, res:Response) => {
 		const filePath = decodeURIComponent(file.fieldname);
 		saveFile(filePath,req,file);
 	}
-	zipWithConfig(req, files,'',false);
 });
 
 app.get('/api/stops-file', (req:Request, res:Response) => {

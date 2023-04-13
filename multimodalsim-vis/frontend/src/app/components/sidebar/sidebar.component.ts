@@ -12,7 +12,8 @@ import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-p
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+// import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import * as sessionStorage from 'src/app/helpers/session-storage';
 import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
 import { SimulationModalComponent } from '../simulation-modal/simulation-modal.component';
@@ -120,8 +121,9 @@ export class SidebarComponent implements OnInit {
 	}
 
 	restartSim() {
-		alert('WARNING: this will reload the page');
-		this.commService.restartSimulation();
+		if (confirm('WARNING: this will reload the page')) {
+			this.commService.restartSimulation();
+		}
 	}
 
 
@@ -138,9 +140,14 @@ export class SidebarComponent implements OnInit {
 		if (!this.isSimulationActive) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-			window.localStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, filename ? filename.replace('.zip', '') : '');
-			window.localStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
-			console.log(filename);
+			
+			const simulationName = filename?.replace('zip', '');
+			const isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live') : false;
+			sessionStorage.setCurrentSim(isLive, simulationName ? simulationName : '');
+			// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, filename ? filename.replace('.zip', '') : '');
+			// window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'true');
+			// console.log(filename);
+
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 			const dialogRef = this.dialog.open(SimulationModalComponent, {
 				height: '70%',
@@ -266,8 +273,4 @@ export class SidebarComponent implements OnInit {
 		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
 	}
 
-	// launchRealTimeSimulation(): void {
-	// 	this.pathHandler.isRealtime = true;
-	// 	if (this.viewer) this.dataReader.launchSimulationOnFrontend(this.viewer, true);
-	// }
 }

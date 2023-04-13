@@ -9,8 +9,9 @@ import { StopLookupService } from 'src/app/services/util/stop-lookup.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
-import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import { MatDialogRef } from '@angular/material/dialog';
+import { enableButton } from 'src/app/services/util/toggle-button';
+import * as sessionStorage from 'src/app/helpers/session-storage';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -74,7 +75,7 @@ export class SimulationModalComponent {
 	}
 
 	async readContent(): Promise<void> {
-		if (this.isSavedSimulationFromServer && !this.simulationIsLive) {
+		if (this.isSavedSimulationFromServer) {
 			const filename = this.dataReader.zipfileNameFromServer;
 			if (filename) {
 				this.startProgressSpinner();
@@ -82,19 +83,18 @@ export class SimulationModalComponent {
 					if (res.byteLength > 0) {
 						await this.dataReader.readZipContentFromServer(res);
 						this.endProgressSpinner();
+						this.launchSimulation();
 					}
 				});
 			}
-		} else if(this.isSavedSimulationFromServer && this.simulationIsLive) {
-			// todo
 		} else {
 			this.startProgressSpinner();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
 			if (zipInput.files) await this.dataReader.readZipContent();
 			this.endProgressSpinner();
-
 			this.launchSimulation();
 		}
+		enableButton('restart-sim-menu-button');
 	}
 
 	launchSimulation(): void {
@@ -104,7 +104,7 @@ export class SimulationModalComponent {
 
 	async launchSavedSimulationOnBackend():Promise<void> {
 		// get the stops file
-		const simulationToFetch = window.localStorage.getItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH);
+		const simulationToFetch = sessionStorage.getCurrentSimulationName();
 		if(simulationToFetch && this.viewer) {
 			this.commService.requestStopsFile(simulationToFetch).subscribe({
 				next: data => {
