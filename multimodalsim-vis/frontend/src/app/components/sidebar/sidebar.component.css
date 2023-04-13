@@ -12,8 +12,9 @@
 	transition: 0.5s;
 }
 
+
 .sub-menu-button {
-	display: block;
+  display: block;
 	width: 90%;
 	height: 30px;
 	margin-left: 2%;
@@ -32,9 +33,26 @@
 	transition: 0.3s;
 }
 
+.sub-menu-button-blue {
+  background-color: cornflowerblue;
+}
+
+.sub-menu-button-yellow {
+  background-color: bisque;
+}
+
 .sub-menu-button:hover {
-	color: black;
+  color: black;
 	background-color: #dadada;
+}
+
+.sub-menu-button-blue:hover {
+  color: black;
+  background-color: dodgerblue;
+}
+
+.sub-menu-button-yellow:hover {
+
 }
 
 .sub-menu {
