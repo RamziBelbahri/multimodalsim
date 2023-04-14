@@ -12,8 +12,9 @@
 	transition: 0.5s;
 }
 
+
 .sub-menu-button {
-	display: block;
+  display: block;
 	width: 90%;
 	height: 30px;
 	margin-left: 2%;
@@ -32,9 +33,48 @@
 	transition: 0.3s;
 }
 
+.sub-menu-button-blue {
+  background-color: cornflowerblue;
+}
+
+.sub-menu-button-yellow {
+  background-color: goldenrod;
+}
+
+.sub-menu-button-red {
+  background-color: salmon;
+}
+
+.sub-menu-button-green {
+  background-color: yellowgreen;
+}
+
 .sub-menu-button:hover {
-	color: black;
+  color: black;
 	background-color: #dadada;
+}
+
+.sub-menu-button-blue:hover {
+  background-color: dodgerblue;
+}
+
+.sub-menu-button-yellow:hover {
+  background-color: darkgoldenrod;
+}
+
+.sub-menu-button-red:hover {
+  background-color: tomato;
+}
+
+.sub-menu-button-green:hover {
+  background-color: limegreen;
+}
+
+.sub-menu-button.disabled {
+  background-color: #b1b1b1;
+  margin-bottom: 10px;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .sub-menu {
