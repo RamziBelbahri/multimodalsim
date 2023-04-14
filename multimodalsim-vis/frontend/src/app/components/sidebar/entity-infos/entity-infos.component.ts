@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
-@Component({
+@Component({	
 	selector: 'app-entity-infos',
 	templateUrl: './entity-infos.component.html',
 	styleUrls: ['./entity-infos.component.css'],
@@ -36,8 +36,9 @@ export class EntityInfosComponent {
 			this.viewer = viewer;
 
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
-				this.lat = infos.position.x;
-				this.lon = infos.position.y;
+				const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(infos.position);
+				this.lon = Cesium.Math.toDegrees(carto.longitude);
+				this.lat = Cesium.Math.toDegrees(carto.latitude);
 				this.passengerAmount = infos.passengers.length;
 				this.passengerList = infos.passengers;
 			});
