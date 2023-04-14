@@ -68,6 +68,6 @@ export class EntityInfosComponent {
 			return;
 		}
 
-		this.isOpen ? this.close : this.open;
+		this.isOpen ? this.close() : this.open();
 	}
 }
