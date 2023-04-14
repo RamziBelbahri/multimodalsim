@@ -93,6 +93,10 @@ export class StopPositionHandlerService {
 		}
 	}
 
+	stackBoardingEvent(event: BoardingEvent): void {
+		this.boardingEventQueue.unshift(event);
+	}
+
 	addPassenger(passengerid: string, stopId: string): void {
 		this.stopIdMapping.get(stopId)?.addPassenger(passengerid);
 	}
@@ -105,9 +109,9 @@ export class StopPositionHandlerService {
 		const entity = viewer.entities.getById(stopId);
 		if (entity && entity.ellipse) {
 			entity.ellipse.material =
-				this.getPassengerAmount(stopId) == 0
+				this.getPassengerAmount(stopId) <= 0
 					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.png', transparent: true });
 		}
 	}
 
