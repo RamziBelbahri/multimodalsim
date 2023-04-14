@@ -23,6 +23,7 @@ import { InteractionComponent } from './components/interaction/interaction.compo
 import { LaunchModalComponent } from './components/launch-modal/launch-modal.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
 	declarations: [
@@ -52,6 +53,7 @@ import { MatInputModule } from '@angular/material/input';
 		MatFormFieldModule,
 		MatInputModule,
 		ReactiveFormsModule,
+		DragDropModule,
 	],
 	providers: [
 		MatProgressSpinner,
