@@ -26,6 +26,7 @@ export class CameraHandlerService {
 			.get(this.CONFIG_PATH, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
 			.subscribe((data) => {
+				this.tierSizes.length = 0;
 				this.tierSizes.push(data.tier0_size.toString());
 				this.tierSizes.push(data.tier1_size.toString());
 				this.tierSizes.push(data.tier2_size.toString());

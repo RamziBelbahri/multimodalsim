@@ -56,5 +56,11 @@
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
-    <app-interaction (isTerminated)="setSimulationState(false)" *ngIf="isRunning"></app-interaction>
+    <div class="sub-menu-button" id="sub-menu-launch-real" (click)="launchRealTimeSimulation()">
+        Lancer la simulation en temps réel (A MODIFIER)
+    </div>
+    <div class="sub-menu">
+        <div class="sub-menu-option"></div>
+    </div>
+    <app-interaction (isTerminated)="setSimulationState(false, false)" *ngIf="isRunning"></app-interaction>
 </div>

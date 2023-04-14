@@ -8,11 +8,20 @@
 	margin-left: 50px;
 }
 
+.button-container {
+	background-color: white;
+	width: 100%;
+	position: sticky;
+	top: 0;
+	height: 25px;
+	z-index: 3;
+}
+
 .modal-button {
 	display: block;
-    position: relative;
-    left: 40%;
-    top: 40%;
+	position: relative;
+	left: 40%;
+	top: 40%;
 	width: 20%;
 	height: 40px;
 	border: black;
@@ -34,14 +43,14 @@
 
 .selection {
 	display: block;
-    position: relative;
-    left: 5%;
-    margin-top: 50px;
+	position: relative;
+	left: 5%;
+	margin-top: 50px;
 	width: 90%;
 	height: 15%;
 	border-radius: 40px;
 	background-color: #ddeeed;
-	color: black;   
+	color: black;
 	font-size: 16px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 	text-align: center;
@@ -51,15 +60,15 @@
 	background-color: #c7e6e3;
 }
 
-.selection-input {   
+.selection-input {
 	display: block;
-    position: relative;
-    padding: 1%;
-    left: 25%;
-    width: 50%;
-    background-color: rgb(229, 229, 229);
+	position: relative;
+	padding: 1%;
+	left: 25%;
+	width: 50%;
+	background-color: rgb(229, 229, 229);
 	color: black;
-    border: 2px solid black;
+	border: 2px solid black;
 	cursor: pointer;
 	font-size: 16px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
