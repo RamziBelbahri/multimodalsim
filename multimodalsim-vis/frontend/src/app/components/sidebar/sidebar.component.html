@@ -27,12 +27,12 @@
             {{pair.key}}
         </label>
     </div>
-    <div id="stats-menu-button" class="sub-menu-button" (click)="openStats()">Statistiques</div>
+    <div id="stats-menu-button" class="sub-menu-button-yellow sub-menu-button" (click)="openStats()">Statistiques</div>
     <div class="sub-menu">
         <div class="sub-menu-option"></div>
     </div>
     <br>
-    <div id="replay-menu-button" class="sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer la visualisation</div>
+    <div id="replay-menu-button" class="sub-menu-button-red sub-menu-button" (click)="toggleSubMenu(1, 1)">Rejouer la visualisation</div>
     <div id="sub-menu-replay" class="sub-menu">
         <div class="sub-menu-replay-option">
             <div id="replay-button" class="fa fa-refresh" (click)="replay()"></div>
@@ -50,7 +50,7 @@
         </div>
     </div>
     <br>
-    <div class="sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
+    <div class="sub-menu-button-green sub-menu-button" id="sub-menu-launch-realtime" (click)="openLaunchModal()">
         Lancer la simulation
     </div>
     <div class="sub-menu">
