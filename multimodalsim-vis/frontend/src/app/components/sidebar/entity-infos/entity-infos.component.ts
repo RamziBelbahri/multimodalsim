@@ -17,6 +17,7 @@ export class EntityInfosComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 	private entityInfosSubscription: Subscription = new Subscription();
+	private isOpen = false;
 
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
@@ -25,6 +26,8 @@ export class EntityInfosComponent {
 	lon = 0;
 	passengerAmount = 0;
 	passengerList = new Array<string>();
+
+	dragging = false;
 
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
@@ -45,11 +48,26 @@ export class EntityInfosComponent {
 		this.viewerSubscription.unsubscribe();
 	}
 
-	open(): void {
+	private open(): void {
+		this.isOpen = true;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
+		this.isOpen = false;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
+	}
+
+	handleDragStart(): void {
+		this.dragging = true;
+	}
+
+	handleClick(): void {
+		if (this.dragging) {
+			this.dragging = false;
+			return;
+		}
+
+		this.isOpen ? this.close() : this.open();
 	}
 }
