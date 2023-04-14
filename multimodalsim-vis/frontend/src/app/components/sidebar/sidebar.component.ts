@@ -137,7 +137,8 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
-		if (!this.isSimulationActive) {
+		// 								DELETE THIS DELETE THIS
+		if (!this.isSimulationActive || true) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 			if(filename) {
@@ -186,7 +187,8 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openLaunchModal(): void {
-		if (!this.isSimulationActive) {
+		// 							  DELETE THIS DELETE THIS
+		if (!this.isSimulationActive || true) {
 			const dialogRef = this.dialog.open(LaunchModalComponent, {
 				height: '70%',
 				width: '70%',

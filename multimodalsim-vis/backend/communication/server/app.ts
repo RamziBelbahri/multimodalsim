@@ -108,16 +108,16 @@ function saveFile(filePath:string, req:Request, file:any) {
 			fs.mkdirSync(directory);
 		}
 	}
-	fs.writeFile('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath, file.buffer, (err) => {
-		if (err) {
-			console.error(err);
-			return;
-		}
-	});
+	console.log('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath);
+	fs.writeFileSync('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath, typeof file == 'string' ? file : file.buffer);
 }
-
+ 
 const upload_multiple_files = multer({
-	storage: multer.memoryStorage()
+	storage: multer.memoryStorage(),
+	limits: {
+		fieldSize: 1024**4,
+		fileSize: 1024**4
+	} // a terabyte because I don't want it to cause problems
 });
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -307,15 +307,17 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 	res.status(200).json({ status: 'got file'});
 });
 
-app.post('/api/preloaded-simulation', (req:Request, res:Response) => {
-	const files = req.files;
-	if(!files) {
+app.post('/api/preloaded-simulation', upload_multiple_files.any(), (req:Request, res:Response) => {
+	const filenames = Object.keys(req.body);
+	if(!filenames) {
 		res.status(500).json({status: 'no file received'});
 		return;
 	}
-	for(const file of (files as Array<any>)) {
-		const filePath = decodeURIComponent(file.fieldname);
-		saveFile(filePath,req,file);
+	for(const filename of filenames) {
+		if(filename != 'simulationName'){
+			const file = req.body[filename];
+			saveFile(decodeURIComponent(filename),req,file);
+		}
 	}
 });
 

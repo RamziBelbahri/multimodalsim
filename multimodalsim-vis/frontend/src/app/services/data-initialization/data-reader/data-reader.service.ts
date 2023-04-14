@@ -57,21 +57,23 @@ export class DataReaderService {
 		this.csvInput = (target.files as FileList)[0];
 	}
 
-	async readZipContent(): Promise<void> {
+	async readZipContent(isFromServer=false): Promise<void> {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
 			await this.readFiles(zip);
-			// if(!isFromServer) {
-			// 	this.commService.sendPreloadedSimulation(this.formData).subscribe({
-			// 		next: (data) => {console.log(data);},
-			// 		error: (err) => {console.log(err);},
-			// 		complete: () => {
-			// 			console.log('complete');
-			// 			this.formData = new FormData();
-			// 		}
-			// 	});
-			// }
+			if(!isFromServer) {
+				this.commService.sendPreloadedSimulation(this.formData).subscribe({
+					next: (data) => {console.log(data);},
+					error: (_) => {
+						alert('warning: unable to send files to server; restart will not work. You can still reload the page and re-upload the .zip file');
+					},
+					complete: () => {
+						console.log('complete');
+						this.formData = new FormData();
+					}
+				});
+			}
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
@@ -130,6 +132,8 @@ export class DataReaderService {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
 			const encodedFilePath = encodeURIComponent(filePath);
 			this.formData.append(encodedFilePath, txt);
+			console.log(encodedFilePath, txt.length);
+			console.log(this.formData.has(encodedFilePath))
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
 				this.setStops(csvArray);
@@ -151,10 +155,9 @@ export class DataReaderService {
 		}
 	}
 
-	private sendFileToServer() {
-		//TODO
-
-	}
+	// private sendFileToServer() {
+	// 
+	// }
 
 	private setFileData(filePath: string, csvArray: any): void {
 		if (filePath.toString().endsWith(FileType.VEHICLES_OBSERVATIONS_FILE_NAME)) {

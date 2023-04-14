@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { enableButton } from '../util/toggle-button';
+import * as sessionStorage from 'src/app/helpers/session-storage';
 // import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 // import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
 // import { StopLookupService } from '../util/stop-lookup.service';
@@ -78,6 +79,12 @@ export class CommunicationService {
 	}
 
 	sendPreloadedSimulation(formData:FormData) {
+		// console.log(formData.forEach((v, k) => {console.log(v,k)}));
+		const simName = sessionStorage.getCurrentSimulationName();
+		if(simName)
+			formData.append('simulationName',  simName);
+		else
+			alert('something went wrong: simulation name not set');
 		return this.http.post(this.APIURL + 'preloaded-simulation', formData);
 	}
 

@@ -97,9 +97,10 @@ export class SimulationModalComponent {
 		} else {
 			this.startProgressSpinner();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
-			if (zipInput.files) await this.dataReader.readZipContent();
+			if (zipInput.files) await this.dataReader.readZipContent(this.isSavedSimulationFromServer);
 			this.endProgressSpinner();
 			this.launchSimulation();
+			
 		}
 		enableButton('restart-sim-menu-button');
 	}
