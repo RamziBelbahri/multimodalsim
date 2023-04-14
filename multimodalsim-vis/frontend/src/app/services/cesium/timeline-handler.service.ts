@@ -9,8 +9,10 @@ import { DateParserService } from '../util/date-parser.service';
 export class TimelineHandlerService {
 	constructor(private dataHandler: EntityDataHandlerService, private dateParser: DateParserService) {}
 
-	initBoarding(viewer: Viewer): void {
+	initHandler(viewer: Viewer): void {
 		viewer.clock.onTick.addEventListener((clock) => {
+			if (this.dataHandler.combined.length <= 0) return;
+
 			const currentTime = clock.currentTime;
 			const lastEventTime = this.dateParser.parseTimeFromSeconds(this.dataHandler.combined[this.dataHandler.combined.length - 1].time.toString());
 
