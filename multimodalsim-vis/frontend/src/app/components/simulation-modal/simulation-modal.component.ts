@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { Component } from '@angular/core';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { Viewer } from 'cesium';
@@ -11,7 +12,7 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { enableButton } from 'src/app/services/util/toggle-button';
-import * as sessionStorage from 'src/app/helpers/session-storage';
+import * as currentSimulation from 'src/app/helpers/session-storage';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -73,34 +74,46 @@ export class SimulationModalComponent {
 		this.dataReader.selectZip(event);
 	}
 
-	async readContent(): Promise<void> {
+	launchPreloadedSimulationFromServer() {
+		const filename = this.dataReader.zipfileNameFromServer;
+		if (filename) {
+			this.startProgressSpinner();
+			this.commService.getSimulationContent(filename).subscribe(async (res) => {
+				if (res.byteLength > 0) {
+					await this.dataReader.readZipContentFromServer(res);
+					this.endProgressSpinner();
+					this.launchSimulation();
+				}
+			});
+		}
+	}
 
-		if(!sessionStorage.getCurrentSimulationName()) {
-			sessionStorage.setCurrentSimulationName(
+	async launchUploadedSimulation() {
+		this.startProgressSpinner();
+		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
+		if (zipInput.files) await this.dataReader.readZipContent(this.isSavedSimulationFromServer);
+		this.endProgressSpinner();
+		this.launchSimulation();
+	}
+
+	async readContent(): Promise<void> {
+		if(!currentSimulation.getCurrentSimulationName()) {
+			currentSimulation.setCurrentSimulationName(
 				(document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value
 			);
 			console.log('simulation name:', (document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value);
 		}
-
-		if (this.isSavedSimulationFromServer) {
-			const filename = this.dataReader.zipfileNameFromServer;
-			if (filename) {
-				this.startProgressSpinner();
-				this.commService.getSimulationContent(filename).subscribe(async (res) => {
-					if (res.byteLength > 0) {
-						await this.dataReader.readZipContentFromServer(res);
-						this.endProgressSpinner();
-						this.launchSimulation();
-					}
-				});
+		const isLive = currentSimulation.isCurrentSimulationLive();
+		console.log(isLive);
+		if(!isLive){
+			if (this.isSavedSimulationFromServer) {
+				this.launchPreloadedSimulationFromServer();
+			} else {
+				this.launchUploadedSimulation();
 			}
 		} else {
-			this.startProgressSpinner();
-			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
-			if (zipInput.files) await this.dataReader.readZipContent(this.isSavedSimulationFromServer);
-			this.endProgressSpinner();
-			this.launchSimulation();
-			
+			console.log('launchSavedSimulationOnBackend');
+			this.launchSavedSimulationOnBackend();
 		}
 		enableButton('restart-sim-menu-button');
 	}
@@ -110,40 +123,77 @@ export class SimulationModalComponent {
 		this.closeModal(true);
 	}
 
+	// async launchSavedSimulationOnBackend():Promise<void> {
+	// get the stops file
+	// const simulationToFetch = currentSimulation.getCurrentSimulationName();
+	// if(simulationToFetch && this.viewer) {
+	// 	this.commService.requestStopsFile(simulationToFetch).subscribe({
+	// 		next: data => {
+	// 			const stops = this.simulationParserService.parseFile(data).data;
+	// 			for (const line of stops) {
+	// 				this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
+	// 			}
+	// 			this.stopPositionHandlerService.initStops();
+	// 			if(this.viewer && simulationToFetch) {
+	// 				this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
+	// 					next: data => {
+	// 						// TODO
+	// 					},
+	// 					error: err => {
+	// 						alert('une erreur s\'est produite');
+	// 					},
+	// 					complete: () => {
+	// 						// TODO
+	// 					}
+	// 				});
+	// 				this.dataReader.launchSimulationOnFrontend(this.viewer, true);
+	// 			}
+	// 		},
+	// 		error: error => {
+	// 			console.error('Error:', error);
+	// 		},
+	// 		complete: () => {
+	// 			console.log('Request completed');
+	// 		}
+	// 	});
+	// }
+	// 	this.launchSavedSimulationOnBackend____2();
+	// }
+
+
 	async launchSavedSimulationOnBackend():Promise<void> {
-		// get the stops file
-		const simulationToFetch = sessionStorage.getCurrentSimulationName();
-		if(simulationToFetch && this.viewer) {
-			this.commService.requestStopsFile(simulationToFetch).subscribe({
-				next: data => {
-					const stops = this.simulationParserService.parseFile(data).data;
-					for (const line of stops) {
-						this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
-					}
-					this.stopPositionHandlerService.initStops();
-					if(this.viewer && simulationToFetch) {
-						this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
-							next: data => {
-								// TODO
-							},
-							error: err => {
-								alert('une erreur s\'est produite');
-							},
-							complete: () => {
-								// TODO
-							}
-						});
+		const simulationToFetch = currentSimulation.getCurrentSimulationName();
+		if (!this.viewer || !simulationToFetch) return;
+		this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
+			next: data => {
+				this.commService.requestStopsFile(simulationToFetch).subscribe({
+					next: data => {
+						const stops = this.simulationParserService.parseFile(data).data;
+						for (const line of stops) {
+							this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
+						}
+						this.stopPositionHandlerService.initStops();
+						if(!this.viewer) {
+							alert('error: viewer is null');
+							return;
+						}
 						this.dataReader.launchSimulationOnFrontend(this.viewer, true);
+					},
+					error: error => {
+						console.error('Error:', error);
+					},
+					complete: () => {
+						console.log('Request completed');
 					}
-				},
-				error: error => {
-					console.error('Error:', error);
-				},
-				complete: () => {
-					console.log('Request completed');
-				}
-			});
-		}
+				});
+			},
+			error: err => {
+				console.log(err);
+				alert('une erreur s\'est produite');
+			},
+			complete: () => {}
+		});
+
 	}
 
 

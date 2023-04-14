@@ -7,7 +7,7 @@ import { Viewer } from 'cesium';
 import { StopLookupService } from '../../util/stop-lookup.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { BehaviorSubject } from 'rxjs';
-import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import { CommunicationService } from '../../communication/communication.service';
 
 
@@ -113,8 +113,8 @@ export class DataReaderService {
 			// if(simNameElement && isFromServer) {
 			// 	const simName = simNameElement.value;
 			// 	this.formData.append('simulationName', simName);
-			// 	window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
-			// 	window.sessionStorage.setItem(LOCAL_STORAGE_KEYS.IS_LIVESIM, 'false');
+			// 	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
+			// 	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.IS_LIVESIM, 'false');
 			// }
 			// } catch(e) {console.log(e);}
 		}

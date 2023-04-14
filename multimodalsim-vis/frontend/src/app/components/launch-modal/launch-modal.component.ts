@@ -6,8 +6,7 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
-// import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
-import * as sessionStorage from 'src/app/helpers/session-storage';
+// import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import { Viewer } from 'cesium';
 
 @Component({
@@ -62,7 +61,7 @@ export class LaunchModalComponent {
 						const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 						const simulationName = simulationNameInput.value;
 						formData.append('simulationName', simulationName);
-						sessionStorage.setCurrentSim(true, simulationName);
+						// currentSimulation.setCurrentSim(true, simulationName);
 						this.pathHandler.isRealtime = true;
 						if(this.viewer) {
 							this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);

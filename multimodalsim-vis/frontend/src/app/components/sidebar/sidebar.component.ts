@@ -12,8 +12,8 @@ import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-p
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import * as LOCAL_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
-import * as sessionStorage from 'src/app/helpers/session-storage';
+// import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import * as currentSimulation from 'src/app/helpers/session-storage';
 import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
 import { SimulationModalComponent } from '../simulation-modal/simulation-modal.component';
@@ -122,7 +122,16 @@ export class SidebarComponent implements OnInit {
 
 	restartSim() {
 		if (confirm('WARNING: this will reload the page')) {
-			this.commService.restartSimulation();
+			if(currentSimulation.isCurrentSimulationLive()){
+				this.commService.stopCurrentBackendSimulation().subscribe({
+					next: (_) => {
+						document.location.reload();
+					},
+					error: (err) => {},
+					complete: () => {}
+				});
+			}
+			currentSimulation.setIsRestart(true);
 		}
 	}
 
@@ -142,15 +151,15 @@ export class SidebarComponent implements OnInit {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 			if(filename) {
-				sessionStorage.setCurrentSimulationName(filename);
+				currentSimulation.setCurrentSimulationName(filename);
 				console.log('simulation name:', filename);
 			} else {
-				sessionStorage.removeSimName();
+				currentSimulation.removeSimName();
 			}
 			let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
 			isLive = isLive && isFromServer;
-			console.log('isLive', isLive);
-			sessionStorage.setIsSimulationLive(isLive);
+			console.log('isLive from openSimulationModal', isLive);
+			currentSimulation.setIsSimulationLive(isLive);
 
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 			const dialogRef = this.dialog.open(SimulationModalComponent, {

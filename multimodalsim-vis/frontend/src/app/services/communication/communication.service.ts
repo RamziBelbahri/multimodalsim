@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { enableButton } from '../util/toggle-button';
-import * as sessionStorage from 'src/app/helpers/session-storage';
+import * as currentSimulation from 'src/app/helpers/session-storage';
 // import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
 // import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
 // import { StopLookupService } from '../util/stop-lookup.service';
@@ -62,8 +62,8 @@ export class CommunicationService {
 		return this.http.post(this.APIURL + 'launch-saved-sim',body);
 	}
 
-	restartSimulation() {
-		return this.http.post(this.APIURL + 'restart', {});
+	stopCurrentBackendSimulation() {
+		return this.http.post(this.APIURL + 'stopsim', {});
 	}
 
 	private handleError(error: HttpErrorResponse) {
@@ -80,7 +80,7 @@ export class CommunicationService {
 
 	sendPreloadedSimulation(formData:FormData) {
 		// console.log(formData.forEach((v, k) => {console.log(v,k)}));
-		const simName = sessionStorage.getCurrentSimulationName();
+		const simName = currentSimulation.getCurrentSimulationName();
 		if(simName)
 			formData.append('simulationName',  simName);
 		else
@@ -107,5 +107,10 @@ export class CommunicationService {
 		return this.http.delete(this.APIURL + `delete-simulation/?filename=${filename}`).pipe(catchError(this.handleError));
 	}
 
-
+	restartBackendSimulation() {
+		const formData = new FormData();
+		const simName = currentSimulation.getCurrentSimulationName();
+		formData.append('simName',  simName ? simName : '');
+		return this.http.post(this.APIURL + 'restart-livesim', formData);
+	}
 }

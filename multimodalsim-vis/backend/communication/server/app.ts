@@ -14,13 +14,21 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
 import { execSync } from 'child_process';
 import archiver from 'archiver';
+// import * as unzipper from 'unzipper';
 
+import extract from 'extract-zip';
+// import * as unzipStream from 'unzip-stream';
+// import * as fsExtra from 'fs-extra';
+
+// function unzip(zipPath:string,unzipPath:string) {
+// 	return fs.createReadStream(zipPath).pipe(unzipStream.Extract({path:unzipPath}));
+// }
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
 function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
 	const toplevelFolder = 
-		'communication/temp-sim-data/' +
+		'communication/data/' +
 		req.body['simulationName'] + '/' +
 		decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
 
@@ -34,13 +42,13 @@ function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfil
 		'isLive' : true
 	};
 
-	fs.writeFileSync('../temp-sim-data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
+	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
 
 	// move the whole thing to a zip
 	const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
 	const archive = archiver('zip');
 	archive.pipe(output);
-	archive.directory( '../temp-sim-data/' + req.body['simulationName'] + '/', false);
+	archive.directory( '../data/' + req.body['simulationName'] + '/', false);
 	archive.finalize();
 	return config;
 }
@@ -53,13 +61,13 @@ const getsArgs = (req: Request):string[] => {
 		'fixed',
 		'--gtfs',
 		'--gtfs-folder',
-		`temp-sim-data/${folder}/gtfs/`,'-r',
-		`temp-sim-data/${folder}/requests.csv`,
+		`data/${folder}/gtfs/`,'-r',
+		`data/${folder}/requests.csv`,
 		'--multimodal',
 		'--log-level',
 		'INFO',
 		'-g',
-		`temp-sim-data/${folder}/bus_network_graph_${folder}.txt`,
+		`data/${folder}/bus_network_graph_${folder}.txt`,
 		'--osrm'
 	];
 	return args;
@@ -98,7 +106,7 @@ function getArgsFromConfig(config:any):any {
 }
 function saveFile(filePath:string, req:Request, file:any) {
 	const directories = filePath.split('/');
-	let directory = '../temp-sim-data/' + req.body['simulationName'] + '/';
+	let directory = '../data/' + req.body['simulationName'] + '/';
 	if(!fs.existsSync(directory)) {
 		fs.mkdirSync(directory);
 	}
@@ -108,8 +116,8 @@ function saveFile(filePath:string, req:Request, file:any) {
 			fs.mkdirSync(directory);
 		}
 	}
-	console.log('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath);
-	fs.writeFileSync('../temp-sim-data/' + req.body['simulationName'] + '/' + filePath, typeof file == 'string' ? file : file.buffer);
+	console.log('../data/' + req.body['simulationName'] + '/' + filePath);
+	fs.writeFileSync('../data/' + req.body['simulationName'] + '/' + filePath, typeof file == 'string' ? file : file.buffer);
 }
  
 const upload_multiple_files = multer({
@@ -263,7 +271,7 @@ app.delete('/api/delete-simulation', async (req:Request<ParamsDictionary, ArrayB
 		console.log('Deletion');
 		try {
 			rmSync(fullPath);
-			rmSync(__dirname + '\\..\\..\\temp-sim-data\\' + filename.replace('.zip', ''),{ recursive: true, force: true });
+			rmSync(__dirname + '\\..\\..\\data\\' + filename.replace('.zip', ''),{ recursive: true, force: true });
 		}
 		catch (e) {
 			console.log(`La suppression du fichier ${filename} n'a pas réussi`);
@@ -322,10 +330,10 @@ app.post('/api/preloaded-simulation', upload_multiple_files.any(), (req:Request,
 });
 
 app.get('/api/stops-file', (req:Request, res:Response) => {
-	const simName:string|undefined = req.query['simName']?.toString();
+	const simName:string|undefined = req.query['simName']?.toString().split('/')[1];
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
-		const configPath = '../temp-sim-data/' + simulationFolderName + '/config.json';
+		const configPath = '../data/' + simulationFolderName + '/config.json';
 		const stopsFilePath = JSON.parse(fs.readFileSync(configPath).toString())['gtfs-folder'].replace('communication/', '../') + '/stops.txt';
 		const data = fs.readFileSync(stopsFilePath).toString();
 		res.setHeader('Content-Type', 'text/plain');
@@ -335,12 +343,24 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 
 app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
 	const simName:string|undefined = req.body['simName']?.toString();
+	console.log(simName);
 	if(simName) {
-		const simulationFolderName = simName.replace('.zip', '');
-		const configPath = '../temp-sim-data/' + simulationFolderName + '/config.json';
-		const config = JSON.parse(fs.readFileSync(configPath).toString());
-		startSim(getArgsFromConfig(config));
-		res.status(200).json({ status: 'launched'});
+		const simNameArray = simName.split('/');
+		const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
+		const configPath = '../data/' + simulationFolderName + '/config.json';
+		const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
+		const zipFilePath = savedSimulationsDir + simName;
+
+		if(!fs.existsSync(outputFolder)) {
+			fs.mkdirSync(outputFolder);
+		}
+		extract(zipFilePath, { dir: outputFolder }).then(() => {
+			const config = JSON.parse(fs.readFileSync(configPath).toString());
+			startSim(getArgsFromConfig(config));
+			console.log('here');
+			res.status(200).json({status:'unzip done, simulation launched'});
+		});
+
 	} else {
 		res.status(500).json({ error: 'simulation name was null'});
 	}
@@ -350,14 +370,25 @@ app.get('/api/get-stats', (_: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
 });
 
-app.post('api/restart', (_:Request, res:Response) => {
+app.post('/api/stopsim', (_:Request, res:Response) => {
 	try {
 		// restart docker container for activemq
-		execSync('docker restart multimodalsim-vis-activemq-1');
+		execSync('docker ps --filter "ancestor=*activemq*" -q | xargs -I {} docker restart {}');
 		// kill the current simulation
 		runSim?.kill('SIGKILL');
 		res.status(200).json({status:'activemq cleared, waiting for signal to restart simulation'});
 	} catch(e) {
 		res.status(500).json(e);
 	}
+});
+
+app.post('/api/restart-livesim', (req:Request, res:Response) => {
+	const simName = req.body['simName'].toString();
+	const simNameArray = simName.split('/');
+	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
+	const configPath = '../data/' + simulationFolderName + '/config.json';
+	// const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
+	const config = JSON.parse(fs.readFileSync(configPath).toString());
+	startSim(getArgsFromConfig(config));
+	res.status(200).json({status:'restarted'});
 });
