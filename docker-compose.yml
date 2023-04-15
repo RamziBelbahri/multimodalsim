@@ -11,7 +11,6 @@ services:
     networks:
       - multimodalsim_vis_network
     mem_limit: 4g
-
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
@@ -35,6 +34,8 @@ services:
     mem_limit: 3g
     networks:
       - multimodalsim_vis_network
+    container_name: activemq
+    
 
 networks:
   multimodalsim_vis_network:

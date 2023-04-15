@@ -15,15 +15,8 @@ import multer from 'multer';
 import { exec, execSync } from 'child_process';
 import archiver from 'archiver';
 import os from 'os';
-// import * as unzipper from 'unzipper';
-
+import delay from 'delay';
 import extract from 'extract-zip';
-// import * as unzipStream from 'unzip-stream';
-// import * as fsExtra from 'fs-extra';
-
-// function unzip(zipPath:string,unzipPath:string) {
-// 	return fs.createReadStream(zipPath).pipe(unzipStream.Extract({path:unzipPath}));
-// }
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
@@ -371,7 +364,9 @@ app.get('/api/get-stats', (_: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
 });
 
-app.post('/api/stopsim', (_:Request, res:Response) => {
+const JOLOKIA_ACCESS = 'INFO | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml';
+
+app.post('/api/stopsim', async (_:Request, res:Response) => {
 	try {
 		// kill the current simulation
 		runSim?.kill('SIGKILL');
@@ -381,13 +376,30 @@ app.post('/api/stopsim', (_:Request, res:Response) => {
 		// if(platform != 'win32')
 		// 	execSync('docker ps --filter "name=*activemq*" -q | xargs -I {} docker restart {}');
 		// else {
-		try {execSync('docker restart multimodalsim-vis-activemq-1');} catch(e) {}
-		try {execSync('docker restart activemq');} catch(e) {}
+		let containerName = '';
+		// try {
+		// 	execSync('docker restart multimodalsim-vis-activemq-1');
+		// 	containerName = 'multimodalsim-vis-activemq-1';
+		// } catch(e) {}
+		try {
+			execSync('docker restart activemq');
+			containerName = 'activemq';
+		} catch(e) {}
 		while(!execSync('docker ps').toString().includes('activemq')) {
-			continue;
+			await delay(1000);
 		}
-		// }
-
+		let ready = false;
+		while(!ready) {
+			await delay(1000);
+			const dockerLogs = execSync('docker logs ' + containerName)
+				.toString()
+				.split('\n')
+				.filter(function (str) { return str.replace(' ', '') != ''; });
+			console.log(dockerLogs[dockerLogs.length - 1]);
+			if(dockerLogs[dockerLogs.length - 1].includes(JOLOKIA_ACCESS)) {
+				ready = true;
+			}
+		}
 		res.status(200).json({status:'activemq cleared, waiting for signal to restart simulation'});
 	} catch(e) {
 		console.log(e);
@@ -406,4 +418,10 @@ app.post('/api/restart-livesim', (req:Request, res:Response) => {
 	console.log(config);
 	startSim(getArgsFromConfig(config));
 	res.status(200).json({status:'restarted'});
+});
+
+app.get('/api/get-preloaded-tmp-files', (req:Request, res:Response) => {
+	const simName = req.params['simName'].toString();
+	const simNameArray = simName.split('/');
+	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
 });

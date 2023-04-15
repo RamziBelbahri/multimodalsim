@@ -102,6 +102,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	autoLaunchPreloadedSimulation() {
+		
 	}
 
 	ngOnDestroy() {

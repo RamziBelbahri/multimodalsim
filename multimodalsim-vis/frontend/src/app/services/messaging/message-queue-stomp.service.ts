@@ -11,9 +11,13 @@ import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/p
 import { FlowControl } from '../entity-data-handler/flow-control';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { EventType } from '../util/event-types';
+import { Injectable } from '@angular/core';
 // var LinkedList = require('dbly-linked-list')
 const DEBUG = false;
 // uses STOMP with active MQ
+@Injectable({
+	providedIn: 'root',
+})
 export class MessageQueueStompService {
 	public static client:CompatClient;
 	public static service:MessageQueueStompService;
@@ -48,17 +52,17 @@ export class MessageQueueStompService {
 	]);
 	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
-	constructor(private entityDataHandlerService:EntityDataHandlerService,
-		socketAddress:string=ConnectionCredentials.WEBSOCKET,
-		debug=false
+	constructor(private entityDataHandlerService:EntityDataHandlerService
+		// socketAddress:string=,
+		// debug=false
 	) {
 		if(MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
 		}
-		MessageQueueStompService.client = Stomp.client(socketAddress, ConnectionCredentials.PROTOCOLS);
-		if(!debug){
-			MessageQueueStompService.client.debug = function() {return;};
-		}
+		MessageQueueStompService.client = Stomp.client(ConnectionCredentials.WEBSOCKET, ConnectionCredentials.PROTOCOLS);
+		// if(!debug){
+		MessageQueueStompService.client.debug = function() {return;};
+		// }
 		try{
 			MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
 		} catch(e){
@@ -152,8 +156,6 @@ export class MessageQueueStompService {
 			console.log(msg.body);
 			return;
 		}
-
-
 		// 1. event is parsed as JSON
 		const eventJson = JSON.parse(msg.body);
 		let entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);

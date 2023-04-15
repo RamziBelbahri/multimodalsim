@@ -116,4 +116,13 @@ export class CommunicationService {
 		};
 		return this.http.post(this.APIURL + 'restart-livesim', body);
 	}
+
+	getPreloadedFiles() {
+		const simName = currentSimulation.getCurrentSimulationName();
+		const params = new HttpParams();
+		params.append('simName', simName ? simName : '');
+		return this.http.get(this.APIURL + 'get-preloaded-tmp-files', {
+			params:params
+		});
+	}
 }

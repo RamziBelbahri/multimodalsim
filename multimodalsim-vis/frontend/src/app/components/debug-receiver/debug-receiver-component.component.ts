@@ -9,9 +9,11 @@ import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/e
 })
 export class DebugReceiverComponentComponent {
 	private static client: CompatClient;
-	constructor(private entityDataHandlerService: EntityDataHandlerService) {
-		const service = new MessageQueueStompService(entityDataHandlerService);
-		DebugReceiverComponentComponent.client = service.getClient();
+	constructor(
+		private entityDataHandlerService: EntityDataHandlerService,
+		private messageQueueServuce:MessageQueueStompService
+	) {
+		DebugReceiverComponentComponent.client = this.messageQueueServuce.getClient();
 		// DebugReceiverComponentComponent.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError)
 	}
 	onExpandCollapse() {
