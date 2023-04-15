@@ -12,7 +12,6 @@ import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-p
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-// import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import * as currentSimulation from 'src/app/helpers/session-storage';
 import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
