@@ -121,8 +121,6 @@ export class CommunicationService {
 		const simName = currentSimulation.getCurrentSimulationName();
 		const params = new HttpParams();
 		params.append('simName', simName ? simName : '');
-		return this.http.get(this.APIURL + 'get-preloaded-tmp-files', {
-			params:params
-		});
+		return this.http.get(this.APIURL + `get-preloaded-tmp-files/simName=${simName}`);
 	}
 }

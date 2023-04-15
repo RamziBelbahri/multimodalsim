@@ -67,7 +67,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		if(!isRestart) {
 			currentSimulation.removeSimName();
 			currentSimulation.removeIsLive();
-		}  else if (isRestart && isLive && simName) {
+		}  else if (isRestart && simName) {
 			if(isLive) {
 				this.autoLaunchLiveSimulation();
 			} else {
@@ -102,7 +102,9 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	autoLaunchPreloadedSimulation() {
-		
+		this.communicationService.getPreloadedFiles().subscribe({
+			next: (data) => {console.log(data);}
+		})
 	}
 
 	ngOnDestroy() {

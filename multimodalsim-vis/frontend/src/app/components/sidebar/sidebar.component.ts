@@ -131,10 +131,12 @@ export class SidebarComponent implements OnInit {
 					error: (err) => {},
 					complete: () => {}
 				});
+			} else {
+				currentSimulation.setIsRestart(true);
+				document.location.reload();
 			}
 		}
 	}
-
 
 	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';
