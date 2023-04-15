@@ -1,4 +1,7 @@
-<a class="close-button" (click)="closeModal(false)">&times;</a>
+<div class="button-container">
+    <mat-progress-spinner id="spinner" [mode]="mode" [value]="value" [diameter]="24"></mat-progress-spinner>
+    <a class="close-button" (click)="closeModal(false)">&times;</a>
+</div>
 <div *ngIf="!isSavedSimulationFromServer">
     <div class="selection">
         <p class="selection-title">Choisissez un fichier zip</p>
@@ -11,6 +14,5 @@
         <input id="preloaded-sim-name" placeholder="mysim" name="preloaded-sim-name">
     </div>
 </div>
-<mat-progress-spinner id="spinner" [mode]="mode" [value]="value"></mat-progress-spinner>
 <button class="modal-button" (click)="readContent()">Lancer la simulation</button>
 <button class="modal-button" id="delete-button" *ngIf="isSavedSimulationFromServer" (click)="deleteSavedSimulation()">Supprimer la sauvegarde</button>

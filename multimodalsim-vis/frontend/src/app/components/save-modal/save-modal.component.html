@@ -1,4 +1,6 @@
-<a class="close-button" (click)="closeModal()">&times;</a>
+<div class="button-container">
+    <a class="close-button" (click)="closeModal()">&times;</a>
+</div>
 <div class="selection">
     <p>Sauvegarder au format zip:</p>
     <form [formGroup]="filenameForm" (ngSubmit)="saveAsZip()">

@@ -9,14 +9,16 @@ import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/e
 })
 export class DebugReceiverComponentComponent {
 	private static client: CompatClient;
+	dragging = false;
+
 	constructor(
 		private entityDataHandlerService: EntityDataHandlerService,
-		private messageQueueServuce:MessageQueueStompService
+		private messageQueueService:MessageQueueStompService
 	) {
-		DebugReceiverComponentComponent.client = this.messageQueueServuce.getClient();
-		// DebugReceiverComponentComponent.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError)
+		DebugReceiverComponentComponent.client = this.messageQueueService.getClient();
 	}
-	onExpandCollapse() {
+
+	private onExpandCollapse() {
 		const button = document.getElementById('open-close-debug');
 		if (button && button.innerText == '-') {
 			const holder = document.getElementById('received-text-holder');
@@ -37,6 +39,19 @@ export class DebugReceiverComponentComponent {
 				button.innerText = '-';
 			}
 		}
+	}
+
+	handleDragStart(): void {
+		this.dragging = true;
+	}
+
+	handleClick(): void {
+		if (this.dragging) {
+			this.dragging = false;
+			return;
+		}
+
+		this.onExpandCollapse();
 	}
 	// onConnect() {
 	// 	DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)

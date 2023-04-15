@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
-import { JulianDate, Queue, Viewer } from 'cesium';
+import { JulianDate, Viewer } from 'cesium';
 import { EventEmitter } from 'events';
 import { FlowControl } from './flow-control';
-import * as delay from 'delay';
-import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { EventType } from '../util/event-types';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';

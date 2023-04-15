@@ -33,7 +33,6 @@ export class SimulationModalComponent {
 		private dataReader: DataReaderService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		// private dataReaderService:DataReaderService,
 		private stopLookup:StopLookupService,
 		private simulationParserService:SimulationParserService,
 		private stopPositionHandlerService:StopPositionHandlerService
@@ -122,44 +121,6 @@ export class SimulationModalComponent {
 		if (this.viewer) this.dataReader.launchSimulationOnFrontend(this.viewer, false);
 		this.closeModal(true);
 	}
-
-	// async launchSavedSimulationOnBackend():Promise<void> {
-	// get the stops file
-	// const simulationToFetch = currentSimulation.getCurrentSimulationName();
-	// if(simulationToFetch && this.viewer) {
-	// 	this.commService.requestStopsFile(simulationToFetch).subscribe({
-	// 		next: data => {
-	// 			const stops = this.simulationParserService.parseFile(data).data;
-	// 			for (const line of stops) {
-	// 				this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
-	// 			}
-	// 			this.stopPositionHandlerService.initStops();
-	// 			if(this.viewer && simulationToFetch) {
-	// 				this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
-	// 					next: data => {
-	// 						// TODO
-	// 					},
-	// 					error: err => {
-	// 						alert('une erreur s\'est produite');
-	// 					},
-	// 					complete: () => {
-	// 						// TODO
-	// 					}
-	// 				});
-	// 				this.dataReader.launchSimulationOnFrontend(this.viewer, true);
-	// 			}
-	// 		},
-	// 		error: error => {
-	// 			console.error('Error:', error);
-	// 		},
-	// 		complete: () => {
-	// 			console.log('Request completed');
-	// 		}
-	// 	});
-	// }
-	// 	this.launchSavedSimulationOnBackend____2();
-	// }
-
 
 	async launchSavedSimulationOnBackend():Promise<void> {
 		const simulationToFetch = currentSimulation.getCurrentSimulationName();

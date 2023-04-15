@@ -11,6 +11,7 @@ import * as currentSimulation from 'src/app/helpers/session-storage';
 import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { StopLookupService } from 'src/app/services/util/stop-lookup.service';
+import { TimelineHandlerService } from 'src/app/services/cesium/timeline-handler.service';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -31,6 +32,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		private stopPositionHandlerService: StopPositionHandlerService,
 		private simulationParserService:SimulationParserService,
 		private stopLookup:StopLookupService,
+		private timelineHandler: TimelineHandlerService
 	) {}
 
 	ngOnInit() {
@@ -42,6 +44,8 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.pathHandler.initHandler(this.viewer);
 		this.pathHandler.initRealTimeHandler(this.viewer);
+
+		this.timelineHandler.initHandler(this.viewer);
 
 		this.viewer.animation.viewModel.setShuttleRingTicks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]);
 
@@ -71,7 +75,8 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 			if(isLive) {
 				this.autoLaunchLiveSimulation();
 			} else {
-				this.autoLaunchPreloadedSimulation();
+				// TODO
+				// this.autoLaunchPreloadedSimulation();
 			}
 			currentSimulation.removeRestart();
 		}
@@ -101,11 +106,12 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		
 	}
 
-	autoLaunchPreloadedSimulation() {
-		this.communicationService.getPreloadedFiles().subscribe({
-			next: (data) => {console.log(data);}
-		})
-	}
+	// TODO
+	// autoLaunchPreloadedSimulation() {
+	// 	this.communicationService.getPreloadedFiles().subscribe({
+	// 		next: (data) => {console.log(data);}
+	// 	});
+	// }
 
 	ngOnDestroy() {
 		this.viewerSubscription.unsubscribe();

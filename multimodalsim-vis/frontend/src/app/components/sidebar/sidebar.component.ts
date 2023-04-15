@@ -137,6 +137,26 @@ export class SidebarComponent implements OnInit {
 			}
 		}
 	}
+	private disableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		console.log(element.classList);
+		// element.style.backgroundColor = '#b1b1b1';
+		// if (id != 'replay-menu-button') element.style.marginBottom = '10px';
+		// element.style.pointerEvents = 'none';
+		element.classList.add('disabled');
+		// element.d
+		// element.disabled = true;
+	}
+
+	private enableButton(id: string): void {
+		const element = document.getElementById(id) as HTMLElement;
+		console.log(element.classList);
+		element.classList.remove('disabled');
+
+		// element.style.backgroundColor = '#e7e7e7';
+		// element.style.marginBottom = '5px';
+		// element.style.pointerEvents = 'auto';
+	}
 
 	private toggleContainer(id: number): void {
 		this.subMenuList[id].style.pointerEvents = this.openedMenuList.indexOf(id) > -1 ? 'none' : 'auto';
@@ -148,8 +168,7 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
-		// 								DELETE THIS DELETE THIS
-		if (!this.isSimulationActive || true) {
+		if (!this.isSimulationActive) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 			if(filename) {
@@ -168,7 +187,9 @@ export class SidebarComponent implements OnInit {
 				height: '70%',
 				width: '50%',
 			});
-			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(false, result.isRunning));
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(
+				currentSimulation.isCurrentSimulationLive(), result.isRunning
+			));
 		} else {
 			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
 				duration: 5000,
@@ -198,13 +219,18 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openLaunchModal(): void {
-		// 							  DELETE THIS DELETE THIS
-		if (!this.isSimulationActive || true) {
+		if (!this.isSimulationActive) {
 			const dialogRef = this.dialog.open(LaunchModalComponent, {
 				height: '70%',
 				width: '70%',
 			});
-			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning, result.isRunning));
+
+			dialogRef.afterClosed().subscribe(
+				(result) => {
+					console.log(result.isRunning, result.isRunning);
+					this.setSimulationState(result.isRunning, result.isRunning);
+				}
+			);
 		} else {
 			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
 				duration: 5000,

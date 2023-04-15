@@ -182,15 +182,17 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 });
 
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
+	console.log('pause')
 	if(runSim) {
-		suspend(runSim, true);
+		suspend(runSim.pid, true);
 	}
 	res.status(200).json({ status: 'PAUSED' });
 });
 
 app.get('/api/continue-simulation', (req:Request, res:Response) => {
+	console.log('continue')
 	if(runSim) {
-		suspend(runSim, false);
+		suspend(runSim.pid, false);
 	}
 	res.status(200).json({ status: 'RESUMED' });
 });

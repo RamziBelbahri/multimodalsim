@@ -8,11 +8,20 @@
     margin-left: 50px;
 }
 
+.button-container {
+    background-color: white;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    height: 25px;
+    z-index: 3;
+}
+
 .modal-button {
     display: block;
     position: relative;
     left: 40%;
-    top: 60%;
+    top: 40%;
     width: 20%;
     height: 40px;
     border: black;
@@ -24,7 +33,7 @@
     cursor: pointer;
     font-size: 16px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    /* text-align: center; */
+    text-align: center;
 }
 
 .modal-button:hover {
@@ -44,7 +53,7 @@
     color: black;
     font-size: 16px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    /* text-align: center; */
+    text-align: center;
 }
 
 .selection:hover {
@@ -67,5 +76,5 @@ input[type=text] {
     cursor: pointer;
     font-size: 16px;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    /* text-align: center; */
+    text-align: center;
 }

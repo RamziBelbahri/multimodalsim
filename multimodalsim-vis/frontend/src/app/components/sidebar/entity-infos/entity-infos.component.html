@@ -1,5 +1,5 @@
-<button mat-icon-button id="open" (click)="open()">
-    <mat-icon>infos</mat-icon>
+<button mat-icon-button id="open" cdkDragBoundary=".boundary" (cdkDragStarted)="handleDragStart()" (click)="handleClick()" cdkDrag>
+    <mat-icon class="icon">infos</mat-icon>
 </button>
 <div id="entity-infos-menu" class="entity-infos-sidebar">
     <a id="close" (click)="close()">&times;</a>

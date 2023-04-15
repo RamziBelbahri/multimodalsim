@@ -46,6 +46,7 @@ export class LaunchModalComponent {
 				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
 				formData.append(path, this.target.files[i], this.target.files[i].name);
 				if(this.target.files[i].name.endsWith('stops.txt')) {
+					// TODO REORGANIZE THIS
 					this.target.files[i].text().then((txt:string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
 						this.dataReaderService.parseStopsFile(csvData);
@@ -56,7 +57,8 @@ export class LaunchModalComponent {
 				
 						const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
 						const osrm = osrmInput.checked;
-						formData.append('osrm', osrm ? 'true':'false');
+						// TODO DELETE THIS ATTRIBUTE
+						formData.append('osrm', osrm ? 'true':'true');
 				
 						const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 						const simulationName = simulationNameInput.value;
@@ -70,6 +72,7 @@ export class LaunchModalComponent {
 					});
 				}
 			}
+			this.dialogRef.close({isRunning:true, isActive:true});
 		}
 		
 	}

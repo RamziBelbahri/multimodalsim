@@ -8,8 +8,6 @@ services:
       - /backend/communication/server/node_modules
       - /backend/venv
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - multimodalsim_vis_network
     mem_limit: 4g
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
@@ -18,25 +16,20 @@ services:
     volumes:
       - ./multimodalsim-vis/frontend:/frontend
       - /frontend/node_modules
-    networks:
-      - multimodalsim_vis_network
+
   activemq:
-    image: rmohr/activemq:latest
+    image: symptoma/activemq:latest
     ports:
       - "61616:61616"
       - "61613:61613"
       - "61614:61614"
       - "8161:8161"
+    volumes:
+      - ./multimodalsim-vis/backend/communication/activemq.xml:/opt/activemq/conf/activemq.xml
     ulimits:
       nofile:
         soft: 122880
         hard: 122880
     mem_limit: 3g
-    networks:
-      - multimodalsim_vis_network
     container_name: activemq
-    
 
-networks:
-  multimodalsim_vis_network:
-    driver: bridge
