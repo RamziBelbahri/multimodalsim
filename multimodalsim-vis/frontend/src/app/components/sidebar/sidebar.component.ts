@@ -6,13 +6,14 @@ import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sha
 import { MatDialog } from '@angular/material/dialog';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
 import { SaveModalComponent } from '../save-modal/save-modal.component';
-import { DataSaverService } from 'src/app/services/data-initialization/data-saver/data-saver.service';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
 import { VehiclePositionHandlerService } from 'src/app/services/cesium/vehicle-position-handler.service';
 import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
+import { SimulationModalComponent } from '../simulation-modal/simulation-modal.component';
 
 @Component({
 	selector: 'app-sidebar',
@@ -22,7 +23,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class SidebarComponent implements OnInit {
 	private readonly OPTION_PIXEL_SIZE = 49.2;
 	private readonly OPTION_PIXEL_MARGIN = 5;
-	isRunning: boolean;
 
 	private subMenuList: Array<HTMLElement> = new Array<HTMLElement>();
 	private openedMenuList: Array<number> = new Array<number>();
@@ -35,6 +35,8 @@ export class SidebarComponent implements OnInit {
 	manipOptionList: Array<string> = new Array<string>();
 	savedSimulationsList: Array<string> = new Array<string>();
 	transportModeList: Map<string, boolean> = new Map<string, boolean>();
+	isRunning: boolean;
+	isSimulationActive: boolean;
 
 	constructor(
 		private dialog: MatDialog,
@@ -45,10 +47,11 @@ export class SidebarComponent implements OnInit {
 		private pathHandler: EntityPathHandlerService,
 		private dateParser: DateParserService,
 		private snackBar: MatSnackBar,
-		private dataSaver: DataSaverService,
-		private dataReader: DataReaderService
+		private dataReader: DataReaderService,
+		private menuNotifier: MenuNotifierService
 	) {
 		this.isRunning = false;
+		this.isSimulationActive = false;
 	}
 
 	ngOnInit() {
@@ -66,6 +69,7 @@ export class SidebarComponent implements OnInit {
 			if (this.transportModeList.size > 0) {
 				this.enableButton('mode-menu-button');
 				this.enableButton('replay-menu-button');
+				this.enableButton('stats-menu-button');
 				this.loadTime();
 			}
 
@@ -87,6 +91,7 @@ export class SidebarComponent implements OnInit {
 		if (this.transportModeList.size <= 0) {
 			this.disableButton('mode-menu-button');
 			this.disableButton('replay-menu-button');
+			this.disableButton('stats-menu-button');
 		} else {
 			this.loadTime();
 		}
@@ -112,16 +117,23 @@ export class SidebarComponent implements OnInit {
 
 	private disableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#b1b1b1';
-		if (id != 'replay-menu-button') element.style.marginBottom = '10px';
-		element.style.pointerEvents = 'none';
+		console.log(element.classList);
+		// element.style.backgroundColor = '#b1b1b1';
+		// if (id != 'replay-menu-button') element.style.marginBottom = '10px';
+		// element.style.pointerEvents = 'none';
+		element.classList.add('disabled');
+		// element.d
+		// element.disabled = true;
 	}
 
 	private enableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#e7e7e7';
-		element.style.marginBottom = '5px';
-		element.style.pointerEvents = 'auto';
+		console.log(element.classList);
+		element.classList.remove('disabled');
+
+		// element.style.backgroundColor = '#e7e7e7';
+		// element.style.marginBottom = '5px';
+		// element.style.pointerEvents = 'auto';
 	}
 
 	private toggleContainer(id: number): void {
@@ -134,10 +146,21 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
-		this.setSimulationOrigin(isFromServer);
-		if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'visible';
-		(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+		if (!this.isSimulationActive) {
+			this.setSimulationOrigin(isFromServer);
+			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
+
+			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+			const dialogRef = this.dialog.open(SimulationModalComponent, {
+				height: '70%',
+				width: '50%',
+			});
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(false, result.isRunning));
+		} else {
+			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
+				duration: 5000,
+			});
+		}
 	}
 
 	openUploadStopsFile(): void {
@@ -158,15 +181,22 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openLaunchModal(): void {
-		const dialogRef = this.dialog.open(LaunchModalComponent, {
-			height: '400px',
-			width: '600px',
-		});
-		dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning));
+		if (!this.isSimulationActive) {
+			const dialogRef = this.dialog.open(LaunchModalComponent, {
+				height: '400px',
+				width: '600px',
+			});
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(result.isRunning, result.isRunning));
+		} else {
+			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
+				duration: 5000,
+			});
+		}
 	}
 
-	setSimulationState(isRunning: boolean): void {
+	setSimulationState(isRunning: boolean, isActive: boolean): void {
 		this.isRunning = isRunning;
+		this.isSimulationActive = isActive;
 	}
 
 	// Changer la visibilité d'un mode de transport
@@ -187,6 +217,7 @@ export class SidebarComponent implements OnInit {
 
 	openStats(): void {
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'visible';
+		this.menuNotifier.notify('stats-container');
 	}
 
 	private loadTime(): void {

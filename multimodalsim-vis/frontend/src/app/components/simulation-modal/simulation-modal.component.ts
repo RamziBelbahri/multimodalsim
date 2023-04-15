@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
 	selector: 'app-simulation-modal',
@@ -14,17 +15,18 @@ import { CommunicationService } from 'src/app/services/communication/communicati
 export class SimulationModalComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
+	private isSavedSimulationFromServerSubscription: Subscription;
+
 	isSavedSimulationFromServer: boolean;
-	private isSavedSimulationFromServerSubscription: Subscription; 
 	mode!: ProgressSpinnerMode;
 	value!: number;
 
-	constructor(private dataReader: DataReaderService, private viewerSharer: ViewerSharingService,
-				private commService: CommunicationService) {
+	constructor(private ref: MatDialogRef<SimulationModalComponent>, private dataReader: DataReaderService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {
 		this.initProgressSpinner();
 		this.isSavedSimulationFromServer = this.dataReader.isSavedSimulationFromServer.value;
 		this.isSavedSimulationFromServerSubscription = this.dataReader.isSavedSimulationFromServer.subscribe((isFromServer) => (this.isSavedSimulationFromServer = isFromServer));
 	}
+
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
 	}
@@ -57,7 +59,7 @@ export class SimulationModalComponent {
 	}
 
 	async readContent(): Promise<void> {
-		if (this.isSavedSimulationFromServer){
+		if (this.isSavedSimulationFromServer) {
 			const filename = this.dataReader.zipfileNameFromServer;
 			if (filename) {
 				this.startProgressSpinner();
@@ -66,38 +68,37 @@ export class SimulationModalComponent {
 						await this.dataReader.readZipContentFromServer(res);
 						this.endProgressSpinner();
 					}
-				});			
+				});
 			}
-		}
-		else {	
+		} else {
 			this.startProgressSpinner();
-			const csvInput: HTMLInputElement = document.getElementById('csvinput') as HTMLInputElement;
-			if (csvInput.value != '') this.dataReader.readCSV();
 			const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
-			if (zipInput.value != '') await this.dataReader.readZipContent();
+			if (zipInput.files) await this.dataReader.readZipContent();
 			this.endProgressSpinner();
+
+			this.launchSimulation();
 		}
 	}
 
 	launchSimulation(): void {
 		if (this.viewer) this.dataReader.launchSimulation(this.viewer, false);
-		this.closeModal();
+		this.closeModal(true);
 	}
 
 	deleteSavedSimulation(): void {
 		const filename = this.dataReader.zipfileNameFromServer;
 		if (filename) {
 			this.startProgressSpinner();
-			this.commService.deleteSavedSimulation(filename).subscribe((res) => {
+			this.commService.deleteSavedSimulation(filename).subscribe(() => {
 				this.endProgressSpinner();
 			});
-			this.closeModal();
+			this.closeModal(false);
 		}
 	}
 
-	closeModal(): void {
-		(document.getElementById('modal-container') as HTMLElement).style.visibility = 'hidden';
+	closeModal(isRunning: boolean): void {
 		(document.getElementById('page-container') as HTMLElement).style.visibility = 'hidden';
 		this.initProgressSpinner();
+		this.ref.close({ isRunning: isRunning });
 	}
 }

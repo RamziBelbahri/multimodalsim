@@ -5,6 +5,7 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { EntityPathHandlerService } from 'src/app/services/cesium/entity-path-handler.service';
+import { TimelineHandlerService } from 'src/app/services/cesium/timeline-handler.service';
 
 @Component({
 	selector: 'app-cesium-container',
@@ -15,17 +16,25 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private viewerSubscription: Subscription = new Subscription();
 
-	constructor(private element: ElementRef, private cameraHandler: CameraHandlerService, private viewerSharer: ViewerSharingService, private pathHandler: EntityPathHandlerService) {}
+	constructor(
+		private element: ElementRef,
+		private cameraHandler: CameraHandlerService,
+		private viewerSharer: ViewerSharingService,
+		private pathHandler: EntityPathHandlerService,
+		private timelineHandler: TimelineHandlerService
+	) {}
 
 	ngOnInit() {
 		this.viewer.imageryLayers.addImageryProvider(
 			//assetId 4 est la carte 2D et 1 est la carte 3D par défaut
 			CesiumClass.imagery({ assetId: 4 })
 		);
-		this.cameraHandler.initCameraData(this.viewer.camera);
+		this.cameraHandler.initCameraData(this.viewer);
 
 		this.pathHandler.initHandler(this.viewer);
 		this.pathHandler.initRealTimeHandler(this.viewer);
+
+		this.timelineHandler.initHandler(this.viewer);
 
 		this.viewer.animation.viewModel.setShuttleRingTicks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]);
 

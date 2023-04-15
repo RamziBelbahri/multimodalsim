@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { EntityLabelHandlerService } from 'src/app/services/cesium/entity-label-handler.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 
-@Component({
+@Component({	
 	selector: 'app-entity-infos',
 	templateUrl: './entity-infos.component.html',
 	styleUrls: ['./entity-infos.component.css'],
@@ -17,6 +17,7 @@ export class EntityInfosComponent {
 	private viewer: Viewer | undefined;
 	private viewerSubscription: Subscription = new Subscription();
 	private entityInfosSubscription: Subscription = new Subscription();
+	private isOpen = false;
 
 	visOptionList: Array<string> = new Array<string>();
 	manipOptionList: Array<string> = new Array<string>();
@@ -26,6 +27,8 @@ export class EntityInfosComponent {
 	passengerAmount = 0;
 	passengerList = new Array<string>();
 
+	dragging = false;
+
 	constructor(private dialog: MatDialog, private entityHandler: EntityLabelHandlerService, private viewerSharer: ViewerSharingService) {}
 
 	ngOnInit() {
@@ -33,8 +36,9 @@ export class EntityInfosComponent {
 			this.viewer = viewer;
 
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
-				this.lat = infos.position.x;
-				this.lon = infos.position.y;
+				const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(infos.position);
+				this.lon = Cesium.Math.toDegrees(carto.longitude);
+				this.lat = Cesium.Math.toDegrees(carto.latitude);
 				this.passengerAmount = infos.passengers.length;
 				this.passengerList = infos.passengers;
 			});
@@ -45,11 +49,26 @@ export class EntityInfosComponent {
 		this.viewerSubscription.unsubscribe();
 	}
 
-	open(): void {
+	private open(): void {
+		this.isOpen = true;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
 	}
 
 	close(): void {
+		this.isOpen = false;
 		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '0em';
+	}
+
+	handleDragStart(): void {
+		this.dragging = true;
+	}
+
+	handleClick(): void {
+		if (this.dragging) {
+			this.dragging = false;
+			return;
+		}
+
+		this.isOpen ? this.close() : this.open();
 	}
 }

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Cartesian2, Cartesian3, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
+import { CameraHandlerService } from './camera-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -15,7 +16,7 @@ export class StopPositionHandlerService {
 	private boardingEventQueue;
 	private globalPassengerList;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private cameraHandler: CameraHandlerService) {
 		this.stopIdMapping = new Map<string, Stop>();
 		this.boardingEventQueue = new Array<BoardingEvent>();
 		this.globalPassengerList = new Array<string>();
@@ -92,6 +93,10 @@ export class StopPositionHandlerService {
 		}
 	}
 
+	stackBoardingEvent(event: BoardingEvent): void {
+		this.boardingEventQueue.unshift(event);
+	}
+
 	addPassenger(passengerid: string, stopId: string): void {
 		this.stopIdMapping.get(stopId)?.addPassenger(passengerid);
 	}
@@ -100,12 +105,13 @@ export class StopPositionHandlerService {
 		this.stopIdMapping.get(stopId)?.removePassenger(passengerid);
 	}
 
-	updateIcon(viewer: Viewer, stopId:string): void {
+	updateIcon(viewer: Viewer, stopId: string): void {
 		const entity = viewer.entities.getById(stopId);
-		if(entity && entity.ellipse) {
-			entity.ellipse.material = this.getPassengerAmount(stopId) == 0 ? 
-				new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }) : 
-				new Cesium.ImageMaterialProperty({ image: '../../../assets/passenger.svg', transparent: true });
+		if (entity && entity.ellipse) {
+			entity.ellipse.material =
+				this.getPassengerAmount(stopId) <= 0
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.png', transparent: true });
 		}
 	}
 
@@ -114,8 +120,8 @@ export class StopPositionHandlerService {
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {
-				semiMinorAxis: 10,
-				semiMajorAxis: 10,
+				semiMinorAxis: this.cameraHandler.getCurrentStopSize(),
+				semiMajorAxis: this.cameraHandler.getCurrentStopSize(),
 				height: 0,
 				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }),
 			},
