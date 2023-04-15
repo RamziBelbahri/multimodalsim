@@ -125,13 +125,13 @@ export class SidebarComponent implements OnInit {
 			if(currentSimulation.isCurrentSimulationLive()){
 				this.commService.stopCurrentBackendSimulation().subscribe({
 					next: (_) => {
+						currentSimulation.setIsRestart(true);
 						document.location.reload();
 					},
 					error: (err) => {},
 					complete: () => {}
 				});
 			}
-			currentSimulation.setIsRestart(true);
 		}
 	}
 

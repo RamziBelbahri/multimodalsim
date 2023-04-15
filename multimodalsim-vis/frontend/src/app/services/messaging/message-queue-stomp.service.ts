@@ -59,7 +59,11 @@ export class MessageQueueStompService {
 		if(!debug){
 			MessageQueueStompService.client.debug = function() {return;};
 		}
-		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
+		try{
+			MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
+		} catch(e){
+			console.log(e)
+		}
 		MessageQueueStompService.service = this;
 	}
 

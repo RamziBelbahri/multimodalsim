@@ -63,6 +63,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		const simName = currentSimulation.getCurrentSimulationName();
 		const isLive = currentSimulation.isCurrentSimulationLive();
 		const isRestart = currentSimulation.isRestart();
+		console.log(simName, isLive, isRestart);
 		if(!isRestart) {
 			currentSimulation.removeSimName();
 			currentSimulation.removeIsLive();
@@ -72,6 +73,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 			} else {
 				this.autoLaunchPreloadedSimulation();
 			}
+			currentSimulation.removeRestart();
 		}
 
 	}

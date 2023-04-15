@@ -12,8 +12,9 @@ import fs from 'fs';
 import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
-import { execSync } from 'child_process';
+import { exec, execSync } from 'child_process';
 import archiver from 'archiver';
+import os from 'os';
 // import * as unzipper from 'unzipper';
 
 import extract from 'extract-zip';
@@ -372,23 +373,37 @@ app.get('/api/get-stats', (_: Request, res: Response) => {
 
 app.post('/api/stopsim', (_:Request, res:Response) => {
 	try {
-		// restart docker container for activemq
-		execSync('docker ps --filter "ancestor=*activemq*" -q | xargs -I {} docker restart {}');
 		// kill the current simulation
 		runSim?.kill('SIGKILL');
+		// restart docker container for activemq
+		const platform = os.platform();
+		console.log(platform)
+		// if(platform != 'win32')
+		// 	execSync('docker ps --filter "name=*activemq*" -q | xargs -I {} docker restart {}');
+		// else {
+		try {execSync('docker restart multimodalsim-vis-activemq-1');} catch(e) {}
+		try {execSync('docker restart activemq');} catch(e) {}
+		while(!execSync('docker ps').toString().includes('activemq')) {
+			continue;
+		}
+		// }
+
 		res.status(200).json({status:'activemq cleared, waiting for signal to restart simulation'});
 	} catch(e) {
+		console.log(e);
 		res.status(500).json(e);
 	}
 });
 
 app.post('/api/restart-livesim', (req:Request, res:Response) => {
+	// console.log(req);
 	const simName = req.body['simName'].toString();
 	const simNameArray = simName.split('/');
 	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
 	const configPath = '../data/' + simulationFolderName + '/config.json';
 	// const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
 	const config = JSON.parse(fs.readFileSync(configPath).toString());
+	console.log(config);
 	startSim(getArgsFromConfig(config));
 	res.status(200).json({status:'restarted'});
 });

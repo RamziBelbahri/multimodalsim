@@ -34,7 +34,7 @@ export function removeSimName() {
 }
 
 export function setIsRestart(isRestart: boolean) {
-	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.IS_LIVESIM, isRestart ? 'true' : 'false');
+	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.IS_RESTART, isRestart ? 'true' : 'false');
 }
 
 export function isRestart() {

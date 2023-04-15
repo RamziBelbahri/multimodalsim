@@ -108,9 +108,12 @@ export class CommunicationService {
 	}
 
 	restartBackendSimulation() {
-		const formData = new FormData();
+		// const formData = new FormData();
 		const simName = currentSimulation.getCurrentSimulationName();
-		formData.append('simName',  simName ? simName : '');
-		return this.http.post(this.APIURL + 'restart-livesim', formData);
+		// formData.append('simName',  simName ? simName : '');
+		const body = {
+			'simName':simName
+		};
+		return this.http.post(this.APIURL + 'restart-livesim', body);
 	}
 }
