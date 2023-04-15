@@ -139,7 +139,6 @@ export class SidebarComponent implements OnInit {
 	}
 	private disableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
-		console.log(element.classList);
 		// element.style.backgroundColor = '#b1b1b1';
 		// if (id != 'replay-menu-button') element.style.marginBottom = '10px';
 		// element.style.pointerEvents = 'none';
@@ -173,13 +172,11 @@ export class SidebarComponent implements OnInit {
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 			if(filename) {
 				currentSimulation.setCurrentSimulationName(filename);
-				console.log('simulation name:', filename);
 			} else {
 				currentSimulation.removeSimName();
 			}
 			let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
 			isLive = isLive && isFromServer;
-			console.log('isLive from openSimulationModal', isLive);
 			currentSimulation.setIsSimulationLive(isLive);
 
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
@@ -227,7 +224,6 @@ export class SidebarComponent implements OnInit {
 
 			dialogRef.afterClosed().subscribe(
 				(result) => {
-					console.log(result.isRunning, result.isRunning);
 					this.setSimulationState(result.isRunning, result.isRunning);
 				}
 			);

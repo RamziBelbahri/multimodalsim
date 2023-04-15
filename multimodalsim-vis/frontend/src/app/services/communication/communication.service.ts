@@ -67,19 +67,16 @@ export class CommunicationService {
 	}
 
 	private handleError(error: HttpErrorResponse) {
-		console.log(error.message);
 		if (error.status === 0) {
 			console.error('An error occurred:', error.error);
 		} else {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
-		console.log(error);
 		return throwError(() => new Error('Something bad happened; please try again later.'));
 		
 	}
 
 	sendPreloadedSimulation(formData:FormData) {
-		// console.log(formData.forEach((v, k) => {console.log(v,k)}));
 		const simName = currentSimulation.getCurrentSimulationName();
 		if(simName)
 			formData.append('simulationName',  simName);

@@ -124,9 +124,6 @@ export class EntityPathHandlerService {
 							const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
 							const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 							done.push(todo[0]);
-							// garde le for now, peut etre que c'est utile pour debug
-							// console.log(done, todo);
-
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {

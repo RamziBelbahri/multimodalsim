@@ -30,8 +30,6 @@ export class StopPositionHandlerService {
 				this.stopIdMapping.set(id.toString(), newStop);
 			}
 		});
-		// console.trace()
-		console.log('stopPositionHandler.initStops: this.stopIdMapping has', this.stopIdMapping.size, 'entries');
 	}
 
 	// Ajoute les moments ou les passagers sont présents à un arrêt
@@ -62,7 +60,6 @@ export class StopPositionHandlerService {
 
 	// Charge tous les arrêts qui contiennent des passagers
 	loadSpawnEvents(viewer: Viewer): void {
-		console.log('stopPositionHandler.loadSpawnEvents: this.stopIdMapping has', this.stopIdMapping.size, 'entries');
 		this.stopIdMapping.forEach((stop: Stop, id: string) => {
 			this.spawnEntity(id, stop, viewer);
 		});
