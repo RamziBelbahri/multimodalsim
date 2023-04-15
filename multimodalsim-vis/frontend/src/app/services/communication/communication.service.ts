@@ -4,16 +4,11 @@ import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { enableButton } from '../util/toggle-button';
 import * as currentSimulation from 'src/app/helpers/session-storage';
-// import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
-// import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
-// import { StopLookupService } from '../util/stop-lookup.service';
-// import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CommunicationService {
-	// public simulationToFetch:string|undefined;
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
 	constructor(
 		private http: HttpClient,
