@@ -63,7 +63,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		if(!isRestart) {
 			currentSimulation.removeSimName();
 			currentSimulation.removeIsLive();
-		}  else if (isRestart && simName) {
+		}  else if (isRestart) {
 			if(isLive) {
 				this.autoLaunchLiveSimulation();
 			} else {

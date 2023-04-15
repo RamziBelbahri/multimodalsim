@@ -43,9 +43,11 @@ export class LaunchModalComponent {
 		const log_level_select = document.getElementById('log-levels') as HTMLSelectElement;
 		const log_level = log_level_select.options[log_level_select.selectedIndex].text;
 		formData.append('log-level', log_level);
-		const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
-		const osrm = osrmInput.checked;
-		formData.append('osrm', osrm ? 'true':'true');
+
+		// const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
+		// const osrm = osrmInput.checked;
+		
+		formData.append('osrm', 'true');
 		const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 		const simulationName = simulationNameInput.value;
 		formData.append('simulationName', simulationName);

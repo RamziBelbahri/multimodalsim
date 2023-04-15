@@ -65,7 +65,7 @@ export class DataReaderService {
 			if(!isFromServer) {
 				this.commService.sendPreloadedSimulation(this.formData).subscribe({
 					error: (_) => {
-						alert('warning: unable to send files to server; restart will not work. You can still reload the page and re-upload the .zip file');
+						// alert('warning: unable to send files to server; restart will not work. You can still reload the page and re-upload the .zip file');
 					},
 					complete: () => {
 						this.formData = new FormData();
