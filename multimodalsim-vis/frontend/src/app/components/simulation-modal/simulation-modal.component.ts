@@ -102,15 +102,12 @@ export class SimulationModalComponent {
 			);
 		}
 		const isLive = currentSimulation.isCurrentSimulationLive();
-		console.log(isLive);
 		if(!isLive){
 			if (this.isSavedSimulationFromServer) {
 				this.launchPreloadedSimulationFromServer();
 			} else {
 				this.launchUploadedSimulation();
 			}
-		} else {
-			this.launchSavedSimulationOnBackend();
 		}
 		enableButton('restart-sim-menu-button');
 	}
@@ -119,42 +116,6 @@ export class SimulationModalComponent {
 		if (this.viewer) this.dataReader.launchSimulationOnFrontend(this.viewer, false);
 		this.closeModal(true);
 	}
-
-	async launchSavedSimulationOnBackend():Promise<void> {
-		const simulationToFetch = currentSimulation.getCurrentSimulationName();
-		if (!this.viewer || !simulationToFetch) return;
-		this.commService.launchExistingBackendSimulation(simulationToFetch).subscribe({
-			next: data => {
-				this.commService.requestStopsFile(simulationToFetch).subscribe({
-					next: data => {
-						const stops = this.simulationParserService.parseFile(data).data;
-						for (const line of stops) {
-							this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
-						}
-						this.stopPositionHandlerService.initStops();
-						if(!this.viewer) {
-							alert('error: viewer is null');
-							return;
-						}
-						this.dataReader.launchSimulationOnFrontend(this.viewer, true);
-					},
-					error: error => {
-						console.error('Error:', error);
-					},
-					complete: () => {
-						console.log('Request completed');
-					}
-				});
-			},
-			error: err => {
-				console.log(err);
-				alert('une erreur s\'est produite');
-			},
-			complete: () => {}
-		});
-
-	}
-
 
 	deleteSavedSimulation(): void {
 		const filename = this.dataReader.zipfileNameFromServer;

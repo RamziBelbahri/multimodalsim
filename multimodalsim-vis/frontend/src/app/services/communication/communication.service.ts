@@ -50,12 +50,6 @@ export class CommunicationService {
 		return this.http.get(this.APIURL + 'stops-file', {responseType: 'text', params});
 	}
 
-	launchExistingBackendSimulation(simName:string) {
-		const body = {
-			simName: simName,
-		};
-		return this.http.post(this.APIURL + 'launch-saved-sim',body);
-	}
 
 	stopCurrentBackendSimulation() {
 		return this.http.post(this.APIURL + 'stopsim', {});

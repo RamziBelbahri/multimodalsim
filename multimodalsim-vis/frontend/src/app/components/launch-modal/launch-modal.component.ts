@@ -7,6 +7,7 @@ import { DataReaderService } from 'src/app/services/data-initialization/data-rea
 import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { Viewer } from 'cesium';
+import * as currentSimulation from 'src/app/helpers/session-storage';
 
 @Component({
 	selector: 'app-launch-modal',
@@ -38,8 +39,23 @@ export class LaunchModalComponent {
 		this.target = target;
 	}
 
-	launchSimulationOnBackend(): void {
+	initBackendSimulationRequestData(formData:FormData) {
+		const log_level_select = document.getElementById('log-levels') as HTMLSelectElement;
+		const log_level = log_level_select.options[log_level_select.selectedIndex].text;
+		formData.append('log-level', log_level);
+		const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
+		const osrm = osrmInput.checked;
+		formData.append('osrm', osrm ? 'true':'true');
+		const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
+		const simulationName = simulationNameInput.value;
+		formData.append('simulationName', simulationName);
+		currentSimulation.setCurrentSimulationName(simulationName);
+		this.pathHandler.isRealtime = true;
+	}
+
+	launchLiveSimulation(): void {
 		const formData = new FormData();
+		currentSimulation.setIsSimulationLive(true);
 		if(this.target && this.target.files) {
 			for(let i = 0; i < this.target.files?.length; i++) {
 				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
@@ -50,26 +66,17 @@ export class LaunchModalComponent {
 						const csvData = this.simulationParserService.parseFile(txt).data;
 						this.dataReaderService.parseStopsFile(csvData);
 						this.stopPositionHandlerService.initStops();
-						const log_level_select = document.getElementById('log-levels') as HTMLSelectElement;
-						const log_level = log_level_select.options[log_level_select.selectedIndex].text;
-						formData.append('log-level', log_level);
-				
-						const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
-						const osrm = osrmInput.checked;
-						// TODO DELETE THIS ATTRIBUTE
-						formData.append('osrm', osrm ? 'true':'true');
-				
-						const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
-						const simulationName = simulationNameInput.value;
-						formData.append('simulationName', simulationName);
-						this.pathHandler.isRealtime = true;
+
+						
 						if(this.viewer) {
 							this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
 						}
-						this.commService.uploadFilesAndLaunch(formData);
+						
 					});
 				}
 			}
+			this.initBackendSimulationRequestData(formData);
+			this.commService.uploadFilesAndLaunch(formData);
 			this.dialogRef.close({isRunning:true, isActive:true});
 		}
 		

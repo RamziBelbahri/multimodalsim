@@ -12,19 +12,23 @@ import fs from 'fs';
 import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
-import { exec, execSync } from 'child_process';
+import { execSync } from 'child_process';
 import archiver from 'archiver';
-import os from 'os';
+// import os from 'os';
 import delay from 'delay';
 import extract from 'extract-zip';
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
-function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
-	const toplevelFolder = 
+function writeWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
+	let toplevelFolder = 
 		'communication/data/' +
-		req.body['simulationName'] + '/' +
-		decodeURIComponent((files as Array<any>)[0].fieldname).split('/')[0];
+		req.body['simulationName'] + '/';
+
+	const filenameArray = decodeURIComponent((files as Array<any>)[0].fieldname).split('/');
+	for(let i = 0; i < filenameArray.length - 1; i++) {
+		toplevelFolder = toplevelFolder + filenameArray[i] + '/';
+	}
 
 	
 	const config = {
@@ -39,10 +43,10 @@ function zipLiveSimulationWithConfig(req:Request, files: MulterFiles, networkfil
 	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
 
 	// move the whole thing to a zip
-	const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
-	const archive = archiver('zip');
-	archive.pipe(output);
-	archive.directory( '../data/' + req.body['simulationName'] + '/', false).finalize();
+	// const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
+	// const archive = archiver('zip');
+	// archive.pipe(output);
+	// archive.directory( '../data/' + req.body['simulationName'] + '/', false).finalize();
 	return config;
 }
 const getsArgs = (req: Request):string[] => {
@@ -126,7 +130,7 @@ const __dirname = path.dirname(__filename);
 const distDir = __dirname + '/dist/';
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
 const savedPreloadedSimulationsDir 	= savedSimulationsDir + 'preloaded/';
-const savedLiveSimulationDir 		= savedSimulationsDir + 'live/';
+// const savedLiveSimulationDir 		= savedSimulationsDir + 'live/';
 
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
 const upload = multer({
@@ -182,7 +186,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 });
 
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
-	console.log('pause')
+	console.log('pause');
 	if(runSim) {
 		suspend(runSim.pid, true);
 	}
@@ -190,7 +194,7 @@ app.get('/api/pause-simulation', (req:Request, res:Response) => {
 });
 
 app.get('/api/continue-simulation', (req:Request, res:Response) => {
-	console.log('continue')
+	console.log('continue');
 	if(runSim) {
 		suspend(runSim.pid, false);
 	}
@@ -234,15 +238,8 @@ app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	for(let i = 0; i < preloadedZipfiles.length; i++) {
 		preloadedZipfiles[i] = 'preloaded/' + preloadedZipfiles[i];
 	}
-	// live
-	let liveZipfiles:string[] = readdirSync(savedLiveSimulationDir);
-	liveZipfiles = liveZipfiles.filter(file => path.extname(file) === '.zip');
-	for(let i = 0; i < liveZipfiles.length; i++) {
-		liveZipfiles[i] = 'live/' + liveZipfiles[i];
-	}
-
 	zipfiles.push(...preloadedZipfiles);
-	zipfiles.push(...liveZipfiles);
+	// zipfiles.push(...liveZipfiles);
 	res.send(zipfiles.sort());
 });
 
@@ -312,7 +309,7 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 		}
 		saveFile(filePath,req,file);
 	}
-	const config = zipLiveSimulationWithConfig(req, files, networkfile);
+	const config = writeWithConfig(req, files, networkfile);
 	startSim(getArgsFromConfig(config));
 
 	res.status(200).json({ status: 'got file'});
@@ -344,30 +341,6 @@ app.get('/api/stops-file', (req:Request, res:Response) => {
 	}
 });
 
-app.post('/api/launch-saved-sim', (req:Request, res:Response) => {
-	const simName:string|undefined = req.body['simName']?.toString();
-	console.log(simName);
-	if(simName) {
-		const simNameArray = simName.split('/');
-		const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
-		const configPath = '../data/' + simulationFolderName + '/config.json';
-		const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
-		const zipFilePath = savedSimulationsDir + simName;
-
-		if(!fs.existsSync(outputFolder)) {
-			fs.mkdirSync(outputFolder);
-		}
-		extract(zipFilePath, { dir: outputFolder }).then(() => {
-			const config = JSON.parse(fs.readFileSync(configPath).toString());
-			startSim(getArgsFromConfig(config));
-			console.log('here');
-			res.status(200).json({status:'unzip done, simulation launched'});
-		});
-
-	} else {
-		res.status(500).json({ error: 'simulation name was null'});
-	}
-});
 
 app.get('/api/get-stats', (_: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
@@ -383,7 +356,9 @@ app.post('/api/stopsim', async (_:Request, res:Response) => {
 		try {
 			execSync('docker restart activemq');
 			containerName = 'activemq';
-		} catch(e) {}
+		} catch(e) {
+			console.log(e);
+		}
 		while(!execSync('docker ps').toString().includes('activemq')) {
 			await delay(1000);
 		}
