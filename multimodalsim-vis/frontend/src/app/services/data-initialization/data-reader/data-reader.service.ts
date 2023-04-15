@@ -64,12 +64,10 @@ export class DataReaderService {
 			await this.readFiles(zip);
 			if(!isFromServer) {
 				this.commService.sendPreloadedSimulation(this.formData).subscribe({
-					next: (data) => {console.log(data);},
 					error: (_) => {
 						alert('warning: unable to send files to server; restart will not work. You can still reload the page and re-upload the .zip file');
 					},
 					complete: () => {
-						console.log('complete');
 						this.formData = new FormData();
 					}
 				});
@@ -88,7 +86,6 @@ export class DataReaderService {
 		if (zip.files) {
 			for (const filePath in zip.files) {
 				let extension: string;
-				console.log(filePath);
 				try {
 					const tmp = filePath.toLowerCase().split('.');
 					extension = tmp[tmp.length - 1];

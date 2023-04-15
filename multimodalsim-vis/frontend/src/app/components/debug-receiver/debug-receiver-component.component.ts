@@ -53,15 +53,4 @@ export class DebugReceiverComponentComponent {
 
 		this.onExpandCollapse();
 	}
-	// onConnect() {
-	// 	DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
-	// }
-	// onError(err:IMessage){
-	// }
-	// private static onMessage(msg:IMessage) {
-	// 	const p = document.getElementById('received-text');
-	// 	if(p) {
-	// 		p.innerText = JSON.stringify(JSON.parse(msg.body), undefined, 2);
-	// 	}
-	// }
 }

@@ -100,7 +100,6 @@ export class SimulationModalComponent {
 			currentSimulation.setCurrentSimulationName(
 				(document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value
 			);
-			console.log('simulation name:', (document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value);
 		}
 		const isLive = currentSimulation.isCurrentSimulationLive();
 		console.log(isLive);
@@ -111,7 +110,6 @@ export class SimulationModalComponent {
 				this.launchUploadedSimulation();
 			}
 		} else {
-			console.log('launchSavedSimulationOnBackend');
 			this.launchSavedSimulationOnBackend();
 		}
 		enableButton('restart-sim-menu-button');

@@ -3,16 +3,13 @@ import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
 import { EntityDataHandlerService } from '../entity-data-handler/entity-data-handler.service';
-// import { DateParserService } from '../util/date-parser.service';
 import {ConnectionCredentials} from './connection-constants';
-// import { Queue } from 'queue-typescript';
 import { VehicleStatus } from 'src/app/classes/data-classes/vehicle-class/vehicle-status';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { FlowControl } from '../entity-data-handler/flow-control';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { EventType } from '../util/event-types';
 import { Injectable } from '@angular/core';
-// var LinkedList = require('dbly-linked-list')
 const DEBUG = false;
 // uses STOMP with active MQ
 @Injectable({
@@ -53,21 +50,13 @@ export class MessageQueueStompService {
 	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
 	constructor(private entityDataHandlerService:EntityDataHandlerService
-		// socketAddress:string=,
-		// debug=false
 	) {
 		if(MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
 		}
 		MessageQueueStompService.client = Stomp.client(ConnectionCredentials.WEBSOCKET, ConnectionCredentials.PROTOCOLS);
-		// if(!debug){
 		MessageQueueStompService.client.debug = function() {return;};
-		// }
-		try{
-			MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
-		} catch(e){
-			console.log(e)
-		}
+		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME,ConnectionCredentials.PASSWORD,this.onConnect, this.onError);
 		MessageQueueStompService.service = this;
 	}
 
@@ -75,8 +64,6 @@ export class MessageQueueStompService {
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, this.onReceivingInfo);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, this.onReceivingEventObservation);
-		// MessageQueueStompService.client.subscribe(ConnectionCredentials.TRIPS_QUEUE, this.onReceivingTripEvent);
-		// MessageQueueStompService.client.subscribe(ConnectionCredentials.VEHICLE_QUEUE, this.onReceivingVehicleEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.ENTITY_EVENTS_QUEUE, this.onReceivingEntityEvent);
 	};
 	private onError = (err:IMessage) => {
@@ -91,7 +78,6 @@ export class MessageQueueStompService {
 					receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
 				} catch {
 					receivedText.innerText = msg.body;
-					console.log(msg.body);
 				}
 			}
 		}
@@ -144,23 +130,18 @@ export class MessageQueueStompService {
 		}
 	};
 
-	// private combineEvents = () => {}
-	// private createEvents = () => {}
 
 	private onReceivingEntityEvent = (msg:IMessage) => {
 		if(msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
-			// this.sendRemainingEventsToCesium(msg);
 			return;
 		}
 		if(msg.body === 'None') {
-			console.log(msg.body);
 			return;
 		}
 		// 1. event is parsed as JSON
 		const eventJson = JSON.parse(msg.body);
 		let entityEvent: PassengerEvent | VehicleEvent = this.eventJSONToObject(eventJson);
 
-		// console.log(eventJson['polylines'])
 		let realtimePolyline:RealTimePolyline | undefined;
 		const polylinesJSON = eventJson['polylines'];
 		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {

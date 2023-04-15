@@ -127,7 +127,6 @@ export class EntityDataHandlerService {
 
 	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
-		console.log('CALLING FROM: this.runRealTimeSimulation');
 		enableButton('restart-sim-menu-button');
 		this.stopHandler.initStops();
 		const clockState = viewer.animation.viewModel.clockViewModel;
@@ -137,7 +136,6 @@ export class EntityDataHandlerService {
 				this.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
 		});
-		console.log('CALLING FROM: this.runRealTimeSimulation');
 		this.stopHandler.loadSpawnEvents(viewer);
 		while (!this.simulationCompleted) {
 			if (i >= this.combined.length) {
@@ -158,8 +156,6 @@ export class EntityDataHandlerService {
 			if (event && i == 0) {
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, (23 * 60 * 60).toString());
-				console.log(Cesium.JulianDate.toDate(start).getTime());
-				console.log(Cesium.JulianDate.toDate(end).getTime());
 				this.zoomTo(viewer, start, end);
 			}
 

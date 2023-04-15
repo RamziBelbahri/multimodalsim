@@ -54,15 +54,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	ngAfterViewInit() {
-		// met à jour le viewer une fois que les composants sont abonnés.
 		this.viewerSharer.setViewer(this.viewer);
-		// TODO
-		// const simName = window.sessionStorage.getItem(SESSION_STORAGE_KEYS.SIMULATION_TO_FETCH);
-		// if(!simName || simName == '') return;
-		// this.pathHandler.isRealtime = window.sessionStorage.getItem(SESSION_STORAGE_KEYS.SIMULATION_TO_FETCH) == 'true';
-		// console.log(this.viewerSharingService.viewer);
-		// this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
-		// this.communicationService.launchExistingBackendSimulation(simName);
 
 		const simName = currentSimulation.getCurrentSimulationName();
 		const isLive = currentSimulation.isCurrentSimulationLive();
@@ -76,7 +68,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 				this.autoLaunchLiveSimulation();
 			} else {
 				// TODO
-				// this.autoLaunchPreloadedSimulation();
+				alert('Vous pouvez re-uploader les fichiers afin de relancer la simulation avec les mêmes paramètres');
 			}
 			currentSimulation.removeRestart();
 		}
@@ -105,13 +97,6 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		});
 		
 	}
-
-	// TODO
-	// autoLaunchPreloadedSimulation() {
-	// 	this.communicationService.getPreloadedFiles().subscribe({
-	// 		next: (data) => {console.log(data);}
-	// 	});
-	// }
 
 	ngOnDestroy() {
 		this.viewerSubscription.unsubscribe();
