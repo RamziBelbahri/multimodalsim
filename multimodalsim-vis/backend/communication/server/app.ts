@@ -346,7 +346,7 @@ app.get('/api/get-stats', (_: Request, res: Response) => {
 	res.status(200).json({ status: 'COMPLETED', values: stats});
 });
 
-const JOLOKIA_ACCESS = 'INFO | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml';
+const JOLOKIA_ACCESS = 'INFO | ActiveMQ Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/';
 
 app.post('/api/stopsim', async (_:Request, res:Response) => {
 	try {

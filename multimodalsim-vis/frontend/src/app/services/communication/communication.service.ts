@@ -24,7 +24,7 @@ export class CommunicationService {
 	uploadFilesAndLaunch(args:object) {
 		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
 			next: _ => {
-				(document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
+				// (document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
 			},
 			error: err => {console.log(err);},
 			complete: () => {
