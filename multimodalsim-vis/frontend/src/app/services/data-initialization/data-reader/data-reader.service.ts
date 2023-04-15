@@ -108,15 +108,6 @@ export class DataReaderService {
 					this.ignored.push(filePath);
 				}
 			}
-			// try {
-			// const simNameElement = (document.getElementById('preloaded-sim-name') as HTMLInputElement);
-			// if(simNameElement && isFromServer) {
-			// 	const simName = simNameElement.value;
-			// 	this.formData.append('simulationName', simName);
-			// 	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.SIMULATION_TO_FETCH, simName);
-			// 	window.sessionStorage.setItem(SESSION_STORAGE_KEYS.IS_LIVESIM, 'false');
-			// }
-			// } catch(e) {console.log(e);}
 		}
 	}
 
@@ -154,10 +145,6 @@ export class DataReaderService {
 			this.errors.push((error as Error).message as string);
 		}
 	}
-
-	// private sendFileToServer() {
-	// 
-	// }
 
 	private setFileData(filePath: string, csvArray: any): void {
 		if (filePath.toString().endsWith(FileType.VEHICLES_OBSERVATIONS_FILE_NAME)) {

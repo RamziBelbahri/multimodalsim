@@ -14,7 +14,6 @@ import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
 import { exec, execSync } from 'child_process';
 import archiver from 'archiver';
-import os from 'os';
 import delay from 'delay';
 import extract from 'extract-zip';
 
@@ -153,7 +152,7 @@ app.listen(port, () => {
 });
 
 function startSim(args:string[]) {
-	runSim = spawn('py', args, {cwd:'../../'});
+	runSim = spawn('python', args, {cwd:'../../'});
 
 	runSim.on('spawn', () => {
 		console.log('Started runSim:');
@@ -184,7 +183,7 @@ app.post('/api/start-simulation', (req: Request, res: Response) => {
 app.get('/api/pause-simulation', (req:Request, res:Response) => {
 	console.log('pause')
 	if(runSim) {
-		suspend(runSim.pid, true);
+		suspend(runSim, true);
 	}
 	res.status(200).json({ status: 'PAUSED' });
 });
@@ -192,9 +191,20 @@ app.get('/api/pause-simulation', (req:Request, res:Response) => {
 app.get('/api/continue-simulation', (req:Request, res:Response) => {
 	console.log('continue')
 	if(runSim) {
-		suspend(runSim.pid, false);
+		suspend(runSim, false);
 	}
 	res.status(200).json({ status: 'RESUMED' });
+});
+
+app.get('/api/end-simulation', (req:Request, res:Response) => {
+	if(runSim) {
+		runSim.on('close', (code, signal) => {
+			console.log(
+				`child process terminated due to receipt of signal ${signal}\n`, `code: ${code}`);
+		});
+		runSim.kill();
+	}
+	res.status(200).json({ status: 'TERMINATED' });
 });
 
 // création du dossier des simulations sauvegardées
@@ -287,16 +297,6 @@ app.delete('/api/delete-simulation', async (req:Request<ParamsDictionary, ArrayB
 	return res.status(500).send({ status: `Le fichier ${filename} n'existe pas` });
 });
 
-app.get('/api/end-simulation', (req:Request, res:Response) => {
-	if(runSim) {
-		runSim.on('close', (code, signal) => {
-			console.log(
-				`child process terminated due to receipt of signal ${signal}\n`, `code: ${code}`);
-		});
-		runSim.kill();
-	}
-	res.status(200).json({ status: 'TERMINATED' });
-});
 
 app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Request, res:Response) => {
 	const files = req.files;

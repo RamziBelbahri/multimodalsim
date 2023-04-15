@@ -8,6 +8,9 @@ services:
       - /backend/communication/server/node_modules
       - /backend/venv
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PORT=8000
+      - ACTIVEMQ=activemq
     mem_limit: 4g
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend

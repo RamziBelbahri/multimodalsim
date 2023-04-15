@@ -1,19 +1,14 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { enableButton } from '../util/toggle-button';
 import * as currentSimulation from 'src/app/helpers/session-storage';
-// import { StopPositionHandlerService } from '../cesium/stop-position-handler.service';
-// import { SimulationParserService } from '../data-initialization/simulation-parser/simulation-parser.service';
-// import { StopLookupService } from '../util/stop-lookup.service';
-// import { CesiumClass } from 'src/app/shared/cesium-class';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class CommunicationService {
-	// public simulationToFetch:string|undefined;
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
 	constructor(
 		private http: HttpClient,
@@ -29,7 +24,7 @@ export class CommunicationService {
 	uploadFilesAndLaunch(args:object) {
 		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
 			next: _ => {
-				(document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
+				// (document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
 			},
 			error: err => {console.log(err);},
 			complete: () => {
@@ -75,11 +70,10 @@ export class CommunicationService {
 		}
 		console.log(error);
 		return throwError(() => new Error('Something bad happened; please try again later.'));
-		
+
 	}
 
 	sendPreloadedSimulation(formData:FormData) {
-		// console.log(formData.forEach((v, k) => {console.log(v,k)}));
 		const simName = currentSimulation.getCurrentSimulationName();
 		if(simName)
 			formData.append('simulationName',  simName);
@@ -108,9 +102,7 @@ export class CommunicationService {
 	}
 
 	restartBackendSimulation() {
-		// const formData = new FormData();
 		const simName = currentSimulation.getCurrentSimulationName();
-		// formData.append('simName',  simName ? simName : '');
 		const body = {
 			'simName':simName
 		};
