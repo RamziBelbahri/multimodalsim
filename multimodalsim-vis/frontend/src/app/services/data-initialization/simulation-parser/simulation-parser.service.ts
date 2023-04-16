@@ -40,8 +40,6 @@ export class SimulationParserService {
 				line.duration
 			);
 			vehicleData.push(vehicleEvent);
-
-			console.log(line, line.mode);
 		}
 		return vehicleData;
 	}
