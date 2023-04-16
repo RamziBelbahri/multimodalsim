@@ -241,15 +241,8 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 
 app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	createSavedSimulationsDir();
-	const zipfiles:string[] = [];
-	// preloaded
-	let preloadedZipfiles: string[] = readdirSync(savedPreloadedSimulationsDir);
-	preloadedZipfiles = preloadedZipfiles.filter(file => path.extname(file) === '.zip');
-	for(let i = 0; i < preloadedZipfiles.length; i++) {
-		preloadedZipfiles[i] = 'preloaded/' + preloadedZipfiles[i];
-	}
-	zipfiles.push(...preloadedZipfiles);
-	// zipfiles.push(...liveZipfiles);
+	let zipfiles: string[] = readdirSync(savedSimulationsDir);
+	zipfiles = zipfiles.filter(file => path.extname(file) === '.zip');
 	res.send(zipfiles.sort());
 });
 
@@ -259,11 +252,8 @@ app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request
 	const data: Buffer = req.file?.buffer as Buffer;
 	const { zipFileName }: {zipFileName: string} = req.body;
 	createSavedSimulationsDir();
-	if(!existsSync(savedPreloadedSimulationsDir)) {
-		mkdirSync(savedPreloadedSimulationsDir);
-	}
 	try {
-		await writeFile(savedPreloadedSimulationsDir + zipFileName, data);
+		await writeFile(savedSimulationsDir + zipFileName, data);
 		console.log('sauvegarde de ' + zipFileName + ' réussie');
 	}
 	catch (e) {

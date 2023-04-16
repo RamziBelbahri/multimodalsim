@@ -5,10 +5,12 @@ export class Vehicle {
 
 	path: SampledPositionProperty;
 	id: string;
+	type: string;
 
-	constructor(id: string) {
+	constructor(id: string, type: string) {
 		this.id = id;
 		this.path = new Cesium.SampledPositionProperty();
+		this.type = type;
 	}
 
 	addPassenger(id: string): void {
