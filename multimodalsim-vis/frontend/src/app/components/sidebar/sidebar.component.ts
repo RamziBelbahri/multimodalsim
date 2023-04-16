@@ -117,16 +117,23 @@ export class SidebarComponent implements OnInit {
 
 	private disableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#b1b1b1';
-		if (id != 'replay-menu-button') element.style.marginBottom = '10px';
-		element.style.pointerEvents = 'none';
+		console.log(element.classList);
+		// element.style.backgroundColor = '#b1b1b1';
+		// if (id != 'replay-menu-button') element.style.marginBottom = '10px';
+		// element.style.pointerEvents = 'none';
+		element.classList.add('disabled');
+		// element.d
+		// element.disabled = true;
 	}
 
 	private enableButton(id: string): void {
 		const element = document.getElementById(id) as HTMLElement;
-		element.style.backgroundColor = '#e7e7e7';
-		element.style.marginBottom = '5px';
-		element.style.pointerEvents = 'auto';
+		console.log(element.classList);
+		element.classList.remove('disabled');
+
+		// element.style.backgroundColor = '#e7e7e7';
+		// element.style.marginBottom = '5px';
+		// element.style.pointerEvents = 'auto';
 	}
 
 	private toggleContainer(id: number): void {
