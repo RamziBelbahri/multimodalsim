@@ -143,10 +143,6 @@ export class DataReaderService {
 		}
 	}
 
-	// private sendFileToServer() {
-	// 
-	// }
-
 	private setFileData(filePath: string, csvArray: any): void {
 		if (filePath.toString().endsWith(FileType.VEHICLES_OBSERVATIONS_FILE_NAME)) {
 			this.setVehicleData(csvArray);

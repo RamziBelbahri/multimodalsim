@@ -5,7 +5,7 @@ class ActiveMQController:
 	def __init__(self) -> None:
 		pass
 
-	def getConnection(user=ConnectionCredentials.USERNAME,password=ConnectionCredentials.PASSWORD, host=ConnectionCredentials.LOCALHOST, port=ConnectionCredentials.PORT):
+	def getConnection(user=ConnectionCredentials.USERNAME,password=ConnectionCredentials.PASSWORD, host=ConnectionCredentials.HOST, port=ConnectionCredentials.PORT):
 		if ActiveMQController.connection == None:
 			ActiveMQController.connection = Connection11([(host, port)])  
 			ActiveMQController.connection.connect(user, password)

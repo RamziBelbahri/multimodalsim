@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -62,7 +62,7 @@ export class CommunicationService {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
 		return throwError(() => new Error('Something bad happened; please try again later.'));
-		
+
 	}
 
 	sendPreloadedSimulation(formData:FormData) {
@@ -94,9 +94,7 @@ export class CommunicationService {
 	}
 
 	restartBackendSimulation() {
-		// const formData = new FormData();
 		const simName = currentSimulation.getCurrentSimulationName();
-		// formData.append('simName',  simName ? simName : '');
 		const body = {
 			'simName':simName
 		};
