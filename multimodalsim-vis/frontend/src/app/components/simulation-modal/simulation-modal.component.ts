@@ -33,9 +33,9 @@ export class SimulationModalComponent {
 		private dataReader: DataReaderService,
 		private viewerSharer: ViewerSharingService,
 		private commService: CommunicationService,
-		private stopLookup:StopLookupService,
-		private simulationParserService:SimulationParserService,
-		private stopPositionHandlerService:StopPositionHandlerService
+		private stopLookup: StopLookupService,
+		private simulationParserService: SimulationParserService,
+		private stopPositionHandlerService: StopPositionHandlerService
 	) {
 		this.initProgressSpinner();
 		this.isSavedSimulationFromServer = this.dataReader.isSavedSimulationFromServer.value;
@@ -90,19 +90,14 @@ export class SimulationModalComponent {
 	async launchUploadedSimulation() {
 		this.startProgressSpinner();
 		const zipInput: HTMLInputElement = document.getElementById('zipinput') as HTMLInputElement;
-		if (zipInput.files) await this.dataReader.readZipContent(this.isSavedSimulationFromServer);
+		if (zipInput.files) await this.dataReader.readZipContent();
 		this.endProgressSpinner();
 		this.launchSimulation();
 	}
 
 	async readContent(): Promise<void> {
-		if(!currentSimulation.getCurrentSimulationName()) {
-			currentSimulation.setCurrentSimulationName(
-				(document.getElementsByName('preloaded-sim-name')[1] as HTMLInputElement).value
-			);
-		}
 		const isLive = currentSimulation.isCurrentSimulationLive();
-		if(!isLive){
+		if (!isLive) {
 			if (this.isSavedSimulationFromServer) {
 				this.launchPreloadedSimulationFromServer();
 			} else {

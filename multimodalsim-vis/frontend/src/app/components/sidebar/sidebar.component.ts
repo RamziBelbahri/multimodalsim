@@ -13,7 +13,7 @@ import { LaunchModalComponent } from '../launch-modal/launch-modal.component';
 import { DateParserService } from 'src/app/services/util/date-parser.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as currentSimulation from 'src/app/helpers/session-storage';
-import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
+import { enableButton, disableButton } from 'src/app/services/util/toggle-button';
 import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service';
 import { SimulationModalComponent } from '../simulation-modal/simulation-modal.component';
 
@@ -62,7 +62,7 @@ export class SidebarComponent implements OnInit {
 
 			this.entityHandler.initHandler(this.viewer);
 		});
-		if(currentSimulation.isCurrentSimulationLive() && currentSimulation.isRestart()) {
+		if (currentSimulation.isCurrentSimulationLive() && currentSimulation.isRestart()) {
 			this.isRunning = true;
 			this.isSimulationActive = true;
 		}
@@ -117,46 +117,27 @@ export class SidebarComponent implements OnInit {
 			this.subMenuList[id].style.opacity = '0';
 		}
 
-		this.listSimulations();
+		if (id == 2) {
+			this.listSimulations();
+		}
 
 		this.toggleContainer(id);
 	}
 
 	restartSim() {
 		if (confirm('WARNING: this will reload the page')) {
-			if(currentSimulation.isCurrentSimulationLive()){
+			if (currentSimulation.isCurrentSimulationLive()) {
 				this.commService.stopCurrentBackendSimulation().subscribe({
-					next: (_) => {
+					next: () => {
 						currentSimulation.setIsRestart(true);
 						document.location.reload();
 					},
-					error: (err) => {},
-					complete: () => {}
 				});
 			} else {
 				currentSimulation.setIsRestart(true);
 				document.location.reload();
 			}
 		}
-	}
-	private disableButton(id: string): void {
-		const element = document.getElementById(id) as HTMLElement;
-		// element.style.backgroundColor = '#b1b1b1';
-		// if (id != 'replay-menu-button') element.style.marginBottom = '10px';
-		// element.style.pointerEvents = 'none';
-		element.classList.add('disabled');
-		// element.d
-		// element.disabled = true;
-	}
-
-	private enableButton(id: string): void {
-		const element = document.getElementById(id) as HTMLElement;
-		console.log(element.classList);
-		element.classList.remove('disabled');
-
-		// element.style.backgroundColor = '#e7e7e7';
-		// element.style.marginBottom = '5px';
-		// element.style.pointerEvents = 'auto';
 	}
 
 	private toggleContainer(id: number): void {
@@ -172,7 +153,7 @@ export class SidebarComponent implements OnInit {
 		if (!this.isSimulationActive) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
-			if(filename) {
+			if (filename) {
 				currentSimulation.setCurrentSimulationName(filename);
 			} else {
 				currentSimulation.removeSimName();
@@ -186,9 +167,7 @@ export class SidebarComponent implements OnInit {
 				height: '70%',
 				width: '50%',
 			});
-			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(
-				currentSimulation.isCurrentSimulationLive(), result.isRunning
-			));
+			dialogRef.afterClosed().subscribe((result) => this.setSimulationState(currentSimulation.isCurrentSimulationLive(), result.isRunning));
 		} else {
 			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
 				duration: 5000,
@@ -200,7 +179,7 @@ export class SidebarComponent implements OnInit {
 		(document.getElementById('stops-file') as HTMLElement).style.visibility = 'visible';
 	}
 
-	openSimulationParamModal():void {
+	openSimulationParamModal(): void {
 		(document.getElementById('sim-param-modal') as HTMLElement).style.visibility = 'visible';
 	}
 
@@ -224,11 +203,9 @@ export class SidebarComponent implements OnInit {
 				width: '70%',
 			});
 
-			dialogRef.afterClosed().subscribe(
-				(result) => {
-					this.setSimulationState(result.isRunning, result.isRunning);
-				}
-			);
+			dialogRef.afterClosed().subscribe((result) => {
+				this.setSimulationState(result.isRunning, result.isRunning);
+			});
 		} else {
 			this.snackBar.open('Il y a une simulation en cours. Pour en lancer une nouvelle, veuillez rafraîchir la page ou terminer le script du simulateur.', '', {
 				duration: 5000,
@@ -312,5 +289,4 @@ export class SidebarComponent implements OnInit {
 	setSimulationOrigin(isFromServer: boolean): void {
 		this.dataReader.isSavedSimulationFromServer.next(isFromServer);
 	}
-
 }
