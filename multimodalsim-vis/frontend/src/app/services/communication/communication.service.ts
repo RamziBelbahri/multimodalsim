@@ -28,7 +28,7 @@ export class CommunicationService {
 				console.log(err);
 			},
 			complete: () => {
-				enableButton('restart-sim-menu-button');
+				enableButton('restart-sim-menu-button', 'yellowgreen');
 			},
 		});
 	}

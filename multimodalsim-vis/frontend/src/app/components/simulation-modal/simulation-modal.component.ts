@@ -104,7 +104,7 @@ export class SimulationModalComponent {
 				this.launchUploadedSimulation();
 			}
 		}
-		enableButton('restart-sim-menu-button');
+		enableButton('restart-sim-menu-button', 'yellowgreen');
 	}
 
 	launchSimulation(): void {
