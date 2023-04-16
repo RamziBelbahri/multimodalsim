@@ -24,7 +24,6 @@ export class EntityInfosComponent {
 
 	lat = 0;
 	lon = 0;
-	list = new Array<string>();
 	passengerAmount = 0;
 	passengerList = new Array<string>();
 
@@ -35,19 +34,13 @@ export class EntityInfosComponent {
 	ngOnInit() {
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => {
 			this.viewer = viewer;
-			this.list = ['pass1pass1', 'pass2pass1', 'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass1pass1', 
-				'pass2pass1', 'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass1pass1', 'pass2pass1', 
-				'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass1pass1', 'pass2pass1', 'pass3pass1', 'pass4pass1', 
-				'pass6pass1', 'pass1pass1', 'pass2pass1', 'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass1pass1', 
-				'pass2pass1', 'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass1pass1', 'pass2pass1', 'pass3pass1', 
-				'pass4pass1', 'pass5pass1', 'pass6pass1', 'pass5pass1', ];
+
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(infos.position);
 				this.lon = Cesium.Math.toDegrees(carto.longitude).toFixed(5);
 				this.lat = Cesium.Math.toDegrees(carto.latitude).toFixed(5);
 				this.passengerAmount = infos.passengers.length;
-				// this.passengerList = infos.passengers;
-				this.passengerList.push('pass1pass1', 'pass2pass1', 'pass3pass1', 'pass4pass1', 'pass5pass1', 'pass6pass1');
+				this.passengerList = infos.passengers;
 			});
 		});
 	}
