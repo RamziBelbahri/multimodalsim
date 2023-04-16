@@ -18,6 +18,8 @@ from multimodalsim.observer.data_collector import DataContainer
 from communication.active_mq_controller import ActiveMQController
 from communication.connection_credentials import ConnectionCredentials
 
+from copy import deepcopy
+
 N_SECONDS_DAY       = 24*60*60
 N_SECONDS_HOUR      = 60*60
 N_SECONDS_MINUTE    = 60
@@ -132,7 +134,6 @@ class FrontendDataCollector(DataCollector):
         new_obs_dict = deepcopy(obs_dict)
         self.__data_container.add_observation(
             "vehicles", obs_dict, "id")
-
         self.__update_trip_cumulative_distance_by_vehicle(route.vehicle)
         new_obs_dict['event_type'] = 'VEHICLE'
         if route.status == VehicleStatus.ENROUTE:

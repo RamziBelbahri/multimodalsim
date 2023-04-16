@@ -127,6 +127,8 @@ def print_statistics(data_container):
 
 
 def main():
+    connection = ActiveMQController().getConnection()
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='Simulation started!')
     parser = argparse.ArgumentParser()
     add_arguments(parser)
     args = parser.parse_args()
@@ -160,7 +162,7 @@ def main():
             # ../../data/fixed_line/bus/vehicles_v1.csv --multimodal
             # --log-level DEBUG
             data_reader = BusDataReader(requests_file_path, vehicles_file_path)
-
+        connection.send(ConnectionCredentials.INFO_QUEUE, body='data reader done!')
         # -c ../../data/fixed_line/stl/available_connections/available_connections_0p25.json
         # -g ../../data/fixed_line/stl/network_graph/bus_network_graph_20191101.txt
         logger.info("Available connections file: {}".format(
@@ -173,31 +175,38 @@ def main():
             available_connections = []
 
         if args.graph:
+            connection.send(ConnectionCredentials.INFO_QUEUE, body='reading graph file...')
             g = nx.read_gpickle(args.graph)
+            connection.send(ConnectionCredentials.INFO_QUEUE, body='reading graph file: done!')
         else:
             logger.info("Generate network graph...")
+            connection.send(ConnectionCredentials.INFO_QUEUE, body='generating graph, this might take a while!')
             g = data_reader.get_network_graph(
                 available_connections=available_connections)
             g_path = "../../data/fixed_line/stl/network_graph/" \
                      "bus_network_graph_20191103.txt"
             nx.write_gpickle(g, g_path)
-
+            connection.send(ConnectionCredentials.INFO_QUEUE, body='generating graph, done!')
+        connection.send(ConnectionCredentials.INFO_QUEUE, body='initializing splitter...')
         if args.multimodal:
             splitter = MultimodalSplitter(
                 network_graph=g, available_connections=available_connections)
         else:
             splitter = OneLegSplitter()
+        connection.send(ConnectionCredentials.INFO_QUEUE, body='initializing splitter : Done!')
         dispatcher = FixedLineDispatcher()
     else:
         raise ValueError("The type of optimization must be 'fixed'!")
 
     opt = Optimization(dispatcher, splitter)
 
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='getting trips and vehicles...')
     vehicles = data_reader.get_vehicles()
     trips = data_reader.get_trips()
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='getting trips and vehicles: Done!')
 
     environment_observer = FrontendEnvironmentObserver()
-
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='initializing coordinates...')
     if args.coord:
         logger.info("Coordinates from {}".format(args.coord))
         coordinates = CoordinatesFromFile(args.coord)
@@ -207,13 +216,15 @@ def main():
     else:
         logger.info("No coordinates")
         coordinates = None
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='initializing coordinates: done!')
 
     simulation = Simulation(opt, trips, vehicles, network=g,
                             environment_observer=environment_observer,
                             coordinates=coordinates)
+    connection.send(ConnectionCredentials.INFO_QUEUE, body='simulation started!')
     simulation.simulate()
     print_statistics()
-    ActiveMQController().getConnection().send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)
+    connection.send(ConnectionCredentials.ENTITY_EVENTS_QUEUE, body=ConnectionCredentials.SIMULATION_COMPLETED)
     
 
 if __name__ == '__main__':

@@ -1,76 +1,80 @@
 .close-button {
-	color: #5c5c5c;
-	cursor: pointer;
-	position: absolute;
-	top: 0;
-	right: 25px;
-	font-size: 36px;
-	margin-left: 50px;
+    color: #5c5c5c;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
 }
 
 .button-container {
-	background-color: white;
-	width: 100%;
-	position: sticky;
-	top: 0;
-	height: 25px;
-	z-index: 3;
+    background-color: white;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    height: 25px;
+    z-index: 3;
 }
 
 .modal-button {
-	display: block;
-	position: relative;
-	left: 40%;
-	top: 40%;
-	width: 20%;
-	height: 40px;
-	border: black;
-	border-radius: 10px;
-	border-style: solid;
-	border-width: 2px;
-	color: #5c5c5c;
-	background-color: #e7e7e7;
-	cursor: pointer;
-	font-size: 16px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	text-align: center;
+    display: block;
+    position: relative;
+    left: 40%;
+    top: 40%;
+    width: 20%;
+    height: 40px;
+    border: black;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 2px;
+    color: #5c5c5c;
+    background-color: #e7e7e7;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    text-align: center;
 }
 
 .modal-button:hover {
-	color: black;
-	background-color: #dadada;
+    color: black;
+    background-color: #dadada;
 }
 
 .selection {
-	display: block;
-	position: relative;
-	left: 5%;
-	margin-top: 50px;
-	width: 90%;
-	height: 15%;
-	border-radius: 40px;
-	background-color: #ddeeed;
-	color: black;
-	font-size: 16px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	text-align: center;
+    display: block;
+    position: relative;
+    left: 5%;
+    margin-top: 50px;
+    width: 90%;
+    height: 15%;
+    border-radius: 40px;
+    background-color: #ddeeed;
+    color: black;
+    font-size: 16px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    text-align: center;
 }
 
 .selection:hover {
-	background-color: #c7e6e3;
+    background-color: #c7e6e3;
+}
+
+input[type=text] {
+    width: 35%;
 }
 
 .selection-input {
-	display: block;
-	position: relative;
-	padding: 1%;
-	left: 25%;
-	width: 50%;
-	background-color: rgb(229, 229, 229);
-	color: black;
-	border: 2px solid black;
-	cursor: pointer;
-	font-size: 16px;
-	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-	text-align: center;
+    display: block;
+    position: relative;
+    padding: 1%;
+    left: 25%;
+    width: 50%;
+    background-color: rgb(229, 229, 229);
+    color: black;
+    border: 2px solid black;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    text-align: center;
 }
