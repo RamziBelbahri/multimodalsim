@@ -7,8 +7,11 @@ class ConnectionCredentials:
     EVENTS_OBSERVATION_QUEUE    = '/queue/events_observation'
     USERNAME                    = 'admin'
     PASSWORD                    = 'admin'
-    HOST                        = os.environ['ACTIVEMQ']
     LOCALHOST                   = 'localhost'
+    try:
+        HOST                    = os.environ['ACTIVEMQ']
+    except:
+        HOST                    = 'localhost'
     PORT                        = 61613
     ENTITY_EVENTS_QUEUE 		= '/queue/entity_events'
     SIMULATION_COMPLETED		= 'SIMULATION_COMPLETED'

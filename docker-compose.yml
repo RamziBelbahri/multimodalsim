@@ -1,5 +1,7 @@
 services:
   server:
+    # image: docker:dind
+    privileged: true
     build: ./multimodalsim-vis/backend
     ports:
       - "8000:8000"
@@ -19,7 +21,6 @@ services:
     volumes:
       - ./multimodalsim-vis/frontend:/frontend
       - /frontend/node_modules
-
   activemq:
     image: symptoma/activemq:latest
     ports:

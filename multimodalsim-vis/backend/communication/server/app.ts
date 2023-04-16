@@ -330,7 +330,9 @@ app.post('/api/preloaded-simulation', upload_multiple_files.any(), (req:Request,
 });
 
 app.get('/api/stops-file', (req:Request, res:Response) => {
-	const simName:string|undefined = req.query['simName']?.toString().split('/')[1];
+	const simNameArray:string[]|undefined = req.query['simName']?.toString().split('/');
+	if(!simNameArray) return;
+	const simName = simNameArray[simNameArray.length - 1];
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
 		const configPath = '../data/' + simulationFolderName + '/config.json';
@@ -382,12 +384,10 @@ app.post('/api/stopsim', async (_:Request, res:Response) => {
 });
 
 app.post('/api/restart-livesim', (req:Request, res:Response) => {
-	// console.log(req);
 	const simName = req.body['simName'].toString();
 	const simNameArray = simName.split('/');
 	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
 	const configPath = '../data/' + simulationFolderName + '/config.json';
-	// const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
 	const config = JSON.parse(fs.readFileSync(configPath).toString());
 	console.log(config);
 	startSim(getArgsFromConfig(config));

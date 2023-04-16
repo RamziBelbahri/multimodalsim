@@ -60,10 +60,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		const isLive = currentSimulation.isCurrentSimulationLive();
 		const isRestart = currentSimulation.isRestart();
 		console.log(simName, isLive, isRestart);
-		if(!isRestart) {
-			currentSimulation.removeSimName();
-			currentSimulation.removeIsLive();
-		}  else if (isRestart) {
+		if (isRestart) {
 			if(isLive) {
 				this.autoLaunchLiveSimulation();
 			} else {
@@ -71,31 +68,45 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 				alert('Vous pouvez re-uploader les fichiers afin de relancer la simulation avec les mêmes paramètres');
 			}
 			currentSimulation.removeRestart();
+		} else {
+			currentSimulation.removeSimName();
+			currentSimulation.removeIsLive();
 		}
 
 	}
 
 	autoLaunchLiveSimulation() {
+		let backendSimulationRestarted = false;
+		let frontendRestarted = false;
 		this.communicationService.restartBackendSimulation().subscribe({
 			next: (data) => {
-				const currentSim = currentSimulation.getCurrentSimulationName();
-				this.communicationService.requestStopsFile(currentSim ? currentSim : '').subscribe({
-					next: (data) => {
-						const stops = this.simulationParserService.parseFile(data).data;
-						for (const line of stops) {
-							this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
-						}
-						this.stopPositionHandlerService.initStops();
-						if(!this.viewer) {
-							alert('error: viewer is null');
-							return;
-						}
-						this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
-					}
-				});
+				backendSimulationRestarted = true
+				if(backendSimulationRestarted && frontendRestarted) {
+					currentSimulation.setIsRestart(false);
+				} 
 			}
 		});
-		
+		const currentSim = currentSimulation.getCurrentSimulationName();
+		console.log('request stops file');
+		this.communicationService.requestStopsFile(currentSim ? currentSim : '').subscribe({
+			next: (data) => {
+				console.log(data);
+				frontendRestarted = true;
+				const stops = this.simulationParserService.parseFile(data).data;
+				for (const line of stops) {
+					this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
+				}
+				this.stopPositionHandlerService.initStops();
+				if(!this.viewer) {
+					alert('error: viewer is null');
+					return;
+				}
+				this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
+				if(backendSimulationRestarted && frontendRestarted) {
+					currentSimulation.setIsRestart(false);
+				} 
+			}
+		});
 	}
 
 	ngOnDestroy() {

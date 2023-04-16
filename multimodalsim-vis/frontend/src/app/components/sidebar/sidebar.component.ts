@@ -62,7 +62,10 @@ export class SidebarComponent implements OnInit {
 
 			this.entityHandler.initHandler(this.viewer);
 		});
-
+		if(currentSimulation.isCurrentSimulationLive() && currentSimulation.isRestart()) {
+			this.isRunning = true;
+			this.isSimulationActive = true;
+		}
 		this.vehicleTypesSubscription = this.vehicleHandler.vehicleTypeListObservable.subscribe((typeList) => {
 			for (const type of typeList) {
 				this.transportModeList.set(type, true);
