@@ -51,7 +51,7 @@ export class EntityInfosComponent {
 
 	private open(): void {
 		this.isOpen = true;
-		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '33em';
 	}
 
 	close(): void {
