@@ -5,5 +5,5 @@
 # 2. git submodule update --init
 # 3. Utiliser ses propres fichiers de données ou : git lfs install | git lfs fetch | git lfs checkout
 # 4. docker compose up -d
-# Pour lancer la simulation en temps réel : Choisir un fichier de stop puis cliquer sur lancer la simulation(le dossier d'input est multimodalsim-vis/backend/data/20191101)
+# Pour lancer la simulation en temps réel : Lancer la simulation en cochant OSRM (le dossier d'input est multimodalsim-vis/backend/communication/data/20191101)
 # Pour charger une simulation le dossier d'input est multimodalsim-vis/frontend/src/simulation_data_samples/new_output.zip
