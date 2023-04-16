@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Property, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
@@ -23,7 +23,7 @@ export class StopPositionHandlerService {
 	}
 
 	// Initialise tous les stops de la liste de stop fournie
-	initStops():void {
+	initStops(): void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
 			if (id != 0) {
 				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
@@ -108,8 +108,8 @@ export class StopPositionHandlerService {
 	updateIcon(viewer: Viewer, stopId: string): void {
 		const entity = viewer.entities.getById(stopId);
 		if (entity && entity.ellipse) {
-			if(this.getPassengerAmount(stopId) > 0) {
-				console.log('stop ',stopId, 'is not empty!');
+			if (this.getPassengerAmount(stopId) > 0) {
+				console.log('stop ', stopId, 'is not empty!');
 				// const stop = this.stopIdMapping.get(stopId);
 				// if(!stop) return;
 				// viewer.entities.add({
@@ -127,7 +127,6 @@ export class StopPositionHandlerService {
 				// 	},
 				// });
 			}
-
 
 			entity.ellipse.material =
 				this.getPassengerAmount(stopId) <= 0

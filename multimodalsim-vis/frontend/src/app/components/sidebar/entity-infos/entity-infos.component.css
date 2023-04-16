@@ -1,6 +1,6 @@
 .entity-infos-sidebar {
 	height: 50%;
-	width: 24%;
+	width: 0;
 	position: fixed;
 	z-index: 1;
 	bottom: 2em;
@@ -64,33 +64,32 @@
 	opacity: 1;
 }
 
-.dropdown-submenu{
+.dropdown-submenu {
 	background-color: rgb(62, 130, 134);
 	list-style-type: none;
 	user-select: none;
 	box-sizing: border-box;
 	padding-top: 5px;
- }
+}
 
- .dropdown-menu{
+.dropdown-menu {
+	max-height: 210px;
 	background-color: rgb(129, 198, 175);
 	display: grid;
-	grid-template-areas: "a a a";
+	grid-template-areas: 'a a a';
 	gap: 25px;
 	column-gap: 0.25em;
-	max-height: 9.5em;
 	grid-auto-columns: auto;
 	padding: 10px 10px 10px 10px;
-	overflow-y : scroll;
 	list-style-type: none;
- }
+	overflow-y: auto;
+}
 
-.dropdown-menu a{
+.dropdown-menu a {
 	text-decoration: none;
 }
- /* J'essayais de l'appliquer sur chaque élément de la liste, mais j'ai pas reussi */
- /* .dropdown-menu:hover a{
+/* J'essayais de l'appliquer sur chaque élément de la liste, mais j'ai pas reussi */
+/* .dropdown-menu:hover a{
 	color: cyan;
 	border-left: 2px solid blue;
  } */
-
