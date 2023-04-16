@@ -1,6 +1,6 @@
 .entity-infos-sidebar {
 	height: 50%;
-	width: 0em;
+	width: 24%;
 	position: fixed;
 	z-index: 1;
 	bottom: 2em;
@@ -20,7 +20,7 @@
 	width: 90%;
 	margin-left: 5%;
 	margin-bottom: 5px;
-	padding: 8px 8px 8px 8px;
+	padding: 8px 8px 2px 2px;
 	color: #5c5c5c;
 	background-color: whitesmoke;
 	cursor: pointer;
@@ -53,19 +53,35 @@
 }
 
 #open {
-	width: 75px;
-	height: 75px;
+	height: 0px;
+	width: 0px;
 	position: absolute;
 	z-index: 1;
-	right: 16px;
-	top: 37vh;
+	right: 5vh;
+	top: 87vh;
 	opacity: 0.8;
 	color: blue;
 	cursor: pointer;
-	enable-background: 0%;
 }
 
 #open:hover {
-	opacity: 0.7;
-	enable-background: 0%;
+	opacity: 1;
 }
+
+.dropdown-submenu{
+	/* display: inline-block; */
+	overflow-y : scroll;
+	height: 10em;
+	list-style-type: none;
+	user-select: none;
+	box-sizing: border-box;
+ }
+
+ .dropdown-menu{
+	list-style-type: none;
+	border-bottom: 1px solid rgba(255,255,255,0.1);
+ }
+
+ .dropdown-menu:hover{
+	color: cyan;
+ }
