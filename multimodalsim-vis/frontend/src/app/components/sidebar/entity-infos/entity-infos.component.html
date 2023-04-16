@@ -9,14 +9,15 @@
         <br>
         <div >Nombre de passagers: {{passengerAmount}}</div>
         <br>
-        <div *ngIf="passengerAmount != 0">
-            <!-- <div >Liste des passagers</div> -->
-            <li class="dropdown-submenu"><a href="#">Liste des passagers</a>
-                <ul class="dropdown-menu">
-                    <li *ngFor="let passenger of passengerList"> <a href="#"> {{passenger.slice(0,8)}}</a> </li>
-                </ul>
-            </li>
-            <!-- <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div> -->
-        </div>
+        <li class="dropdown-submenu">Liste des passagers
+            <ul class="dropdown-menu">
+                <li *ngFor="let passenger of list"> <a href="#"> {{passenger.slice(0,8)}}</a> </li>
+            </ul>
+        </li>
+        <!-- <div *ngIf="passengerAmount != 0">
+            <div >Liste des passagers</div> -->
+            
+            <!-- <div *ngFor="let passenger of passengerList">{{passenger.slice(0,8)}}</div>
+        </div> -->
     </div>
 </div>
