@@ -38,7 +38,7 @@ class FrontendVisualizer(Visualizer):
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x)) if current_event != None else 'None'
             except:
                 body = json.dumps(current_event.__dict__, default=lambda x: str(x))
-            self.connection.send(ConnectionCredentials.EVENT_QUEUE, body = body)
+            # self.connection.send(ConnectionCredentials.EVENT_QUEUE, body = body)
         if self.__data_analyzer is not None:
             self.__print_statistics()
 
@@ -165,7 +165,8 @@ class FrontendVisualizer(Visualizer):
                 mode_vehicles_stats = \
                     self.__data_analyzer.get_vehicles_statistics(mode)
                 logger.info("{}: {}".format(mode, mode_vehicles_stats))
-
+                self.connection.send(ConnectionCredentials.INFO_QUEUE, body="{}: {}".format(mode, mode_vehicles_stats))
+    
         trips_stats = self.__data_analyzer.get_trips_statistics()
         logger.info(trips_stats)
         modes = self.__data_analyzer.modes
@@ -174,4 +175,6 @@ class FrontendVisualizer(Visualizer):
                 mode_trips_stats = \
                     self.__data_analyzer.get_trips_statistics(mode)
                 logger.info("{}: {}".format(mode, mode_trips_stats))
+                self.connection.send(ConnectionCredentials.INFO_QUEUE, body="{}: {}".format(mode, mode_trips_stats))
+
 

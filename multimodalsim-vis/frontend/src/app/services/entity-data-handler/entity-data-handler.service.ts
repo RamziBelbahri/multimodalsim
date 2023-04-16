@@ -137,6 +137,9 @@ export class EntityDataHandlerService {
 			}
 		});
 		this.stopHandler.loadSpawnEvents(viewer);
+
+		this.boardingHandler.initBoarding(viewer);
+
 		while (!this.simulationCompleted) {
 			if (i >= this.combined.length) {
 				await new Promise((resolve) => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));

@@ -19,6 +19,7 @@ export class MessageQueueStompService {
 	public static client:CompatClient;
 	public static service:MessageQueueStompService;
 	public static readonly DURATION_WAIT_NEXT = 'DURATION_WAIT_NEXT';
+	private nLogs = 0;
 	/*
 	id --> entityEnvents associated with this id
 	*/
@@ -62,31 +63,44 @@ export class MessageQueueStompService {
 
 	private onConnect = () => {
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, this.onReceivingInfo);
-		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
+		// MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, this.onReceivingEventObservation);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.ENTITY_EVENTS_QUEUE, this.onReceivingEntityEvent);
 	};
 	private onError = (err:IMessage) => {
 		console.log(err.body);
 	};
-	private i = 0;
 	private onReceivingEvent = (msg:IMessage) => {
-		if(this.i == 0){
-			const receivedText = document.getElementById('received-text');
-			if(receivedText) {
-				try {
-					receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
-				} catch {
-					receivedText.innerText = msg.body;
-				}
+		const receivedText = document.getElementById('received-text');
+		if(receivedText) {
+			try {
+				receivedText.innerText = Date.now() + ':\n' + JSON.stringify(JSON.parse(msg.body),undefined, 2);
+			} catch {
+				receivedText.innerText = msg.body;
 			}
 		}
-		this.i++;
 	};
 
 	// for now these are useless
 	private onReceivingInfo = (msg:IMessage) => {
-		if(DEBUG) {console.log(msg.body);}
+		// if(DEBUG) {console.log(msg.body);}
+		
+		const container = document.getElementById('received-text-holder') as HTMLDivElement;
+		if(this.nLogs > 100) {
+			for(const p of Array.from(container.childNodes))
+				container.removeChild(p);
+			this.nLogs = 0;
+		}
+		const newMessage = document.createElement('p');
+		newMessage.innerText = 
+			'========================' + 
+			'\n' +
+			msg.body +
+			'\n';
+		container.appendChild(newMessage);
+		// console.log(msg.body);
+		this.nLogs++;
+
 	};
 	private onReceivingEventObservation = (msg:IMessage) => {
 		if(DEBUG) {console.log(msg.body);}
@@ -267,6 +281,7 @@ export class MessageQueueStompService {
 				else if(MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status)) {
 					const createdEvent = currentEvent.eventType == 'PASSENGER' ?
 						{...(currentEvent)} as PassengerEvent: {...(currentEvent) as VehicleEvent};
+					createdEvent.status = createdEvent.status + FlowControl.FRONTEND_EVENT;
 					if(this.nextTimeStamp) {
 						createdEvent.time = this.nextTimeStamp;
 					} 
