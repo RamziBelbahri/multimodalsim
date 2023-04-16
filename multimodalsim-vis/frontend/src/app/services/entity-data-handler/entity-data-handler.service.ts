@@ -14,6 +14,8 @@ import { DateParserService } from '../util/date-parser.service';
 import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
+const DEBUG = false;
+import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 
 @Injectable({
 	providedIn: 'root',
@@ -125,8 +127,8 @@ export class EntityDataHandlerService {
 
 	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
+		enableButton('restart-sim-menu-button');
 		this.stopHandler.initStops();
-
 		const clockState = viewer.animation.viewModel.clockViewModel;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
@@ -134,8 +136,10 @@ export class EntityDataHandlerService {
 				this.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
 		});
-
 		this.stopHandler.loadSpawnEvents(viewer);
+
+		this.boardingHandler.initBoarding(viewer);
+
 		while (!this.simulationCompleted) {
 			if (i >= this.combined.length) {
 				await new Promise((resolve) => this.pauseEventEmitter.once(FlowControl.ON_NEW_EVENTS, resolve));
@@ -155,8 +159,6 @@ export class EntityDataHandlerService {
 			if (event && i == 0) {
 				const start = Cesium.JulianDate.fromDate(new Date(this.combined[0].time * 1000));
 				const end = this.dateParser.addDuration(start, (23 * 60 * 60).toString());
-				console.log(Cesium.JulianDate.toDate(start).getTime());
-				console.log(Cesium.JulianDate.toDate(end).getTime());
 				this.zoomTo(viewer, start, end);
 			}
 

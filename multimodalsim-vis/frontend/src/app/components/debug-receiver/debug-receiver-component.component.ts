@@ -11,9 +11,11 @@ export class DebugReceiverComponentComponent {
 	private static client: CompatClient;
 	dragging = false;
 
-	constructor(private entityDataHandlerService: EntityDataHandlerService) {
-		const service = new MessageQueueStompService(entityDataHandlerService);
-		DebugReceiverComponentComponent.client = service.getClient();
+	constructor(
+		private entityDataHandlerService: EntityDataHandlerService,
+		private messageQueueService:MessageQueueStompService
+	) {
+		DebugReceiverComponentComponent.client = this.messageQueueService.getClient();
 	}
 
 	private onExpandCollapse() {
@@ -51,15 +53,4 @@ export class DebugReceiverComponentComponent {
 
 		this.onExpandCollapse();
 	}
-	// onConnect() {
-	// 	DebugReceiverComponentComponent.client.subscribe(ConnectionCredentials.INFO_QUEUE, DebugReceiverComponentComponent.onMessage)
-	// }
-	// onError(err:IMessage){
-	// }
-	// private static onMessage(msg:IMessage) {
-	// 	const p = document.getElementById('received-text');
-	// 	if(p) {
-	// 		p.innerText = JSON.stringify(JSON.parse(msg.body), undefined, 2);
-	// 	}
-	// }
 }

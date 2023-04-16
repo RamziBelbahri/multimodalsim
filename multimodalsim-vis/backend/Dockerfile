@@ -8,6 +8,7 @@ COPY . .
 RUN apt-get update || : && apt-get install python3 -y
 RUN apt install python3-pip -y
 RUN apt install python-is-python3
+RUN apt-get install docker.io -y
 RUN pip install virtualenv
 RUN su
 RUN virtualenv venv
