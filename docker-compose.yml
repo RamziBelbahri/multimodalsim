@@ -1,5 +1,7 @@
 services:
   server:
+    # image: docker:dind
+    privileged: true
     build: ./multimodalsim-vis/backend
     ports:
       - "8000:8000"
@@ -7,6 +9,11 @@ services:
       - ./multimodalsim-vis/backend:/backend
       - /backend/communication/server/node_modules
       - /backend/venv
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - PORT=8000
+      - ACTIVEMQ=activemq
+    mem_limit: 4g
   multimodalsim-vis:
     build: ./multimodalsim-vis/frontend
     ports:
@@ -28,3 +35,5 @@ services:
         soft: 122880
         hard: 122880
     mem_limit: 3g
+    container_name: activemq
+

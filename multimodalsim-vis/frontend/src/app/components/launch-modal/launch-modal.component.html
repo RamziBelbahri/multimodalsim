@@ -4,6 +4,22 @@
 <div class="selection">
     <p class="selection-title">Dossier de la simulation:</p>
     <input id="gtfsinput" class="selection-input" type='file' webkitdirectory=true (change)="selectFile($event)">
-    <button class="modal-button" (click)="launchSimulation()">Lancer la simulation</button>
-  </div>
 
+    <!-- <input type="checkbox" name="osrm" id="osrm-server">
+    <label for="osrm"> Utiliser un serveur OSRM? (Necessaire pour les polylines)</label> -->
+    <p>Log levels</p>
+    <select id="log-levels">
+        <option>INFO</option>
+        <option>DEBUG</option>
+        <option>WARNING</option>
+    </select>
+    <br>
+    <label for="simulation-name"> nom de la simulation </label>
+    <br>
+    <input type="text" name="simulation-name" id="simulation-name">
+
+    <p id="server-response"></p>
+
+</div>
+
+<button class="modal-button" (click)="launchLiveSimulation()">Lancer la simulation</button>

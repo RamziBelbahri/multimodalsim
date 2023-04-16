@@ -7,6 +7,8 @@ import { Viewer } from 'cesium';
 import { StopLookupService } from '../../util/stop-lookup.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { BehaviorSubject } from 'rxjs';
+import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
+import { CommunicationService } from '../../communication/communication.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -23,7 +25,15 @@ export class DataReaderService {
 	isSavedSimulationFromServer: BehaviorSubject<boolean>;
 	zipfileNameFromServer = '';
 
-	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
+	// CHANGE THIS LATER THE CODE IS GETTING WAY TOO MESSY
+	private formData = new FormData();
+
+	constructor(
+		private simulationParserService: SimulationParserService,
+		private entityDataHandlerService: EntityDataHandlerService,
+		private stopLookup: StopLookupService,
+		private commService: CommunicationService
+	) {
 		this.zipper = JSZip();
 		this.csvData = new Set<string>();
 		this.errors = [];
@@ -33,7 +43,7 @@ export class DataReaderService {
 		this.isSavedSimulationFromServer = new BehaviorSubject(false);
 	}
 
-	launchSimulation(viewer: Viewer, isRealTime: boolean): void {
+	launchSimulationOnFrontend(viewer: Viewer, isRealTime: boolean): void {
 		this.entityDataHandlerService.runVehiculeSimulation(viewer, isRealTime);
 	}
 
@@ -98,6 +108,10 @@ export class DataReaderService {
 	private readFileData(txt: string, filePath: string): void {
 		try {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
+			const encodedFilePath = encodeURIComponent(filePath);
+			this.formData.append(encodedFilePath, txt);
+			console.log(encodedFilePath, txt.length);
+			console.log(this.formData.has(encodedFilePath));
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
 				this.setStops(csvArray);

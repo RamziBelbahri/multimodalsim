@@ -29,15 +29,15 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 	declarations: [
 		AppComponent,
 		CesiumContainerComponent,
-		SidebarComponent,
-		DebugReceiverComponentComponent,
-		SimulationModalComponent,
+		SidebarComponent, 
+		DebugReceiverComponentComponent, 
+		SimulationModalComponent, 
 		SaveModalComponent,
 		EntityInfosComponent,
 		StatsModalComponent,
-		StopsFileModalComponent,
+		StopsFileModalComponent, 
 		LaunchModalComponent,
-		InteractionComponent,
+		InteractionComponent
 	],
 	imports: [
 		BrowserModule,

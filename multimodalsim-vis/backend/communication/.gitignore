@@ -6,6 +6,10 @@
 /out-tsc
 /bazel-out
 
+# big files
+/temp-sim-data
+
+
 # Node
 */*/node_modules
 npm-debug.log
@@ -46,4 +50,5 @@ Thumbs.db
 /server/node_modules
 
 # communication
-/communication/data
+/communication/tmp
+/communication/temp-sim-data

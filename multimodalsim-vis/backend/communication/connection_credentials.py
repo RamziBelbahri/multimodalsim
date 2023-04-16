@@ -1,3 +1,4 @@
+import os
 class ConnectionCredentials:
     INFO_QUEUE                  = '/queue/info'
     EVENT_QUEUE                 = '/queue/event'
@@ -6,7 +7,11 @@ class ConnectionCredentials:
     EVENTS_OBSERVATION_QUEUE    = '/queue/events_observation'
     USERNAME                    = 'admin'
     PASSWORD                    = 'admin'
-    HOST                        = '127.0.0.1'
+    LOCALHOST                   = 'localhost'
+    try:
+        HOST                    = os.environ['ACTIVEMQ']
+    except:
+        HOST                    = 'localhost'
     PORT                        = 61613
     ENTITY_EVENTS_QUEUE 		= '/queue/entity_events'
     SIMULATION_COMPLETED		= 'SIMULATION_COMPLETED'
