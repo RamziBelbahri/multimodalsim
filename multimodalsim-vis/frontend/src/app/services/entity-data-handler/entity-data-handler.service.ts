@@ -15,7 +15,7 @@ import { DataSaverService } from '../data-initialization/data-saver/data-saver.s
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
 const DEBUG = false;
-import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
+import { enableButton, disableButton } from 'src/app/services/util/toggle-button';
 
 @Injectable({
 	providedIn: 'root',
@@ -127,7 +127,7 @@ export class EntityDataHandlerService {
 
 	private async runRealTimeSimulation(viewer: Viewer): Promise<void> {
 		let i = 0;
-		enableButton('restart-sim-menu-button');
+		enableButton('restart-sim-menu-button', 'yellowgreen');
 		this.stopHandler.initStops();
 		const clockState = viewer.animation.viewModel.clockViewModel;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {

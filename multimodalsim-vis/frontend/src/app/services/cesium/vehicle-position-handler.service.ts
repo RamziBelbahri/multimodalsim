@@ -16,9 +16,9 @@ import { StopLookupService } from '../util/stop-lookup.service';
 export class VehiclePositionHandlerService {
 	private vehicleIdMapping;
 	private pathIdMapping;
-	private vehicleTypeList;
 	private vehicleTypeListSource = new ReplaySubject<Array<string>>();
 	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
+	vehicleTypeList;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
@@ -33,15 +33,14 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileEvent(vehicleEvent: VehicleEvent, isRealTime: boolean, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
-		const vehicleType = 'bus' + ((Number(vehicleEvent.id) % 2) + 1).toString();
 
-		if (!this.vehicleTypeList.includes(vehicleType)) {
-			this.vehicleTypeList.push(vehicleType);
+		if (!this.vehicleTypeList.includes(vehicleEvent.mode)) {
+			this.vehicleTypeList.push(vehicleEvent.mode);
 			this.vehicleTypeListSource.next(this.vehicleTypeList);
 		}
 
 		if (!this.vehicleIdMapping.has(vehicleId)) {
-			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
+			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId, vehicleEvent.mode));
 
 			if (isRealTime) {
 				this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
@@ -68,15 +67,14 @@ export class VehiclePositionHandlerService {
 	// Compile les chemins des véhicules avant leur création
 	compileLiveEvent(vehicleEvent: VehicleEvent, viewer: Viewer): void {
 		const vehicleId = vehicleEvent.id.toString();
-		const vehicleType = 'bus' + ((Number(vehicleEvent.id) % 2) + 1).toString();
 
-		if (!this.vehicleTypeList.includes(vehicleType)) {
-			this.vehicleTypeList.push(vehicleType);
+		if (!this.vehicleTypeList.includes(vehicleEvent.mode)) {
+			this.vehicleTypeList.push(vehicleEvent.mode);
 			this.vehicleTypeListSource.next(this.vehicleTypeList);
 		}
 
 		if (!this.vehicleIdMapping.has(vehicleId)) {
-			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId));
+			this.vehicleIdMapping.set(vehicleId, new Vehicle(vehicleId, vehicleEvent.mode));
 			this.spawnEntity(vehicleEvent.id, this.vehicleIdMapping.get(vehicleId)?.path as SampledPositionProperty, viewer);
 		}
 

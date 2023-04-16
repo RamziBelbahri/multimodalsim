@@ -47,7 +47,7 @@ export class EntityPathHandlerService {
 				if (pickedObject) {
 					const entity = pickedObject.id;
 
-					if ((entity.name == 'bus1' || entity.name == 'bus2') && this.isLeftClicked) {
+					if (this.vehicleHandler.vehicleTypeList.includes(entity.name) && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						this.lastEntityType = entity.name;
 						const sections = this.vehicleHandler.getPolylines(entity.id);
@@ -114,7 +114,7 @@ export class EntityPathHandlerService {
 
 					this.pickedEntityID = entity.id.toString();
 
-					if ((entity.name == 'bus1' || entity.name == 'bus2') && this.isLeftClicked) {
+					if (this.vehicleHandler.vehicleTypeList.includes(entity.name) && this.isLeftClicked) {
 						this.isLeftClicked = false;
 						const realtimePolyline = this.entityDataHandlerService.realtimePolylineLookup.get(entity.id.toString());
 						if (realtimePolyline) {
