@@ -23,7 +23,7 @@ import {enableButton, disableButton} from 'src/app/services/util/toggle-button';
 export class EntityDataHandlerService {
 	public vehicleEvents: VehicleEvent[];
 	public passengerEvents: PassengerEvent[];
-	private stops: any[];
+	public stops: any[];
 	private eventObservations: EventObservation[];
 	public combined: EntityEvent[];
 	private simulationRunning: boolean;
@@ -166,7 +166,7 @@ export class EntityDataHandlerService {
 		}
 
 		onPlaySubscription.dispose();
-		this.saveSimulationState();
+		// this.saveSimulationState();
 	}
 
 	private setSimulationState(isRunning: boolean): void {
