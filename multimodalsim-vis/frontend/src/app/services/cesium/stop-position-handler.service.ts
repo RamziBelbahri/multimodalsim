@@ -6,6 +6,7 @@ import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/p
 import { Stop } from 'src/app/classes/data-classes/stop';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
+import { CameraHandlerService } from './camera-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -15,7 +16,7 @@ export class StopPositionHandlerService {
 	private boardingEventQueue;
 	private globalPassengerList;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private cameraHandler: CameraHandlerService) {
 		this.stopIdMapping = new Map<string, Stop>();
 		this.boardingEventQueue = new Array<BoardingEvent>();
 		this.globalPassengerList = new Array<string>();
@@ -119,12 +120,13 @@ export class StopPositionHandlerService {
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {
-				semiMinorAxis: 50,
-				semiMajorAxis: 50,
-				material: this.getPassengerAmount(id) <= 0? 
-					new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true}):
-					new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
-				zIndex: stop.getPassengers().length <=0? 1:2,
+				semiMinorAxis: this.cameraHandler.getCurrentStopSize(),
+				semiMajorAxis: this.cameraHandler.getCurrentStopSize(),
+				material:
+					this.getPassengerAmount(id) <= 0
+						? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+						: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
+				zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
 			},
 			label: {
 				font: '20px sans-serif',
