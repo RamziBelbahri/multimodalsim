@@ -16,13 +16,13 @@ export class StopPositionHandlerService {
 	private boardingEventQueue;
 	private globalPassengerList;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private cameraHandler: CameraHandlerService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.stopIdMapping = new Map<string, Stop>();
 		this.boardingEventQueue = new Array<BoardingEvent>();
 		this.globalPassengerList = new Array<string>();
 	}
 
-	// Initialise tous les stops de la liste de stop fournie
+	// Initialise tous les stops de la liste de stops fournie
 	initStops(): void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
 			if (id != 0) {

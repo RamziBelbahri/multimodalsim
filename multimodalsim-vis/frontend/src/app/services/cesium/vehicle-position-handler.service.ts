@@ -200,8 +200,8 @@ export class VehiclePositionHandlerService {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
-				semiMinorAxis: 120,
-				semiMajorAxis: 120,
+				semiMinorAxis: 110,
+				semiMajorAxis: 110,
 				material: new Cesium.ImageMaterialProperty({ image: this.getBusIcon(id), transparent: true }),
 				zIndex: 3,
 			},

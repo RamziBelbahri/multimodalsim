@@ -78,7 +78,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 		let frontendRestarted = false;
 		this.communicationService.restartBackendSimulation().subscribe({
 			next: (data) => {
-				backendSimulationRestarted = true
+				backendSimulationRestarted = true;
 				if(backendSimulationRestarted && frontendRestarted) {
 					currentSimulation.setIsRestart(false);
 				} 
