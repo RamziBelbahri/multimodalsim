@@ -12,10 +12,12 @@ export class Stop {
 		this.waitingPassengers = new Array<string>();
 	}
 
+	// fonction pour débarquer le passager au stop
 	addPassenger(id: string): void {
 		this.waitingPassengers.push(id);
 	}
 
+	// fonction pour embarquer le passager du stop
 	removePassenger(id: string): void {
 		const index = this.waitingPassengers.indexOf(id);
 		if (index > -1) {

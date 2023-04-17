@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Viewer } from 'cesium';
+import { Cartesian3, Color, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
@@ -32,7 +32,7 @@ export class StopPositionHandlerService {
 		});
 	}
 
-	// Ajoute les moments ou les passagers sont présents à un arrêt
+	// Ajoute les moments où les passagers sont présents à un arrêt
 	compileEvent(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
@@ -110,8 +110,8 @@ export class StopPositionHandlerService {
 		if (entity && entity.ellipse) {
 			entity.ellipse.material =
 				this.getPassengerAmount(stopId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.png', transparent: true });
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true });
 		}
 	}
 
@@ -120,10 +120,12 @@ export class StopPositionHandlerService {
 		viewer.entities.add({
 			position: stop.position,
 			ellipse: {
-				semiMinorAxis: this.cameraHandler.getCurrentStopSize(),
-				semiMajorAxis: this.cameraHandler.getCurrentStopSize(),
-				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }),
+				semiMinorAxis: 50,
+				semiMajorAxis: 50,
+				material: this.getPassengerAmount(id) <= 0? 
+					new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true}):
+					new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
+				zIndex: stop.getPassengers().length <=0? 1:2,
 			},
 			label: {
 				font: '20px sans-serif',

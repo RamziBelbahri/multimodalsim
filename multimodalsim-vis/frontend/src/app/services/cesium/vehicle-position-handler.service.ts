@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
+import { Color, Entity, JulianDate, SampledPositionProperty, Viewer } from 'cesium';
 import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
@@ -19,6 +19,8 @@ export class VehiclePositionHandlerService {
 	private vehicleTypeListSource = new ReplaySubject<Array<string>>();
 	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
 	vehicleTypeList;
+
+	readonly defaultBusCapacity = 3;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
@@ -181,12 +183,16 @@ export class VehiclePositionHandlerService {
 
 	updateIcon(viewer: Viewer, busId: string): void {
 		const entity = viewer.entities.getById(busId);
-		if (entity && entity.ellipse) {
-			entity.ellipse.material =
-				this.getPassengerAmount(busId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus-removebg-preview.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/filled_bus-removebg-preview.png', transparent: true });
-		}
+		if (entity && entity.ellipse)
+			entity.ellipse.material = new Cesium.ImageMaterialProperty({ image: this.getBusIcon(busId), transparent: true });
+	}
+
+	getBusIcon(busId: string): string{
+		const passengerAmount = this.getPassengerAmount(busId);
+		if (passengerAmount <= this.defaultBusCapacity/3) return '../../../assets/empty_bus.svg';
+		else if (passengerAmount > this.defaultBusCapacity/3 && passengerAmount <= 2*this.defaultBusCapacity/3) 
+			return '../../../assets/semi_filled_bus.svg';
+		else return '../../../assets/filled_bus.svg';
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
@@ -194,10 +200,10 @@ export class VehiclePositionHandlerService {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
-				semiMinorAxis: 80,
-				semiMajorAxis: 80,
-				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true }),
+				semiMinorAxis: 120,
+				semiMajorAxis: 120,
+				material: new Cesium.ImageMaterialProperty({ image: this.getBusIcon(id), transparent: true }),
+				zIndex: 3,
 			},
 			label: {
 				font: '20px sans-serif',
