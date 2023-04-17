@@ -85,7 +85,7 @@ export class MessageQueueStompService {
 			this.nLogs = 0;
 		}
 		const newMessage = document.createElement('p');
-		newMessage.innerText = '========================' + '\n' + msg.body + '\n';
+		newMessage.innerText = '========================' + new Date().toLocaleTimeString() + '========================' + '\n' + msg.body + '\n';
 		container.appendChild(newMessage);
 		container.scrollTop = newMessage.offsetTop;
 		this.nLogs++;

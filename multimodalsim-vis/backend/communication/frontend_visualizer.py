@@ -159,6 +159,7 @@ class FrontendVisualizer(Visualizer):
     def __print_statistics(self):
         vehicles_stats = self.__data_analyzer.get_vehicles_statistics()
         logger.info(vehicles_stats)
+        self.connection.send(ConnectionCredentials.INFO_QUEUE, body=json.dumps(vehicles_stats, default=lambda x: str(x)))
         modes = self.__data_analyzer.modes
         if len(modes) > 1:
             for mode in modes:
@@ -169,6 +170,7 @@ class FrontendVisualizer(Visualizer):
     
         trips_stats = self.__data_analyzer.get_trips_statistics()
         logger.info(trips_stats)
+        self.connection.send(ConnectionCredentials.INFO_QUEUE, body=json.dumps(trips_stats, default=lambda x: str(x)))
         modes = self.__data_analyzer.modes
         if len(modes) > 1:
             for mode in modes:
