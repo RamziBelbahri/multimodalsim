@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Color, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
-import { CameraHandlerService } from './camera-handler.service';
 
 @Injectable({
 	providedIn: 'root',

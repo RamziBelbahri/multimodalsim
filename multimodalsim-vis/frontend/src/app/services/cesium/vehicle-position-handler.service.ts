@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Color, Entity, JulianDate, SampledPositionProperty, Viewer } from 'cesium';
+import { JulianDate, SampledPositionProperty, Viewer } from 'cesium';
 import { TimedPolyline } from 'src/app/classes/data-classes/polyline-section';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { VehicleEvent } from 'src/app/classes/data-classes/vehicle-class/vehicle-event';
@@ -20,7 +20,7 @@ export class VehiclePositionHandlerService {
 	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
 	vehicleTypeList;
 
-	readonly defaultBusCapacity = 3;
+	readonly defaultBusCapacity = 16;
 
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
