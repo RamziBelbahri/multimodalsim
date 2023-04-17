@@ -209,7 +209,7 @@ export class VehiclePositionHandlerService {
 				semiMinorAxis: this.getCurrentVehicleSize(),
 				semiMajorAxis: this.getCurrentVehicleSize(),
 				material: new Cesium.ImageMaterialProperty({ image: this.getBusIcon(id), transparent: true }),
-				zIndex: 3,
+				zIndex: 2,
 			},
 			label: {
 				font: '20px sans-serif',
