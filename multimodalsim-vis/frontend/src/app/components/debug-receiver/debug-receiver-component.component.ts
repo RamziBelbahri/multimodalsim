@@ -31,7 +31,7 @@ export class DebugReceiverComponentComponent {
 		} else if (button && button.innerText == '+') {
 			const holder = document.getElementById('received-text-holder');
 			if (holder) {
-				holder.style.width = '400px';
+				holder.style.width = '800px';
 				holder.style.height = '400px';
 				holder.style.right = '0%';
 				holder.style.top = '10%';
