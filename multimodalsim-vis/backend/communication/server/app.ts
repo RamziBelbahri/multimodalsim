@@ -13,9 +13,9 @@ import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
 import { execSync } from 'child_process';
-import archiver from 'archiver';
+// import archiver from 'archiver';
 import delay from 'delay';
-import extract from 'extract-zip';
+// import extract from 'extract-zip';
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
@@ -128,7 +128,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + '/dist/';
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
-const savedPreloadedSimulationsDir 	= savedSimulationsDir + 'preloaded/';
 // const savedLiveSimulationDir 		= savedSimulationsDir + 'live/';
 
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
@@ -224,12 +223,12 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 	const fullPath = savedSimulationsDir + req.query.filename;
 
 	// extracting to the tmp directory
-	const pathArray = req.query.filename.split('/');
-	const tmpdir = '../data/' + pathArray[pathArray.length - 1].replace('.zip', '/');
-	if(!fs.existsSync(tmpdir)) {
-		fs.mkdirSync(tmpdir);
-		extract(fullPath, { dir: tmpdir });
-	}
+	// const pathArray = req.query.filename.split('/');
+	// const tmpdir = '../data/' + pathArray[pathArray.length - 1].replace('.zip', '/');
+	// if(!fs.existsSync(tmpdir)) {
+	// 	fs.mkdirSync(tmpdir);
+	// 	extract(fullPath, { dir: tmpdir });
+	// }
 
 	if (req.query.filename && existsSync(fullPath)) {
 		const buffer: Buffer = readFileSync(fullPath);
@@ -305,20 +304,6 @@ app.post('/api/upload-file-and-launch', upload_multiple_files.any(), (req:Reques
 	res.status(200).json({ status: 'got file'});
 });
 
-app.post('/api/preloaded-simulation', upload_multiple_files.any(), (req:Request, res:Response) => {
-	const filenames = Object.keys(req.body);
-	if(!filenames) {
-		res.status(500).json({status: 'no file received'});
-		return;
-	}
-	for(const filename of filenames) {
-		if(filename != 'simulationName'){
-			const file = req.body[filename];
-			saveFile(decodeURIComponent(filename),req,file);
-		}
-	}
-});
-
 app.get('/api/stops-file', (req:Request, res:Response) => {
 	const simNameArray:string[]|undefined = req.query['simName']?.toString().split('/');
 	if(!simNameArray) return;
@@ -382,38 +367,4 @@ app.post('/api/restart-livesim', (req:Request, res:Response) => {
 	console.log(config);
 	startSim(getArgsFromConfig(config));
 	res.status(200).json({status:'restarted'});
-});
-
-app.get('/api/get-preloaded-tmp-files', (req:Request, res:Response) => {
-	console.log(req.body);
-	console.log(req.params);
-	console.log(req.query);
-	const simName = req.params['simName'].toString();
-	console.log('simName', simName);
-	
-	const simNameArray = simName.split('/');
-	console.log('simNameArray', simNameArray);
-
-	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
-	console.log('simulationFolderName', simulationFolderName);
-	
-	const simulationTmpPath = '../data/' + simulationFolderName;
-	console.log('simulationTmpPath', simulationTmpPath);
-
-	const output = fs.createWriteStream(simulationTmpPath + '.zip');
-	const archive = archiver('zip');
-	archive.pipe(output);
-	archive
-		.directory(simulationTmpPath + '/', false)
-		.finalize()
-		.then(
-			() => {
-				const buffer: Buffer = readFileSync(simulationTmpPath + '.zip');
-				res.type('arraybuffer');
-				res.send(buffer);
-				fs.rmSync(simulationTmpPath + '.zip');
-			}
-		);
-
-	return res.send([]);
 });

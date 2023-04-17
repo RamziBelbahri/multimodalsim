@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { NgModule } from '@angular/core';
+import { Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
@@ -66,4 +66,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 	],
 	bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+	static injector: Injector;
+	constructor(injector: Injector) {
+		AppModule.injector = injector;
+	}
+
+}

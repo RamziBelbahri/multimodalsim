@@ -10,6 +10,8 @@ import { FlowControl } from '../entity-data-handler/flow-control';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { EventType } from '../util/event-types';
 import { Injectable } from '@angular/core';
+import { AppModule } from 'src/app/app.module';
+import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 const DEBUG = false;
 // uses STOMP with active MQ
 @Injectable({
@@ -90,10 +92,16 @@ export class MessageQueueStompService {
 		// console.log(msg.body);
 		this.nLogs++;
 	};
-	private onReceivingEventObservation = (msg: IMessage) => {
-		if (DEBUG) {
-			console.log(msg.body);
-		}
+	private onReceivingEventObservation = (msg:IMessage) => {
+		const observation = JSON.parse(msg.body);
+		AppModule.injector.get(EntityDataHandlerService).getEventObservations().push(
+			new EventObservation(
+				Number(observation['index']),
+				observation['name'],
+				Number(observation['priority']),
+				observation['time'],
+			)
+		);
 	};
 
 	// JSON object, you can't know what is will be
