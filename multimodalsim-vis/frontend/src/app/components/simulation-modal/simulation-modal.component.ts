@@ -6,10 +6,6 @@ import { Subscription } from 'rxjs';
 import { ViewerSharingService } from 'src/app/services/viewer-sharing/viewer-sharing.service';
 import { ProgressSpinnerMode } from '@angular/material/progress-spinner';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
-import { StopLookupService } from 'src/app/services/util/stop-lookup.service';
-import { SimulationParserService } from 'src/app/services/data-initialization/simulation-parser/simulation-parser.service';
-import { CesiumClass } from 'src/app/shared/cesium-class';
-import { StopPositionHandlerService } from 'src/app/services/cesium/stop-position-handler.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { enableButton } from 'src/app/services/util/toggle-button';
 import * as currentSimulation from 'src/app/helpers/session-storage';
@@ -28,15 +24,7 @@ export class SimulationModalComponent {
 	mode!: ProgressSpinnerMode;
 	value!: number;
 
-	constructor(
-		private ref: MatDialogRef<SimulationModalComponent>,
-		private dataReader: DataReaderService,
-		private viewerSharer: ViewerSharingService,
-		private commService: CommunicationService,
-		private stopLookup: StopLookupService,
-		private simulationParserService: SimulationParserService,
-		private stopPositionHandlerService: StopPositionHandlerService
-	) {
+	constructor(private ref: MatDialogRef<SimulationModalComponent>, private dataReader: DataReaderService, private viewerSharer: ViewerSharingService, private commService: CommunicationService) {
 		this.initProgressSpinner();
 		this.isSavedSimulationFromServer = this.dataReader.isSavedSimulationFromServer.value;
 		this.isSavedSimulationFromServerSubscription = this.dataReader.isSavedSimulationFromServer.subscribe((isFromServer) => (this.isSavedSimulationFromServer = isFromServer));
@@ -104,7 +92,7 @@ export class SimulationModalComponent {
 				this.launchUploadedSimulation();
 			}
 		}
-		enableButton('restart-sim-menu-button');
+		enableButton('restart-sim-menu-button', 'yellowgreen');
 	}
 
 	launchSimulation(): void {

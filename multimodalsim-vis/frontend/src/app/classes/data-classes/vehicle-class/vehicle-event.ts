@@ -1,6 +1,5 @@
 import { EventType } from 'src/app/services/util/event-types';
 import { EntityEvent } from '../entity/entity-event';
-import { RealTimePolyline } from '../realtime-polyline';
 
 export class VehicleEvent implements EntityEvent {
 	id: string;
@@ -17,6 +16,7 @@ export class VehicleEvent implements EntityEvent {
 	latitude: number;
 	polylines: string | any;
 	duration: string;
+	mode: string;
 	readonly eventType: string = EventType.VEHICLE;
 	readonly isRealtime: boolean;
 
@@ -34,8 +34,9 @@ export class VehicleEvent implements EntityEvent {
 		longitude: number,
 		latitude: number,
 		polylines: string | any,
+		mode: string,
 		duration: string,
-		isRealtime:boolean = false
+		isRealtime = false
 	) {
 		this.id = id;
 		this.time = time;
@@ -50,6 +51,7 @@ export class VehicleEvent implements EntityEvent {
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.polylines = polylines;
+		this.mode = mode;
 		this.duration = duration == null ? '0' : duration;
 		this.isRealtime = isRealtime;
 	}
