@@ -56,7 +56,7 @@ export class EntityLabelHandlerService {
 		if (entity.name == 'stop') {
 			position = CesiumClass.cartesian3(entity.position['_value'].x, entity.position['_value'].y, entity.position['_value'].z);
 			passengers = this.stopHandler.getStopIdMapping().get(entity.id)?.getPassengers();
-		} else if (entity.name == 'bus1' || entity.name == 'bus2') {
+		} else if (this.vehicleHandler.vehicleTypeList.includes(entity.name)) {
 			position = CesiumClass.cartesian3(
 				entity.position['_property']['_interpolationResult'][0],
 				entity.position['_property']['_interpolationResult'][1],

@@ -189,10 +189,16 @@ export class VehiclePositionHandlerService {
 
 	getBusIcon(busId: string): string{
 		const passengerAmount = this.getPassengerAmount(busId);
-		if (passengerAmount <= this.defaultBusCapacity/3) return '../../../assets/empty_bus.svg';
+		if (passengerAmount == 0) return '../../../assets/empty_bus.svg';
+		else if (passengerAmount >0 && passengerAmount <= this.defaultBusCapacity/3)
+			return '../../../assets/almost_empty_bus.svg';
 		else if (passengerAmount > this.defaultBusCapacity/3 && passengerAmount <= 2*this.defaultBusCapacity/3) 
 			return '../../../assets/semi_filled_bus.svg';
 		else return '../../../assets/filled_bus.svg';
+	}
+
+	getCurrentVehicleSize(): number {
+		return this.stopLookup.getCurrentStopSize()*2;
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
@@ -200,8 +206,8 @@ export class VehiclePositionHandlerService {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
-				semiMinorAxis: 110,
-				semiMajorAxis: 110,
+				semiMinorAxis: this.getCurrentVehicleSize(),
+				semiMajorAxis: this.getCurrentVehicleSize(),
 				material: new Cesium.ImageMaterialProperty({ image: this.getBusIcon(id), transparent: true }),
 				zIndex: 3,
 			},

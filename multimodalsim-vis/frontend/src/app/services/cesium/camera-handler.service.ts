@@ -2,10 +2,8 @@ import { Injectable } from '@angular/core';
 import { Camera, Cartesian3, EllipseGraphics, Viewer } from 'cesium';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
-import { StopPositionHandlerService } from './stop-position-handler.service';
 import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
-import { Stop } from 'src/app/classes/data-classes/stop';
-import { Vehicle } from 'src/app/classes/data-classes/vehicles';
+import { StopLookupService } from '../util/stop-lookup.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -24,7 +22,7 @@ export class CameraHandlerService {
 
 	camera: Camera | undefined;
 
-	constructor(private stopHandler: StopPositionHandlerService, private vehiculeHandler: VehiclePositionHandlerService, private http: HttpClient) {
+	constructor(private stopLookup: StopLookupService, private vehiculeHandler: VehiclePositionHandlerService, private http: HttpClient) {
 		this.http
 			.get(this.CONFIG_PATH, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
@@ -63,30 +61,8 @@ export class CameraHandlerService {
 				this.changeAllIconsSize(viewer, this.tierSizes[4]);
 				this.lastTier = 4;
 			}
+			this.stopLookup.setCurrentStopSize(this.tierSizes[this.lastTier]);
 		});
-	}
-
-	// Retourne la taille qui devrait être utilisée pour les stops.
-	// TODO: à effacer?
-	getCurrentStopSize(): number {
-		let result = this.tierSizes[0];
-
-		switch (this.lastTier) {
-		case 1:
-			result = this.tierSizes[1];
-			break;
-		case 2:
-			result = this.tierSizes[2];
-			break;
-		case 3:
-			result = this.tierSizes[3];
-			break;
-		case 4:
-			result = this.tierSizes[4];
-			break;
-		}
-
-		return result;
 	}
 
 	// Déplace la caméra vers une position particulière en utilisant les coordonnées GPS.
@@ -98,8 +74,8 @@ export class CameraHandlerService {
 
 	// Change la taille des stops pour une nouvelle taille. À utiliser quand zoom in/zoom out
 	private changeStopSize(viewer: Viewer, newSize: number): void {
-		this.stopHandler.getStopIdMapping().forEach((map) => {
-			const entity = viewer.entities.getById(map.id);
+		this.stopLookup.coordinatesIdMapping.forEach((stop: Cartesian3, id: number) => {
+			const entity = viewer.entities.getById(id.toString());
 			if (entity) {
 				(entity.ellipse as EllipseGraphics).semiMajorAxis = new Cesium.ConstantProperty(newSize);
 				(entity.ellipse as EllipseGraphics).semiMinorAxis = new Cesium.ConstantProperty(newSize);
