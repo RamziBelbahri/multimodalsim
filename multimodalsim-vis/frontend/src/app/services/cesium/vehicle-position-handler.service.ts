@@ -184,8 +184,8 @@ export class VehiclePositionHandlerService {
 		if (entity && entity.ellipse) {
 			entity.ellipse.material =
 				this.getPassengerAmount(busId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/filled_bus.png', transparent: true });
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus-removebg-preview.png', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/filled_bus-removebg-preview.png', transparent: true });
 		}
 	}
 

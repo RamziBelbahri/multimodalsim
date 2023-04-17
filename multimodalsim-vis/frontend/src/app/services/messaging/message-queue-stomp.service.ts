@@ -11,6 +11,7 @@ import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline
 import { EventType } from '../util/event-types';
 import { Injectable } from '@angular/core';
 const DEBUG = false;
+// TODO: Uniformiser la langue utilisée pour les commentaires, français actuellement majoritaire.
 // uses STOMP with active MQ
 @Injectable({
 	providedIn: 'root',
@@ -57,7 +58,6 @@ export class MessageQueueStompService {
 
 	private onConnect = () => {
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, this.onReceivingInfo);
-		// MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, this.onReceivingEventObservation);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.ENTITY_EVENTS_QUEUE, this.onReceivingEntityEvent);
 	};
@@ -77,7 +77,6 @@ export class MessageQueueStompService {
 
 	// for now these are useless
 	private onReceivingInfo = (msg: IMessage) => {
-		// if(DEBUG) {console.log(msg.body);}
 
 		const container = document.getElementById('received-text-holder') as HTMLDivElement;
 		if (this.nLogs > 100) {
@@ -87,7 +86,6 @@ export class MessageQueueStompService {
 		const newMessage = document.createElement('p');
 		newMessage.innerText = '========================' + '\n' + msg.body + '\n';
 		container.appendChild(newMessage);
-		// console.log(msg.body);
 		this.nLogs++;
 	};
 	private onReceivingEventObservation = (msg: IMessage) => {
@@ -148,7 +146,6 @@ export class MessageQueueStompService {
 		let realtimePolyline: RealTimePolyline | undefined;
 		const polylinesJSON = eventJson['polylines'];
 		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
-			// status = release, pretty much guaranteed to have a current stop and a next stop
 			realtimePolyline = new RealTimePolyline(polylinesJSON, [(entityEvent as VehicleEvent).current_stop].concat((entityEvent as VehicleEvent).next_stops));
 			this.entityDataHandlerService.realtimePolylineLookup.set(entityEvent.id, realtimePolyline);
 		}

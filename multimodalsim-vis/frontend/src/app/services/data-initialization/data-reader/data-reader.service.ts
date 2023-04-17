@@ -25,7 +25,6 @@ export class DataReaderService {
 	isSavedSimulationFromServer: BehaviorSubject<boolean>;
 	zipfileNameFromServer = '';
 
-	// CHANGE THIS LATER THE CODE IS GETTING WAY TOO MESSY
 	private formData = new FormData();
 
 	constructor(

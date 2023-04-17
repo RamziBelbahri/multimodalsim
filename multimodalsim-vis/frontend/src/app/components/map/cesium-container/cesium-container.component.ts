@@ -49,7 +49,6 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.viewer.animation.viewModel.setShuttleRingTicks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]);
 
-		// S'enregistrer sur le service qui partage le viewer entre les components.
 		this.viewerSubscription = this.viewerSharer.currentViewer.subscribe((viewer) => (this.viewer = viewer));
 	}
 
@@ -64,7 +63,6 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 			if(isLive) {
 				this.autoLaunchLiveSimulation();
 			} else {
-				// TODO
 				alert('Vous pouvez re-uploader les fichiers afin de relancer la simulation avec les mêmes paramètres');
 			}
 			currentSimulation.removeRestart();
