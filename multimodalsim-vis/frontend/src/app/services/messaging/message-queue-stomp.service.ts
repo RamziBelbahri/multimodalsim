@@ -79,8 +79,6 @@ export class MessageQueueStompService {
 
 	// for now these are useless
 	private onReceivingInfo = (msg: IMessage) => {
-		// if(DEBUG) {console.log(msg.body);}
-
 		const container = document.getElementById('received-text-holder') as HTMLDivElement;
 		if (this.nLogs > 100) {
 			for (const p of Array.from(container.childNodes)) container.removeChild(p);
@@ -89,7 +87,7 @@ export class MessageQueueStompService {
 		const newMessage = document.createElement('p');
 		newMessage.innerText = '========================' + '\n' + msg.body + '\n';
 		container.appendChild(newMessage);
-		// console.log(msg.body);
+		container.scrollTop = newMessage.offsetTop;
 		this.nLogs++;
 	};
 	private onReceivingEventObservation = (msg:IMessage) => {
