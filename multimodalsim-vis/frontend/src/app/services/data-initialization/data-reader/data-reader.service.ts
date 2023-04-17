@@ -10,7 +10,6 @@ import { BehaviorSubject } from 'rxjs';
 import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
 import { CommunicationService } from '../../communication/communication.service';
 
-
 @Injectable({
 	providedIn: 'root',
 })
@@ -33,7 +32,8 @@ export class DataReaderService {
 		private simulationParserService: SimulationParserService,
 		private entityDataHandlerService: EntityDataHandlerService,
 		private stopLookup: StopLookupService,
-		private commService:CommunicationService) {
+		private commService: CommunicationService
+	) {
 		this.zipper = JSZip();
 		this.csvData = new Set<string>();
 		this.errors = [];
@@ -57,21 +57,11 @@ export class DataReaderService {
 		this.csvInput = (target.files as FileList)[0];
 	}
 
-	async readZipContent(isFromServer=false): Promise<void> {
+	async readZipContent(): Promise<void> {
 		if (this.zipInput && this.zipInput.files != null) {
 			const file: File = this.zipInput.files[this.zipInput.files.length - 1];
 			const zip = await this.zipper.loadAsync(file);
 			await this.readFiles(zip);
-			if(!isFromServer) {
-				this.commService.sendPreloadedSimulation(this.formData).subscribe({
-					error: (_) => {
-						// alert('warning: unable to send files to server; restart will not work. You can still reload the page and re-upload the .zip file');
-					},
-					complete: () => {
-						this.formData = new FormData();
-					}
-				});
-			}
 			if (this.zipInput) this.zipInput.files = null;
 		}
 	}
@@ -121,7 +111,7 @@ export class DataReaderService {
 			const encodedFilePath = encodeURIComponent(filePath);
 			this.formData.append(encodedFilePath, txt);
 			console.log(encodedFilePath, txt.length);
-			console.log(this.formData.has(encodedFilePath))
+			console.log(this.formData.has(encodedFilePath));
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
 				this.setStops(csvArray);
@@ -171,7 +161,7 @@ export class DataReaderService {
 		this.entityDataHandlerService.setEventObservations(data);
 	}
 
-	private setStops(data: any): void {
+	setStops(data: any): void {
 		this.entityDataHandlerService.setStops(data);
 	}
 

@@ -67,9 +67,8 @@ export class LaunchModalComponent {
 					this.target.files[i].text().then((txt:string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
 						this.dataReaderService.parseStopsFile(csvData);
+						this.dataReaderService.setStops(csvData);
 						this.stopPositionHandlerService.initStops();
-
-						
 						if(this.viewer) {
 							this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
 						}

@@ -37,8 +37,8 @@ export class EntityInfosComponent {
 
 			this.entityInfosSubscription = this.entityHandler.currentEntityInfos.subscribe((infos) => {
 				const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(infos.position);
-				this.lon = Cesium.Math.toDegrees(carto.longitude);
-				this.lat = Cesium.Math.toDegrees(carto.latitude);
+				this.lon = Cesium.Math.toDegrees(carto.longitude).toFixed(5);
+				this.lat = Cesium.Math.toDegrees(carto.latitude).toFixed(5);
 				this.passengerAmount = infos.passengers.length;
 				this.passengerList = infos.passengers;
 			});
@@ -51,7 +51,7 @@ export class EntityInfosComponent {
 
 	private open(): void {
 		this.isOpen = true;
-		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '25em';
+		(document.getElementById('entity-infos-menu') as HTMLElement).style.width = '33em';
 	}
 
 	close(): void {

@@ -36,6 +36,7 @@ export class SimulationParserService {
 				line.longitude,
 				line.latitude,
 				line.polylines,
+				line.mode,
 				line.duration
 			);
 			vehicleData.push(vehicleEvent);

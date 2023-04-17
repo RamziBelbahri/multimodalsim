@@ -241,15 +241,8 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 
 app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	createSavedSimulationsDir();
-	const zipfiles:string[] = [];
-	// preloaded
-	let preloadedZipfiles: string[] = readdirSync(savedPreloadedSimulationsDir);
-	preloadedZipfiles = preloadedZipfiles.filter(file => path.extname(file) === '.zip');
-	for(let i = 0; i < preloadedZipfiles.length; i++) {
-		preloadedZipfiles[i] = 'preloaded/' + preloadedZipfiles[i];
-	}
-	zipfiles.push(...preloadedZipfiles);
-	// zipfiles.push(...liveZipfiles);
+	let zipfiles: string[] = readdirSync(savedSimulationsDir);
+	zipfiles = zipfiles.filter(file => path.extname(file) === '.zip');
 	res.send(zipfiles.sort());
 });
 
@@ -259,11 +252,8 @@ app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request
 	const data: Buffer = req.file?.buffer as Buffer;
 	const { zipFileName }: {zipFileName: string} = req.body;
 	createSavedSimulationsDir();
-	if(!existsSync(savedPreloadedSimulationsDir)) {
-		mkdirSync(savedPreloadedSimulationsDir);
-	}
 	try {
-		await writeFile(savedPreloadedSimulationsDir + zipFileName, data);
+		await writeFile(savedSimulationsDir + zipFileName, data);
 		console.log('sauvegarde de ' + zipFileName + ' réussie');
 	}
 	catch (e) {
@@ -330,7 +320,9 @@ app.post('/api/preloaded-simulation', upload_multiple_files.any(), (req:Request,
 });
 
 app.get('/api/stops-file', (req:Request, res:Response) => {
-	const simName:string|undefined = req.query['simName']?.toString().split('/')[1];
+	const simNameArray:string[]|undefined = req.query['simName']?.toString().split('/');
+	if(!simNameArray) return;
+	const simName = simNameArray[simNameArray.length - 1];
 	if(simName) {
 		const simulationFolderName = simName.replace('.zip', '');
 		const configPath = '../data/' + simulationFolderName + '/config.json';
@@ -382,12 +374,10 @@ app.post('/api/stopsim', async (_:Request, res:Response) => {
 });
 
 app.post('/api/restart-livesim', (req:Request, res:Response) => {
-	// console.log(req);
 	const simName = req.body['simName'].toString();
 	const simNameArray = simName.split('/');
 	const simulationFolderName = simNameArray[simNameArray.length - 1].replace('.zip', '');
 	const configPath = '../data/' + simulationFolderName + '/config.json';
-	// const outputFolder = savedSimulationsDir + '../../data/' + simulationFolderName + '/';
 	const config = JSON.parse(fs.readFileSync(configPath).toString());
 	console.log(config);
 	startSim(getArgsFromConfig(config));

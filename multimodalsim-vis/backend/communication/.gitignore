@@ -8,8 +8,7 @@
 
 # big files
 /temp-sim-data
-/data
-/server/saved-simulations
+
 
 # Node
 */*/node_modules
@@ -53,4 +52,4 @@ Thumbs.db
 # communication
 /communication/tmp
 /communication/temp-sim-data
-/communication/data
+/communication/data/

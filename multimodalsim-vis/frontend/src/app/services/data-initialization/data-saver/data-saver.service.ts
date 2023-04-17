@@ -14,6 +14,8 @@ import { FlowControl } from '../../entity-data-handler/flow-control';
 import { DateParserService } from '../../util/date-parser.service';
 import { toInteger } from 'lodash';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
+import delay from 'delay';
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -80,6 +82,7 @@ export class DataSaverService {
 			const vehicleEventsLookup:Map<string,VehicleEvent[]> = new Map();
 
 			// separate vehicle and passenger events
+			let i = 0;
 			for(const event of entityDataHandlerService.combined) {
 				switch(event.eventType){
 				case EventType.PASSENGER:
@@ -88,6 +91,10 @@ export class DataSaverService {
 				case EventType.VEHICLE:
 					this.putInLookup<VehicleEvent>(vehicleEventsLookup, event);
 					break;
+				}
+				i++;
+				if(i % 250 == 0) {
+					await delay(5);
 				}
 			}
 

@@ -10,9 +10,7 @@ import * as currentSimulation from 'src/app/helpers/session-storage';
 })
 export class CommunicationService {
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
-	constructor(
-		private http: HttpClient,
-	) {}
+	constructor(private http: HttpClient) {}
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
 	}
@@ -21,14 +19,16 @@ export class CommunicationService {
 		return this.http.post(this.APIURL + 'start-simulation', args).pipe(catchError(this.handleError));
 	}
 
-	uploadFilesAndLaunch(args:object) {
+	uploadFilesAndLaunch(args: object) {
 		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
-			next: _ => {
+			next: (_) => {
 				// (document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
 			},
-			error: err => {console.log(err);},
+			error: (err) => {
+				console.log(err);
+			},
 			complete: () => {
-				enableButton('restart-sim-menu-button');
+				enableButton('restart-sim-menu-button', 'yellowgreen');
 			},
 		});
 	}
@@ -45,11 +45,10 @@ export class CommunicationService {
 		return this.http.get(this.APIURL + 'end-simulation').pipe(catchError(this.handleError));
 	}
 
-	requestStopsFile(simName:string) {
+	requestStopsFile(simName: string) {
 		const params = new HttpParams().set('simName', simName);
-		return this.http.get(this.APIURL + 'stops-file', {responseType: 'text', params});
+		return this.http.get(this.APIURL + 'stops-file', { responseType: 'text', params });
 	}
-
 
 	stopCurrentBackendSimulation() {
 		return this.http.post(this.APIURL + 'stopsim', {});
@@ -62,16 +61,6 @@ export class CommunicationService {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
 		return throwError(() => new Error('Something bad happened; please try again later.'));
-
-	}
-
-	sendPreloadedSimulation(formData:FormData) {
-		const simName = currentSimulation.getCurrentSimulationName();
-		if(simName)
-			formData.append('simulationName',  simName);
-		else
-			alert('something went wrong: simulation name not set');
-		return this.http.post(this.APIURL + 'preloaded-simulation', formData);
 	}
 
 	saveSimulation(zipData: { zipContent: Blob; zipFileName: string }) {
@@ -86,7 +75,7 @@ export class CommunicationService {
 	}
 
 	getSimulationContent(filename: string) {
-		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`, {responseType: 'arraybuffer'}).pipe(catchError(this.handleError));
+		return this.http.get(this.APIURL + `get-simulation-content/?filename=${filename}`, { responseType: 'arraybuffer' }).pipe(catchError(this.handleError));
 	}
 
 	deleteSavedSimulation(filename: string) {
@@ -96,7 +85,7 @@ export class CommunicationService {
 	restartBackendSimulation() {
 		const simName = currentSimulation.getCurrentSimulationName();
 		const body = {
-			'simName':simName
+			simName: simName,
 		};
 		return this.http.post(this.APIURL + 'restart-livesim', body);
 	}
