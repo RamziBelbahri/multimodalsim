@@ -22,6 +22,7 @@ export class StatsModalComponent implements OnInit {
 	tripsStats: Stat[];
 	customStats: Map<string, string>;
 	filterState: Map<string, boolean>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	statsIntervalId: any;
 
 	constructor(
@@ -61,9 +62,6 @@ export class StatsModalComponent implements OnInit {
 	}
 
 	requestStats(): void {
-		this.vehicleStats = [];
-		this.tripsStats = [];
-
 		this.http
 			.get(this.APIURL + 'get-stats')
 			.pipe(catchError(this.handleError))
@@ -78,7 +76,15 @@ export class StatsModalComponent implements OnInit {
 
 				this.customStats.forEach((value: string, field: string) => {
 					if (field.includes('trip')) {
-						this.tripsStats.push(new Stat(field, value));
+						const index = this.tripsStats.findIndex((stat) => {
+							return field == stat.field;
+						});
+
+						if (index > -1) {
+							this.tripsStats[index].value = value;
+						} else {
+							this.tripsStats.push(new Stat(field, value));
+						}
 					} else {
 						this.vehicleStats.push(new Stat(field, value));
 					}
@@ -86,9 +92,6 @@ export class StatsModalComponent implements OnInit {
 
 				this.saveStats();
 			});
-
-		// this.filterState.set('Stats de véhicules', true);
-		// this.filterState.set('Stats de voyages', true);
 	}
 
 	private saveStats(): void {
