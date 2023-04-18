@@ -57,6 +57,7 @@ export class LaunchModalComponent {
 
 	launchLiveSimulation(): void {
 		const formData = new FormData();
+		document.getElementById('open-close-debug')?.click();
 		currentSimulation.setIsSimulationLive(true);
 		if(this.target && this.target.files) {
 			for(let i = 0; i < this.target.files?.length; i++) {

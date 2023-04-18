@@ -89,5 +89,4 @@ export class CommunicationService {
 		};
 		return this.http.post(this.APIURL + 'restart-livesim', body);
 	}
-
 }
