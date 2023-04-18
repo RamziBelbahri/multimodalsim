@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Component } from '@angular/core';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { Viewer } from 'cesium';

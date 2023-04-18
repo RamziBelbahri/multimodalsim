@@ -1,7 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommunicationService } from 'src/app/services/communication/communication.service';
-import { enableButton, disableButton } from 'src/app/services/util/toggle-button';
-
 
 @Component({
 	selector: 'app-interaction',
