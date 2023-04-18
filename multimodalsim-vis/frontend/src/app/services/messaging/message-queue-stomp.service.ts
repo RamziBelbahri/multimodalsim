@@ -12,6 +12,9 @@ import { EventType } from '../util/event-types';
 import { Injectable } from '@angular/core';
 import { AppModule } from 'src/app/app.module';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
+import { ViewerSharingService } from '../viewer-sharing/viewer-sharing.service';
+import { Viewer } from 'cesium';
+
 const DEBUG = false;
 // uses STOMP with active MQ
 @Injectable({
@@ -29,6 +32,8 @@ export class MessageQueueStompService {
 	private nextTimeStampEventLookup: Map<string, EntityEvent[]> = new Map<string, EntityEvent[]>();
 	private currentTimeStamp: number | undefined;
 	private nextTimeStamp: number | undefined;
+	private firstEntiyEventArrived = false;
+	private viewer:Viewer;
 
 	// if the event has these status, make sure that they are still at the same stop
 	private static readonly USE_CURRENT_STOP: Set<string> = new Set([
@@ -45,7 +50,10 @@ export class MessageQueueStompService {
 	private static readonly USE_NEXT_STOP: Set<string> = new Set([VehicleStatus.ENROUTE]);
 	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
-	constructor(private entityDataHandlerService: EntityDataHandlerService) {
+	constructor(
+		private entityDataHandlerService: EntityDataHandlerService,
+		private viewerSharingService: ViewerSharingService
+		) {
 		if (MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
 		}
@@ -55,6 +63,9 @@ export class MessageQueueStompService {
 		};
 		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME, ConnectionCredentials.PASSWORD, this.onConnect, this.onError);
 		MessageQueueStompService.service = this;
+		this.viewerSharingService.currentViewer.subscribe((viewer:Viewer) => {
+			this.viewer = viewer;
+		});
 	}
 
 	private onConnect = () => {
@@ -141,6 +152,8 @@ export class MessageQueueStompService {
 	};
 
 	private onReceivingEntityEvent = (msg: IMessage) => {
+
+
 		if (msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
 			return;
 		}
