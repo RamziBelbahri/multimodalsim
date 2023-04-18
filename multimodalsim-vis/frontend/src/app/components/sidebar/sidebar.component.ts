@@ -158,9 +158,9 @@ export class SidebarComponent implements OnInit {
 			} else {
 				currentSimulation.removeSimName();
 			}
-			let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
-			isLive = isLive && isFromServer;
-			currentSimulation.setIsSimulationLive(isLive);
+			// let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
+			// isLive = isLive && isFromServer;
+			currentSimulation.setIsSimulationLive(false);
 
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
 			const dialogRef = this.dialog.open(SimulationModalComponent, {

@@ -160,7 +160,7 @@ export class DataReaderService {
 		this.entityDataHandlerService.setEventObservations(data);
 	}
 
-	private setStops(data: any): void {
+	setStops(data: any): void {
 		this.entityDataHandlerService.setStops(data);
 	}
 

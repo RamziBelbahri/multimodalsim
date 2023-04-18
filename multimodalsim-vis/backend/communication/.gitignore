@@ -52,3 +52,4 @@ Thumbs.db
 # communication
 /communication/tmp
 /communication/temp-sim-data
+/communication/data/

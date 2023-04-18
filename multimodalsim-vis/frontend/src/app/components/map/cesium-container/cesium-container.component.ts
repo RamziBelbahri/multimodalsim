@@ -91,6 +91,7 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 				console.log(data);
 				frontendRestarted = true;
 				const stops = this.simulationParserService.parseFile(data).data;
+				this.dataReaderService.setStops(stops);
 				for (const line of stops) {
 					this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
 				}

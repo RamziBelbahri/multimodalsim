@@ -10,6 +10,8 @@ import { FlowControl } from '../entity-data-handler/flow-control';
 import { RealTimePolyline } from 'src/app/classes/data-classes/realtime-polyline';
 import { EventType } from '../util/event-types';
 import { Injectable } from '@angular/core';
+import { AppModule } from 'src/app/app.module';
+import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 const DEBUG = false;
 // TODO: Uniformiser la langue utilisée pour les commentaires, français actuellement majoritaire.
 // uses STOMP with active MQ
@@ -77,7 +79,6 @@ export class MessageQueueStompService {
 
 	// for now these are useless
 	private onReceivingInfo = (msg: IMessage) => {
-
 		const container = document.getElementById('received-text-holder') as HTMLDivElement;
 		if (this.nLogs > 100) {
 			for (const p of Array.from(container.childNodes)) container.removeChild(p);
@@ -86,12 +87,19 @@ export class MessageQueueStompService {
 		const newMessage = document.createElement('p');
 		newMessage.innerText = '========================' + '\n' + msg.body + '\n';
 		container.appendChild(newMessage);
+		container.scrollTop = newMessage.offsetTop;
 		this.nLogs++;
 	};
-	private onReceivingEventObservation = (msg: IMessage) => {
-		if (DEBUG) {
-			console.log(msg.body);
-		}
+	private onReceivingEventObservation = (msg:IMessage) => {
+		const observation = JSON.parse(msg.body);
+		AppModule.injector.get(EntityDataHandlerService).getEventObservations().push(
+			new EventObservation(
+				Number(observation['index']),
+				observation['name'],
+				Number(observation['priority']),
+				observation['time'],
+			)
+		);
 	};
 
 	// JSON object, you can't know what is will be
