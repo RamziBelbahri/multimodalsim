@@ -52,10 +52,6 @@ export class SimulationModalComponent {
 		this.value = 100;
 	}
 
-	selectFile(event: Event): void {
-		this.dataReader.selectFile(event);
-	}
-
 	selectZip(event: Event): void {
 		this.dataReader.selectZip(event);
 	}
