@@ -71,7 +71,15 @@ export class StatsModalComponent {
 
 				this.customStats.forEach((value: string, field: string) => {
 					if (field.includes('trip')) {
-						this.tripsStats.push(new Stat(field, value));
+						const index = this.tripsStats.findIndex((stat) => {
+							return field == stat.field;
+						});
+
+						if (index > -1) {
+							this.tripsStats[index].value = value;
+						} else {
+							this.tripsStats.push(new Stat(field, value));
+						}
 					} else {
 						this.vehicleStats.push(new Stat(field, value));
 					}

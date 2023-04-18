@@ -120,24 +120,26 @@ export class StopPositionHandlerService {
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
-		viewer.entities.add({
-			position: stop.position,
-			ellipse: {
-				semiMinorAxis: this.stopLookup.getCurrentStopSize(),
-				semiMajorAxis: this.stopLookup.getCurrentStopSize(),
-				material:
-					this.getPassengerAmount(id) <= 0
-						? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
-						: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
-				zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
-			},
-			label: {
-				font: '20px sans-serif',
-				showBackground: true,
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-			},
-			id: id,
-			name: 'stop',
-		});
+		if (!viewer.entities.getById(id)) {
+			viewer.entities.add({
+				position: stop.position,
+				ellipse: {
+					semiMinorAxis: this.stopLookup.getCurrentStopSize(),
+					semiMajorAxis: this.stopLookup.getCurrentStopSize(),
+					material:
+						this.getPassengerAmount(id) <= 0
+							? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+							: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
+					zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
+				},
+				label: {
+					font: '20px sans-serif',
+					showBackground: true,
+					horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+				},
+				id: id,
+				name: 'stop',
+			});
+		}
 	}
 }

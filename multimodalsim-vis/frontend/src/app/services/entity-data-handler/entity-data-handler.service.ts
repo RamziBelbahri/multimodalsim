@@ -14,8 +14,7 @@ import { DateParserService } from '../util/date-parser.service';
 import { DataSaverService } from '../data-initialization/data-saver/data-saver.service';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 import { BoardingHandlerService } from '../cesium/boarding-handler.service';
-const DEBUG = false;
-import { enableButton, disableButton } from 'src/app/services/util/toggle-button';
+import { enableButton } from 'src/app/services/util/toggle-button';
 
 @Injectable({
 	providedIn: 'root',
@@ -75,6 +74,7 @@ export class EntityDataHandlerService {
 	public getCombinedEvents(): EntityEvent[] {
 		return this.combined;
 	}
+
 	public static compare = (firstEvent: VehicleEvent | PassengerEvent, secondEvent: VehicleEvent | PassengerEvent) => {
 		const first_time: number = firstEvent.time;
 		const second_time: number = secondEvent.time;
@@ -119,11 +119,13 @@ export class EntityDataHandlerService {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
 		}
-		try{
+		try {
 			this.vehicleHandler.loadSpawnEvents(viewer);
 			this.stopHandler.loadSpawnEvents(viewer);
 			this.boardingHandler.initBoarding(viewer);
-		}catch(e) {console.log(e)}
+		} catch (e) {
+			console.log(e);
+		}
 		this.saveSimulationState();
 	}
 
