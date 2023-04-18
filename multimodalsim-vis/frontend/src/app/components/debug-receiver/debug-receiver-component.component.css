@@ -1,45 +1,44 @@
 #received-text-holder {
-    width: 0px;
-    height: 0px;
-    position:absolute;
-    top:10%;
-    right:0%;
-    z-index: 3;
-    background-color: white;
-    border-radius: 10%;
-    border-color: black;
-    border-width: 2px;
-    border-style: solid;
-    overflow: scroll;
-    display: block;
-    transition-duration: 100ms;
-    /* transition */
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	top: 10%;
+	right: 0%;
+	z-index: 3;
+	background-color: white;
+	border-radius: 10%;
+	border-color: black;
+	border-width: 2px;
+	border-style: solid;
+	overflow: scroll;
+	display: block;
+	transition-duration: 100ms;
 }
 
 #received-text {
-    margin: 5%;
+	margin: 5%;
 }
 
 #open-close-debug {
-    position:absolute;
-    top:10%;
-    right:1%;
-    border-color: black;
-    border-width: 2px;
-    border-style: solid;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
-    z-index: 4;
-    font-size: 20pt;
-    font-weight: 1000;
+	position: absolute;
+	top: 10%;
+	right: 1%;
+	border-color: black;
+	border-width: 2px;
+	border-style: solid;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: white;
+	z-index: 4;
+	font-size: 20pt;
+	font-weight: 1000;
 }
 
 #open-close-debug:hover {
-    cursor: pointer;
-    background-color: lightgray;
+	cursor: pointer;
+	background-color: lightgray;
 }

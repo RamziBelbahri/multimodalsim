@@ -78,8 +78,10 @@ export class EntityDataHandlerService {
 	public static compare = (firstEvent: VehicleEvent | PassengerEvent, secondEvent: VehicleEvent | PassengerEvent) => {
 		const first_time: number = firstEvent.time;
 		const second_time: number = secondEvent.time;
+
 		if (first_time > second_time) return 1;
 		if (first_time < second_time) return -1;
+
 		return 0;
 	};
 
@@ -87,6 +89,7 @@ export class EntityDataHandlerService {
 		const vehicles: any = this.vehicleEvents.map((e) => ({ ...e }));
 		const trips: any = this.passengerEvents.map((e) => ({ ...e }));
 		const vehiclesAndTrips = vehicles.concat(trips);
+
 		vehiclesAndTrips.sort(EntityDataHandlerService.compare);
 		this.combined = vehiclesAndTrips;
 	}
@@ -103,14 +106,17 @@ export class EntityDataHandlerService {
 			this.runRealTimeSimulation(viewer);
 			return;
 		}
+
 		const start = this.dateParser.parseTimeFromSeconds(this.combined[0].time.toString());
 		const end = this.dateParser.parseTimeFromSeconds(this.combined[this.combined.length - 1].time.toString());
+
 		this.zoomTo(viewer, start, end);
 		this.runFullSimulation(viewer);
 	}
 
 	private runFullSimulation(viewer: Viewer): void {
 		this.stopHandler.initStops();
+
 		for (let i = 0; i < this.combined.length - 1; i++) {
 			const event = this.combined[i];
 			if (event && event.eventType == EventType.VEHICLE) {
@@ -119,6 +125,7 @@ export class EntityDataHandlerService {
 				this.stopHandler.compileEvent(event as PassengerEvent);
 			}
 		}
+
 		try {
 			this.vehicleHandler.loadSpawnEvents(viewer);
 			this.stopHandler.loadSpawnEvents(viewer);
@@ -133,6 +140,7 @@ export class EntityDataHandlerService {
 		let i = 0;
 		enableButton('restart-sim-menu-button', 'yellowgreen');
 		this.stopHandler.initStops();
+
 		const clockState = viewer.animation.viewModel.clockViewModel;
 		const onPlaySubscription = Cesium.knockout.getObservable(clockState, 'shouldAnimate').subscribe((isRunning: boolean) => {
 			this.setSimulationState(isRunning);
@@ -140,6 +148,7 @@ export class EntityDataHandlerService {
 				this.pauseEventEmitter.emit(FlowControl.ON_PAUSE);
 			}
 		});
+
 		this.stopHandler.loadSpawnEvents(viewer);
 
 		this.boardingHandler.initBoarding(viewer);
@@ -170,7 +179,6 @@ export class EntityDataHandlerService {
 		}
 
 		onPlaySubscription.dispose();
-		// this.saveSimulationState();
 	}
 
 	private setSimulationState(isRunning: boolean): void {

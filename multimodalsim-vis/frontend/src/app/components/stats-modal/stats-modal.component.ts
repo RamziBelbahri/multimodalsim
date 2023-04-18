@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, OnInit } from '@angular/core';
 import { Stat } from 'src/app/classes/data-classes/stat';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -22,7 +23,6 @@ export class StatsModalComponent implements OnInit {
 	tripsStats: Stat[];
 	customStats: Map<string, string>;
 	filterState: Map<string, boolean>;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	statsIntervalId: any;
 
 	constructor(
@@ -65,7 +65,6 @@ export class StatsModalComponent implements OnInit {
 		this.http
 			.get(this.APIURL + 'get-stats')
 			.pipe(catchError(this.handleError))
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			.subscribe((res: any) => {
 				const statDictionnary = res['values'] as object;
 				for (const key in statDictionnary) {

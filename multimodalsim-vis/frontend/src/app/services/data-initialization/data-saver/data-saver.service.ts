@@ -11,7 +11,6 @@ import { AppModule } from 'src/app/app.module';
 import { EntityDataHandlerService } from '../../entity-data-handler/entity-data-handler.service';
 import { EventType } from '../../util/event-types';
 import { FlowControl } from '../../entity-data-handler/flow-control';
-import { DateParserService } from '../../util/date-parser.service';
 import { toInteger } from 'lodash';
 import { EntityEvent } from 'src/app/classes/data-classes/entity/entity-event';
 import delay from 'delay';
@@ -25,66 +24,62 @@ export class DataSaverService {
 	private eventObservations: EventObservation[];
 	private stops: any[] = [];
 
-	constructor(
-		private parser: SimulationParserService,
-		private commService: CommunicationService,
-		private dateParser: DateParserService) {
+	constructor(private parser: SimulationParserService, private commService: CommunicationService) {
 		this.vehicleEvents = [];
 		this.passengerEvents = [];
 		this.eventObservations = [];
 	}
 
-	putInLookup<T extends EntityEvent>(lookup:Map<string, T[]>, event:EntityEvent) {
-		if(lookup.has(event.id)) {
+	putInLookup<T extends EntityEvent>(lookup: Map<string, T[]>, event: EntityEvent) {
+		if (lookup.has(event.id)) {
 			lookup.get(event.id)?.push(event as T);
 		} else {
 			lookup.set(event.id, [event as T]);
 		}
 	}
 
-	filterArtificialEvent<T extends EntityEvent>(lookup:Map<string, T[]>) {
-		
-		for(const [eventID, events] of lookup.entries()) {
-			const filteredEvents:T[] = [];
-			for(const event of events) {
-				if(!event.status.endsWith(FlowControl.FRONTEND_EVENT)){
+	filterArtificialEvent<T extends EntityEvent>(lookup: Map<string, T[]>) {
+		for (const [eventID, events] of lookup.entries()) {
+			const filteredEvents: T[] = [];
+			for (const event of events) {
+				if (!event.status.endsWith(FlowControl.FRONTEND_EVENT)) {
 					filteredEvents.push(event);
 				} else {
 					const previousDuration = toInteger(filteredEvents[filteredEvents.length - 1].duration);
 					const artificialDuration = toInteger(event.duration);
-					filteredEvents[filteredEvents.length - 1].duration =
-						(previousDuration + artificialDuration).toString();
+					filteredEvents[filteredEvents.length - 1].duration = (previousDuration + artificialDuration).toString();
 				}
 			}
 			lookup.set(eventID, events);
 		}
-		
 	}
 
-	combineAndSort<T extends EntityEvent>(lookup:Map<string,T[]>) {
+	combineAndSort<T extends EntityEvent>(lookup: Map<string, T[]>) {
 		const allEvents: T[] = [];
-		for(const events of lookup.values()) {
+		for (const events of lookup.values()) {
 			allEvents.push(...events);
 		}
-		return allEvents.sort((a:T, b:T) => {return a.time - b.time;});
+		return allEvents.sort((a: T, b: T) => {
+			return a.time - b.time;
+		});
 	}
 
 	async saveAsZip(filename: string): Promise<void> {
 		const zipper: JSZip = new JSZip();
-		if(!currentSimulation.isCurrentSimulationLive()){
+		if (!currentSimulation.isCurrentSimulationLive()) {
 			zipper.file(FileType.VEHICLES_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.vehicleEvents));
 			zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.passengerEvents));
 			zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.eventObservations));
 			zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.stops));
 		} else {
 			const entityDataHandlerService = AppModule.injector.get(EntityDataHandlerService);
-			const passengerEventsLookup:Map<string,PassengerEvent[]> = new Map();
-			const vehicleEventsLookup:Map<string,VehicleEvent[]> = new Map();
+			const passengerEventsLookup: Map<string, PassengerEvent[]> = new Map();
+			const vehicleEventsLookup: Map<string, VehicleEvent[]> = new Map();
 
 			// separate vehicle and passenger events
 			let i = 0;
-			for(const event of entityDataHandlerService.combined) {
-				switch(event.eventType){
+			for (const event of entityDataHandlerService.combined) {
+				switch (event.eventType) {
 				case EventType.PASSENGER:
 					this.putInLookup<PassengerEvent>(passengerEventsLookup, event);
 					break;
@@ -92,8 +87,9 @@ export class DataSaverService {
 					this.putInLookup<VehicleEvent>(vehicleEventsLookup, event);
 					break;
 				}
+
 				i++;
-				if(i % 250 == 0) {
+				if (i % 250 == 0) {
 					await delay(5);
 				}
 			}
@@ -105,9 +101,8 @@ export class DataSaverService {
 			zipper.file(FileType.TRIPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(this.combineAndSort(passengerEventsLookup)));
 			zipper.file(FileType.EVENTS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(AppModule.injector.get(EntityDataHandlerService).getEventObservations()));
 			zipper.file(FileType.STOPS_OBSERVATIONS_FILE_NAME, this.parser.parseToFile(AppModule.injector.get(EntityDataHandlerService).stops));
-			
 		}
-			
+
 		const zipfile = await zipper.generateAsync({ type: 'blob' });
 		this.commService.saveSimulation({ zipContent: zipfile, zipFileName: filename + '.zip' }).subscribe((res) => console.log(res));
 	}

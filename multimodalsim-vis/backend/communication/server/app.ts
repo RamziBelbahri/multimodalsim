@@ -13,9 +13,6 @@ import { writeFile } from  'fs/promises';
 import { ParamsDictionary } from 'express-serve-static-core';
 import multer from 'multer';
 import { execSync } from 'child_process';
-// import archiver from 'archiver';
-import delay from 'delay';
-// import extract from 'extract-zip';
 
 type MulterFiles = {[fieldname: string]: Express.Multer.File[];} | Express.Multer.File[];
 
@@ -40,12 +37,6 @@ function writeWithConfig(req:Request, files: MulterFiles, networkfile=''):any {
 	};
 
 	fs.writeFileSync('../data/' + req.body['simulationName'] + '/config.json', JSON.stringify(config));
-
-	// move the whole thing to a zip
-	// const output = fs.createWriteStream('saved-simulations/live/' + req.body['simulationName'] + '.zip');
-	// const archive = archiver('zip');
-	// archive.pipe(output);
-	// archive.directory( '../data/' + req.body['simulationName'] + '/', false).finalize();
 	return config;
 }
 const getsArgs = (req: Request):string[] => {
@@ -121,14 +112,14 @@ const upload_multiple_files = multer({
 	limits: {
 		fieldSize: 1024**4,
 		fileSize: 1024**4
-	} // a terabyte because I don't want it to cause problems
+	}
 });
+
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distDir = __dirname + '/dist/';
 const savedSimulationsDir =  __dirname + '/../saved-simulations/';
-// const savedLiveSimulationDir 		= savedSimulationsDir + 'live/';
 
 let savedSimulationsDirExists = existsSync(savedSimulationsDir);
 const upload = multer({
@@ -163,7 +154,6 @@ function startSim(args:string[]) {
 	});
 
 	runSim.on('error', (err: { message: any; }) => {
-		//TODO: Modifier stats quand on reçoit des stats
 		console.error('Exited runSim with error:', err.message);
 	});
 
@@ -222,14 +212,6 @@ app.get('/api/get-simulation-content', async (req:Request<ParamsDictionary, Arra
 	createSavedSimulationsDir();
 	const fullPath = savedSimulationsDir + req.query.filename;
 
-	// extracting to the tmp directory
-	// const pathArray = req.query.filename.split('/');
-	// const tmpdir = '../data/' + pathArray[pathArray.length - 1].replace('.zip', '/');
-	// if(!fs.existsSync(tmpdir)) {
-	// 	fs.mkdirSync(tmpdir);
-	// 	extract(fullPath, { dir: tmpdir });
-	// }
-
 	if (req.query.filename && existsSync(fullPath)) {
 		const buffer: Buffer = readFileSync(fullPath);
 		res.type('arraybuffer');
@@ -245,8 +227,6 @@ app.get('/api/list-saved-simulations', (req:Request, res:Response) => {
 	res.send(zipfiles.sort());
 });
 
-// this is used only for preloaded simulations
-// live simulations are saved by default
 app.post('/api/save-simulation', upload.single('zipContent'), async (req:Request, res:Response) => {
 	const data: Buffer = req.file?.buffer as Buffer;
 	const { zipFileName }: {zipFileName: string} = req.body;
@@ -327,30 +307,8 @@ const JOLOKIA_ACCESS = 'INFO | ActiveMQ Jolokia REST API available at http://0.0
 
 app.post('/api/stopsim', async (_:Request, res:Response) => {
 	try {
-		// kill the current simulation
 		runSim?.kill('SIGKILL');
-		// let containerName = '';
-		// try {
-		// 	execSync('docker restart activemq');
-		// 	containerName = 'activemq';
-		// } catch(e) {
-		// 	console.log(e);
-		// }
-		// while(!execSync('docker ps').toString().includes('activemq')) {
-		// 	await delay(1000);
-		// }
-		// let ready = false;
-		// while(!ready) {
-		// 	await delay(1000);
-		// 	const dockerLogs = execSync('docker logs ' + containerName)
-		// 		.toString()
-		// 		.split('\n')
-		// 		.filter(function (str) { return str.replace(' ', '') != ''; });
-		// 	console.log(dockerLogs[dockerLogs.length - 1]);
-		// 	if(dockerLogs[dockerLogs.length - 1].includes(JOLOKIA_ACCESS)) {
-		// 		ready = true;
-		// 	}
-		// }
+        
 		execSync('docker exec activemq sh -c \'bin/activemq purge info\'');
 		execSync('docker exec activemq sh -c \'bin/activemq purge events_observation\'');
 		execSync('docker exec activemq sh -c \'bin/activemq purge entity_events\'');

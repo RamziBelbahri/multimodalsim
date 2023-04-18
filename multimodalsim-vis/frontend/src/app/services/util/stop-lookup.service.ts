@@ -6,8 +6,9 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 	providedIn: 'root',
 })
 export class StopLookupService {
-	coordinatesIdMapping: Map<number, Cartesian3> = new Map<number, Cartesian3>();
 	private currentStopsize = 0;
+	coordinatesIdMapping: Map<number, Cartesian3> = new Map<number, Cartesian3>();
+
 	// Traduit un id de stop en coordonnées GPS.
 	coordinatesFromStopId(id: number): Cartesian3 {
 		const stop = this.coordinatesIdMapping.get(id);

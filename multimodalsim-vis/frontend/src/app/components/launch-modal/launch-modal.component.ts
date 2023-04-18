@@ -17,17 +17,17 @@ import * as currentSimulation from 'src/app/helpers/session-storage';
 export class LaunchModalComponent {
 	folder: string | undefined;
 	target: HTMLInputElement | undefined;
-	viewer: Viewer|undefined;
+	viewer: Viewer | undefined;
 	constructor(
 		private dialogRef: MatDialogRef<LaunchModalComponent>,
 		private commService: CommunicationService,
-		private simulationParserService:SimulationParserService,
-		private dataReaderService:DataReaderService,
-		private stopPositionHandlerService:StopPositionHandlerService,
-		private pathHandler:EntityPathHandlerService,
+		private simulationParserService: SimulationParserService,
+		private dataReaderService: DataReaderService,
+		private stopPositionHandlerService: StopPositionHandlerService,
+		private pathHandler: EntityPathHandlerService,
 		private viewerSharingService: ViewerSharingService
 	) {
-		this.viewerSharingService.currentViewer.subscribe((viewer:Viewer) => {
+		this.viewerSharingService.currentViewer.subscribe((viewer: Viewer) => {
 			this.viewer = viewer;
 		});
 	}
@@ -39,19 +39,19 @@ export class LaunchModalComponent {
 		this.target = target;
 	}
 
-	initBackendSimulationRequestData(formData:FormData) {
+	initBackendSimulationRequestData(formData: FormData) {
 		const log_level_select = document.getElementById('log-levels') as HTMLSelectElement;
 		const log_level = log_level_select.options[log_level_select.selectedIndex].text;
-		formData.append('log-level', log_level);
 
-		// const osrmInput = document.getElementById('osrm-server') as HTMLInputElement;
-		// const osrm = osrmInput.checked;
-		
+		formData.append('log-level', log_level);
 		formData.append('osrm', 'true');
+
 		const simulationNameInput = document.getElementById('simulation-name') as HTMLInputElement;
 		const simulationName = simulationNameInput.value;
+
 		formData.append('simulationName', simulationName);
 		currentSimulation.setCurrentSimulationName(simulationName);
+
 		this.pathHandler.isRealtime = true;
 	}
 
@@ -59,28 +59,30 @@ export class LaunchModalComponent {
 		const formData = new FormData();
 		document.getElementById('open-close-debug')?.click();
 		currentSimulation.setIsSimulationLive(true);
-		if(this.target && this.target.files) {
-			for(let i = 0; i < this.target.files?.length; i++) {
+
+		if (this.target && this.target.files) {
+			for (let i = 0; i < this.target.files?.length; i++) {
 				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
 				formData.append(path, this.target.files[i], this.target.files[i].name);
-				if(this.target.files[i].name.endsWith('stops.txt')) {
-					this.target.files[i].text().then((txt:string) => {
+
+				if (this.target.files[i].name.endsWith('stops.txt')) {
+					this.target.files[i].text().then((txt: string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
 						this.dataReaderService.parseStopsFile(csvData);
 						this.dataReaderService.setStops(csvData);
 						this.stopPositionHandlerService.initStops();
-						if(this.viewer) {
+
+						if (this.viewer) {
 							this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
 						}
-						
 					});
 				}
 			}
+
 			this.initBackendSimulationRequestData(formData);
 			this.commService.uploadFilesAndLaunch(formData);
-			this.dialogRef.close({isRunning:true, isActive:true});
+			this.dialogRef.close({ isRunning: true, isActive: true });
 		}
-		
 	}
 
 	closeModal(): void {

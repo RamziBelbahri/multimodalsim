@@ -83,24 +83,20 @@
 	background-color: #ccc;
 }
 
-/* When the checkbox is checked, add a blue background */
 .sub-menu-option input:checked ~ .checkbox {
 	background-color: #2196f3;
 }
 
-/* Create the checkmark/indicator (hidden when not checked) */
 .checkbox:after {
 	content: '';
 	position: absolute;
 	display: none;
 }
 
-/* Show the checkmark when checked */
 .sub-menu-option input:checked ~ .checkbox:after {
 	display: block;
 }
 
-/* Style the checkmark/indicator */
 .sub-menu-option .checkbox:after {
 	left: 9px;
 	top: 5px;

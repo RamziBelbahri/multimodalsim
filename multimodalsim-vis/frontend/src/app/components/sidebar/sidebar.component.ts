@@ -155,16 +155,17 @@ export class SidebarComponent implements OnInit {
 		if (!this.isSimulationActive && !this.isRunning) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
+
 			if (filename) {
 				currentSimulation.setCurrentSimulationName(filename);
 			} else {
 				currentSimulation.removeSimName();
 			}
-			// let isLive = filename?.startsWith('live') != undefined ? filename.startsWith('live/') : false;
-			// isLive = isLive && isFromServer;
+
 			currentSimulation.setIsSimulationLive(false);
 
 			(document.getElementById('page-container') as HTMLElement).style.visibility = 'visible';
+
 			const dialogRef = this.dialog.open(SimulationModalComponent, {
 				height: '70%',
 				width: '50%',
@@ -220,7 +221,6 @@ export class SidebarComponent implements OnInit {
 		this.isSimulationActive = isActive;
 	}
 
-	// Changer la visibilité d'un mode de transport
 	changeModeVisibility(type: string): void {
 		const newValue = !(this.transportModeList.get(type) as boolean);
 		this.transportModeList.set(type, newValue);

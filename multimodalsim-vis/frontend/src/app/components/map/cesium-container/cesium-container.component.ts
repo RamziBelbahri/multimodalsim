@@ -60,10 +60,9 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	ngAfterViewInit() {
 		this.viewerSharer.setViewer(this.viewer);
 
-		const simName = currentSimulation.getCurrentSimulationName();
 		const isLive = currentSimulation.isCurrentSimulationLive();
 		const isRestart = currentSimulation.isRestart();
-		console.log(simName, isLive, isRestart);
+
 		if (isRestart) {
 			if (isLive) {
 				this.autoLaunchLiveSimulation();
@@ -80,31 +79,37 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	autoLaunchLiveSimulation() {
 		let backendSimulationRestarted = false;
 		let frontendRestarted = false;
+
 		this.communicationService.restartBackendSimulation().subscribe({
-			next: (data) => {
+			next: () => {
 				backendSimulationRestarted = true;
 				if (backendSimulationRestarted && frontendRestarted) {
 					currentSimulation.setIsRestart(false);
 				}
 			},
 		});
+
 		const currentSim = currentSimulation.getCurrentSimulationName();
-		console.log('request stops file');
+
 		this.communicationService.requestStopsFile(currentSim ? currentSim : '').subscribe({
 			next: (data) => {
-				console.log(data);
 				frontendRestarted = true;
 				const stops = this.simulationParserService.parseFile(data).data;
 				this.dataReaderService.setStops(stops);
+
 				for (const line of stops) {
 					this.stopLookup.coordinatesIdMapping.set(Number(line['stop_id']), CesiumClass.cartesianDegrees(line['stop_lon'], line['stop_lat']));
 				}
+
 				this.stopPositionHandlerService.initStops();
+
 				if (!this.viewer) {
 					alert('error: viewer is null');
 					return;
 				}
+
 				this.dataReaderService.launchSimulationOnFrontend(this.viewer, true);
+
 				if (backendSimulationRestarted && frontendRestarted) {
 					currentSimulation.setIsRestart(false);
 				}
