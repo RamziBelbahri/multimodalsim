@@ -34,7 +34,7 @@ export class MessageQueueStompService {
 	private currentTimeStamp: number | undefined;
 	private nextTimeStamp: number | undefined;
 	private firstEntiyEventArrived = false;
-	private viewer:Viewer;
+	private viewer: Viewer | undefined;
 
 	// if the event has these status, make sure that they are still at the same stop
 	private static readonly USE_CURRENT_STOP: Set<string> = new Set([
@@ -51,10 +51,7 @@ export class MessageQueueStompService {
 	private static readonly USE_NEXT_STOP: Set<string> = new Set([VehicleStatus.ENROUTE]);
 	// private dateParserService:DateParserService = new DateParserService();
 	// note: static is needed so that there the callbacks can work
-	constructor(
-		private entityDataHandlerService: EntityDataHandlerService,
-		private viewerSharingService: ViewerSharingService
-		) {
+	constructor(private entityDataHandlerService: EntityDataHandlerService, private viewerSharingService: ViewerSharingService) {
 		if (MessageQueueStompService.service) {
 			return MessageQueueStompService.service;
 		}
@@ -64,7 +61,7 @@ export class MessageQueueStompService {
 		};
 		MessageQueueStompService.client.connect(ConnectionCredentials.USERNAME, ConnectionCredentials.PASSWORD, this.onConnect, this.onError);
 		MessageQueueStompService.service = this;
-		this.viewerSharingService.currentViewer.subscribe((viewer:Viewer) => {
+		this.viewerSharingService.currentViewer.subscribe((viewer: Viewer) => {
 			this.viewer = viewer;
 		});
 	}
@@ -101,16 +98,12 @@ export class MessageQueueStompService {
 		container.scrollTop = newMessage.offsetTop;
 		this.nLogs++;
 	};
-	private onReceivingEventObservation = (msg:IMessage) => {
+	private onReceivingEventObservation = (msg: IMessage) => {
 		const observation = JSON.parse(msg.body);
-		AppModule.injector.get(EntityDataHandlerService).getEventObservations().push(
-			new EventObservation(
-				Number(observation['index']),
-				observation['name'],
-				Number(observation['priority']),
-				observation['time'],
-			)
-		);
+		AppModule.injector
+			.get(EntityDataHandlerService)
+			.getEventObservations()
+			.push(new EventObservation(Number(observation['index']), observation['name'], Number(observation['priority']), observation['time']));
 	};
 
 	// JSON object, you can't know what is will be
@@ -152,8 +145,6 @@ export class MessageQueueStompService {
 	};
 
 	private onReceivingEntityEvent = (msg: IMessage) => {
-
-
 		if (msg.body === ConnectionCredentials.SIMULATION_COMPLETED) {
 			return;
 		}

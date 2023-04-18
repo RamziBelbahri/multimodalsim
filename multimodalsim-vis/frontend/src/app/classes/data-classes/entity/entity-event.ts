@@ -3,6 +3,6 @@ export interface EntityEvent {
 	time: number;
 	status: string;
 	readonly eventType: string;
-	duration:string;
-	readonly isRealtime:boolean;
+	duration: string;
+	readonly isRealtime: boolean;
 }

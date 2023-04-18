@@ -26,8 +26,10 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
-
 ## Credits
 
 Icons:
-	Passengers for filled_bus.png: Created by Adrien Coquet from the Noun Project
+Passengers for filled_bus.png: Created by Adrien Coquet from the Noun Project
+
+Code:
+getClosestIndex() in realtime-polyline.ts: Code based on https://stackoverflow.com/q/60343999/11627201 by Kamil Staszewski (21/02/2020)
