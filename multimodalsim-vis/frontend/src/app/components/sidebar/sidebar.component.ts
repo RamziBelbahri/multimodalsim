@@ -89,6 +89,8 @@ export class SidebarComponent implements OnInit {
 	}
 
 	ngOnDestroy() {
+		this.isRunning = false;
+		this.isSimulationActive = false;
 		this.viewerSubscription.unsubscribe();
 	}
 
@@ -150,7 +152,7 @@ export class SidebarComponent implements OnInit {
 	}
 
 	openSimulationModal(isFromServer: boolean, filename?: string): void {
-		if (!this.isSimulationActive) {
+		if (!this.isSimulationActive && !this.isRunning) {
 			this.setSimulationOrigin(isFromServer);
 			if (isFromServer && filename) this.dataReader.zipfileNameFromServer = filename;
 			if (filename) {
