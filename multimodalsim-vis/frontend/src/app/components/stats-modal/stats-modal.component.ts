@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Stat } from 'src/app/classes/data-classes/stat';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Subscription, catchError, throwError } from 'rxjs';
@@ -12,7 +12,7 @@ import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service
 	templateUrl: './stats-modal.component.html',
 	styleUrls: ['./stats-modal.component.css'],
 })
-export class StatsModalComponent {
+export class StatsModalComponent implements OnInit {
 	private readonly APIURL = 'http://localhost:8000/api/';
 	private notifSubscription: Subscription = new Subscription();
 
@@ -22,6 +22,7 @@ export class StatsModalComponent {
 	tripsStats: Stat[];
 	customStats: Map<string, string>;
 	filterState: Map<string, boolean>;
+	statsIntervalId: any;
 
 	constructor(
 		private http: HttpClient,
@@ -35,6 +36,8 @@ export class StatsModalComponent {
 		this.tripsStats = new Array<Stat>();
 		this.customStats = new Map<string, string>();
 		this.filterState = new Map<string, boolean>();
+		this.filterState.set('Stats de véhicules', true);
+		this.filterState.set('Stats de voyages', true);
 	}
 
 	ngOnInit() {
@@ -42,6 +45,9 @@ export class StatsModalComponent {
 			if (name == 'stats-container') {
 				this.loadEntityNumber();
 				this.requestStats();
+				this.statsIntervalId = setInterval(() => {
+					this.requestStats();
+				}, 5000);
 			}
 		});
 	}
@@ -55,7 +61,8 @@ export class StatsModalComponent {
 	}
 
 	requestStats(): void {
-		this.vehicleStats.length = 0;
+		this.vehicleStats = [];
+		this.tripsStats = [];
 
 		this.http
 			.get(this.APIURL + 'get-stats')
@@ -80,8 +87,8 @@ export class StatsModalComponent {
 				this.saveStats();
 			});
 
-		this.filterState.set('Stats de véhicules', true);
-		this.filterState.set('Stats de voyages', true);
+		// this.filterState.set('Stats de véhicules', true);
+		// this.filterState.set('Stats de voyages', true);
 	}
 
 	private saveStats(): void {
@@ -97,6 +104,7 @@ export class StatsModalComponent {
 	}
 
 	closeModal(): void {
+		clearInterval(this.statsIntervalId);
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'hidden';
 	}
 
