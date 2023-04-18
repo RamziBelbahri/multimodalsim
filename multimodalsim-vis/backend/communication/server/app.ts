@@ -329,28 +329,32 @@ app.post('/api/stopsim', async (_:Request, res:Response) => {
 	try {
 		// kill the current simulation
 		runSim?.kill('SIGKILL');
-		let containerName = '';
-		try {
-			execSync('docker restart activemq');
-			containerName = 'activemq';
-		} catch(e) {
-			console.log(e);
-		}
-		while(!execSync('docker ps').toString().includes('activemq')) {
-			await delay(1000);
-		}
-		let ready = false;
-		while(!ready) {
-			await delay(1000);
-			const dockerLogs = execSync('docker logs ' + containerName)
-				.toString()
-				.split('\n')
-				.filter(function (str) { return str.replace(' ', '') != ''; });
-			console.log(dockerLogs[dockerLogs.length - 1]);
-			if(dockerLogs[dockerLogs.length - 1].includes(JOLOKIA_ACCESS)) {
-				ready = true;
-			}
-		}
+		// let containerName = '';
+		// try {
+		// 	execSync('docker restart activemq');
+		// 	containerName = 'activemq';
+		// } catch(e) {
+		// 	console.log(e);
+		// }
+		// while(!execSync('docker ps').toString().includes('activemq')) {
+		// 	await delay(1000);
+		// }
+		// let ready = false;
+		// while(!ready) {
+		// 	await delay(1000);
+		// 	const dockerLogs = execSync('docker logs ' + containerName)
+		// 		.toString()
+		// 		.split('\n')
+		// 		.filter(function (str) { return str.replace(' ', '') != ''; });
+		// 	console.log(dockerLogs[dockerLogs.length - 1]);
+		// 	if(dockerLogs[dockerLogs.length - 1].includes(JOLOKIA_ACCESS)) {
+		// 		ready = true;
+		// 	}
+		// }
+		execSync('docker exec activemq sh -c \'bin/activemq purge info\'');
+		execSync('docker exec activemq sh -c \'bin/activemq purge events_observation\'');
+		execSync('docker exec activemq sh -c \'bin/activemq purge entity_events\'');
+
 		res.status(200).json({status:'activemq cleared, waiting for signal to restart simulation'});
 	} catch(e) {
 		console.log(e);
