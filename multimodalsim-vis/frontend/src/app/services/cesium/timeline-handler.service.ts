@@ -18,6 +18,7 @@ export class TimelineHandlerService {
 
 			if (Cesium.JulianDate.greaterThanOrEquals(currentTime, lastEventTime)) {
 				viewer.clock.currentTime = lastEventTime;
+				viewer.clock.multiplier = 1;
 			}
 		});
 	}
