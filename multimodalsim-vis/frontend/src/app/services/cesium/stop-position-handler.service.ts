@@ -24,7 +24,7 @@ export class StopPositionHandlerService {
 	// Initialise tous les stops de la liste de stops fournie
 	initStops(): void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
-			if (id != 0) {
+			if (id != 0 && !this.isStopMapped(id.toString())) {
 				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
 				this.stopIdMapping.set(id.toString(), newStop);
 			}
@@ -55,6 +55,10 @@ export class StopPositionHandlerService {
 				break;
 			}
 		}
+	}
+
+	isStopMapped(stopId: string): boolean {
+		return this.stopIdMapping.has(stopId);
 	}
 
 	// Charge tous les arrêts qui contiennent des passagers

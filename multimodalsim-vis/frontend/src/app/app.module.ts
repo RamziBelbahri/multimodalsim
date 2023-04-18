@@ -7,7 +7,6 @@ import { CesiumContainerComponent } from './components/map/cesium-container/cesi
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { DebugReceiverComponentComponent } from './components/debug-receiver/debug-receiver-component.component';
 import { SimulationModalComponent } from './components/simulation-modal/simulation-modal.component';
-import { StopsFileModalComponent } from './components/stops-file-modal/stops-file-modal.component';
 import { EntityInfosComponent } from './components/sidebar/entity-infos/entity-infos.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -29,15 +28,14 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 	declarations: [
 		AppComponent,
 		CesiumContainerComponent,
-		SidebarComponent, 
-		DebugReceiverComponentComponent, 
-		SimulationModalComponent, 
+		SidebarComponent,
+		DebugReceiverComponentComponent,
+		SimulationModalComponent,
 		SaveModalComponent,
 		EntityInfosComponent,
 		StatsModalComponent,
-		StopsFileModalComponent, 
 		LaunchModalComponent,
-		InteractionComponent
+		InteractionComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -71,5 +69,4 @@ export class AppModule {
 	constructor(injector: Injector) {
 		AppModule.injector = injector;
 	}
-
 }
