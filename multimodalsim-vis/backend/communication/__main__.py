@@ -27,9 +27,7 @@ from multimodalsim.simulator.simulation import Simulation
 logger = logging.getLogger(__name__)
 connection = ActiveMQController().getConnection()
 
-from communication.add_logger_warn import setup
-setup()
-#
+
 def add_arguments(parser):
     parser.add_argument("-r", "--requests", help="path to the file "
                                                  "containing the requests")
