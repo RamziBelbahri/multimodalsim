@@ -65,28 +65,6 @@ export class CameraHandlerService {
 		});
 	}
 
-	// Retourne la taille qui devrait être utilisée pour les stops.
-	getCurrentStopSize(): number {
-		let result = this.tierSizes[0];
-
-		switch (this.lastTier) {
-		case 1:
-			result = this.tierSizes[1];
-			break;
-		case 2:
-			result = this.tierSizes[2];
-			break;
-		case 3:
-			result = this.tierSizes[3];
-			break;
-		case 4:
-			result = this.tierSizes[4];
-			break;
-		}
-
-		return result;
-	}
-
 	// Déplace la caméra vers une position particulière en utilisant les coordonnées GPS.
 	private setCameraPosition(longitude: number, latitude: number, height: number = this.BASE_HEIGHT): void {
 		this.camera?.setView({
