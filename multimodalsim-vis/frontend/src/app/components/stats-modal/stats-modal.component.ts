@@ -70,7 +70,6 @@ export class StatsModalComponent {
 				}
 
 				this.customStats.forEach((value: string, field: string) => {
-					//TODO: vérifier si c'est une bonne séparation quand le simulateur sera mieux accessible.
 					if (field.includes('trip')) {
 						this.tripsStats.push(new Stat(field, value));
 					} else {

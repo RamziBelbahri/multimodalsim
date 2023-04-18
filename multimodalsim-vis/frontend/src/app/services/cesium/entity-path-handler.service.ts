@@ -166,7 +166,6 @@ export class EntityPathHandlerService {
 
 	// Compile les sections des positions de la polyline en deux array différents (complété et non complété).
 	private compileSections(positions: Array<Array<Cartesian3>>, times: Array<Array<JulianDate>>, currentTime: JulianDate): [Array<Cartesian3>, Array<Cartesian3>] {
-		// check this part
 		let completedPath = new Array<Cartesian3>();
 		let uncompletedPath = new Array<Cartesian3>();
 		let busReached = false;
@@ -244,7 +243,7 @@ export class EntityPathHandlerService {
 			});
 	}
 
-	// Vider la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
+	// Vide la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
 	clearLists(viewer: Viewer): void {
 		this.lastEntities.forEach((element: any) => {
 			viewer.entities.remove(element);

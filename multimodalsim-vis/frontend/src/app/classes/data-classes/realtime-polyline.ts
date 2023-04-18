@@ -5,7 +5,6 @@ import { VehicleEvent } from './vehicle-class/vehicle-event';
 
 type PositionTimePair<K,V> = [Array<Cartesian3>, Array<number>];
 export class RealTimePolyline {
-	// stop --> [Positions, times]
 	stopsPolylineLookup = new Map<string, PositionTimePair<Array<Cartesian3>, Array<number>>>();
 	stops:string[];
     
@@ -20,7 +19,6 @@ export class RealTimePolyline {
 			const cartesian3Pos = [];
 			for(const position of positions) {
 				cartesian3Pos.push(Cesium.Cartesian3.fromDegrees(position[1], position[0]));
-				// cartesian3Pos.push(new Cesium.Cartesian3(position[0], position[1], 2000.0));
 			}
 			if(stop) {
 				this.stopsPolylineLookup.set(

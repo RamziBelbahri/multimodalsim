@@ -13,6 +13,7 @@ import { Injectable } from '@angular/core';
 import { AppModule } from 'src/app/app.module';
 import { EventObservation } from 'src/app/classes/data-classes/event-observation/event-observation';
 const DEBUG = false;
+// TODO: Uniformiser la langue utilisée pour les commentaires, français actuellement majoritaire.
 // uses STOMP with active MQ
 @Injectable({
 	providedIn: 'root',
@@ -59,7 +60,6 @@ export class MessageQueueStompService {
 
 	private onConnect = () => {
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.INFO_QUEUE, this.onReceivingInfo);
-		// MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENT_QUEUE, this.onReceivingEvent);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, this.onReceivingEventObservation);
 		MessageQueueStompService.client.subscribe(ConnectionCredentials.ENTITY_EVENTS_QUEUE, this.onReceivingEntityEvent);
 	};
@@ -154,7 +154,6 @@ export class MessageQueueStompService {
 		let realtimePolyline: RealTimePolyline | undefined;
 		const polylinesJSON = eventJson['polylines'];
 		if (polylinesJSON && !this.entityDataHandlerService.realtimePolylineLookup.has(entityEvent.id) && entityEvent.eventType == EventType.VEHICLE) {
-			// status = release, pretty much guaranteed to have a current stop and a next stop
 			realtimePolyline = new RealTimePolyline(polylinesJSON, [(entityEvent as VehicleEvent).current_stop].concat((entityEvent as VehicleEvent).next_stops));
 			this.entityDataHandlerService.realtimePolylineLookup.set(entityEvent.id, realtimePolyline);
 		}

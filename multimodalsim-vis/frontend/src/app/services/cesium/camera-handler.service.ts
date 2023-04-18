@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Camera, Cartesian3, EllipseGraphics, Viewer } from 'cesium';
-import { StopLookupService } from '../util/stop-lookup.service';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
+import { VehiclePositionHandlerService } from './vehicle-position-handler.service';
+import { StopLookupService } from '../util/stop-lookup.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -21,7 +22,7 @@ export class CameraHandlerService {
 
 	camera: Camera | undefined;
 
-	constructor(private stopLookup: StopLookupService, private http: HttpClient) {
+	constructor(private stopLookup: StopLookupService, private vehiculeHandler: VehiclePositionHandlerService, private http: HttpClient) {
 		this.http
 			.get(this.CONFIG_PATH, { responseType: 'text' })
 			.pipe(map((res: string) => JSON.parse(res)))
@@ -45,44 +46,23 @@ export class CameraHandlerService {
 			const endHeight = Cesium.Cartographic.fromCartesian(this.endPos).height;
 
 			if (endHeight < 1000 && this.lastTier != 0) {
-				this.changeStopSize(viewer, this.tierSizes[0]);
+				this.changeAllIconsSize(viewer, this.tierSizes[0]);
 				this.lastTier = 0;
 			} else if (endHeight >= 1000 && endHeight < 2000 && this.lastTier != 1) {
-				this.changeStopSize(viewer, this.tierSizes[1]);
+				this.changeAllIconsSize(viewer, this.tierSizes[1]);
 				this.lastTier = 1;
 			} else if (endHeight >= 2000 && endHeight < 3000 && this.lastTier != 2) {
-				this.changeStopSize(viewer, this.tierSizes[2]);
+				this.changeAllIconsSize(viewer, this.tierSizes[2]);
 				this.lastTier = 2;
 			} else if (endHeight >= 3000 && endHeight < 7500 && this.lastTier != 3) {
-				this.changeStopSize(viewer, this.tierSizes[3]);
+				this.changeAllIconsSize(viewer, this.tierSizes[3]);
 				this.lastTier = 3;
 			} else if (endHeight >= 7500 && this.lastTier != 4) {
-				this.changeStopSize(viewer, this.tierSizes[4]);
+				this.changeAllIconsSize(viewer, this.tierSizes[4]);
 				this.lastTier = 4;
 			}
+			this.stopLookup.setCurrentStopSize(this.tierSizes[this.lastTier]);
 		});
-	}
-
-	// Retourne la taille qui devrait être utilisée pour les stops.
-	getCurrentStopSize(): number {
-		let result = this.tierSizes[0];
-
-		switch (this.lastTier) {
-		case 1:
-			result = this.tierSizes[1];
-			break;
-		case 2:
-			result = this.tierSizes[2];
-			break;
-		case 3:
-			result = this.tierSizes[3];
-			break;
-		case 4:
-			result = this.tierSizes[4];
-			break;
-		}
-
-		return result;
 	}
 
 	// Déplace la caméra vers une position particulière en utilisant les coordonnées GPS.
@@ -96,11 +76,25 @@ export class CameraHandlerService {
 	private changeStopSize(viewer: Viewer, newSize: number): void {
 		this.stopLookup.coordinatesIdMapping.forEach((stop: Cartesian3, id: number) => {
 			const entity = viewer.entities.getById(id.toString());
-
 			if (entity) {
 				(entity.ellipse as EllipseGraphics).semiMajorAxis = new Cesium.ConstantProperty(newSize);
 				(entity.ellipse as EllipseGraphics).semiMinorAxis = new Cesium.ConstantProperty(newSize);
 			}
 		});
+	}
+
+	private changeBusSize(viewer: Viewer, newSize: number): void {
+		this.vehiculeHandler.getVehicleIdMapping().forEach((map) => {
+			const entity = viewer.entities.getById(map.id);
+			if (entity) {
+				(entity.ellipse as EllipseGraphics).semiMajorAxis = new Cesium.ConstantProperty(newSize);
+				(entity.ellipse as EllipseGraphics).semiMinorAxis = new Cesium.ConstantProperty(newSize);
+			}
+		});
+	}
+
+	private changeAllIconsSize(viewer: Viewer, newSize: number): void {
+		this.changeStopSize(viewer, newSize);
+		this.changeBusSize(viewer, newSize * 2);
 	}
 }

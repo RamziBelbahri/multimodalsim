@@ -88,8 +88,3 @@
 .dropdown-menu a {
 	text-decoration: none;
 }
-/* J'essayais de l'appliquer sur chaque élément de la liste, mais j'ai pas reussi */
-/* .dropdown-menu:hover a{
-	color: cyan;
-	border-left: 2px solid blue;
- } */

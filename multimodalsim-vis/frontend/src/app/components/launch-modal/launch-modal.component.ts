@@ -63,7 +63,6 @@ export class LaunchModalComponent {
 				const path = encodeURIComponent(this.target.files[i].webkitRelativePath);
 				formData.append(path, this.target.files[i], this.target.files[i].name);
 				if(this.target.files[i].name.endsWith('stops.txt')) {
-					// TODO REORGANIZE THIS
 					this.target.files[i].text().then((txt:string) => {
 						const csvData = this.simulationParserService.parseFile(txt).data;
 						this.dataReaderService.parseStopsFile(csvData);
