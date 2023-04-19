@@ -113,6 +113,15 @@
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |__app.component.ts         #Component de base de toute l'application
+```
+
+## Les tailles des icones
+
+```shell
+|__multimodalsim-vis
+|    |_frontend
+|    |  |__src
+|    |  |   |__app
 |    |  |   |   |__assets
-|    |  |   |   |   |   |__viewer-config.json #les tailles des entités
+|    |  |   |   |   |   |__viewer-config.json
 ```
