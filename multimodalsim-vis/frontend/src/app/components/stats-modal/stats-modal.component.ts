@@ -67,6 +67,8 @@ export class StatsModalComponent implements OnInit {
 			.pipe(catchError(this.handleError))
 			.subscribe((res: any) => {
 				const statDictionnary = res['values'] as object;
+				console.log(res);
+
 				for (const key in statDictionnary) {
 					if (statDictionnary.hasOwnProperty.call(statDictionnary, key)) {
 						this.customStats.set(key, res['values'][key]);
@@ -85,7 +87,15 @@ export class StatsModalComponent implements OnInit {
 							this.tripsStats.push(new Stat(field, value));
 						}
 					} else {
-						this.vehicleStats.push(new Stat(field, value));
+						const index = this.vehicleStats.findIndex((stat) => {
+							return field == stat.field;
+						});
+
+						if (index > -1) {
+							this.vehicleStats[index].value = value;
+						} else {
+							this.vehicleStats.push(new Stat(field, value));
+						}
 					}
 				});
 
