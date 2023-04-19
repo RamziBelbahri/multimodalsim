@@ -4,6 +4,9 @@
     "linked-list": "^3.1.0"
   },
   "devDependencies": {
+    "@types/archiver": "^5.3.2",
+    "@types/delay": "^3.1.0",
+    "@types/extract-zip": "^2.0.1",
     "@types/multer": "^1.4.7"
   }
 }

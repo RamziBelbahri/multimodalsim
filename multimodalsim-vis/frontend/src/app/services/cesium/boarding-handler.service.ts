@@ -10,6 +10,7 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 export class BoardingHandlerService {
 	private lastEvent: BoardingEvent | undefined;
 	private pastEventQueue;
+	private lastTime: JulianDate | undefined;
 
 	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
 		this.lastEvent = stopHandler.boardingEventPop();
@@ -20,11 +21,14 @@ export class BoardingHandlerService {
 	initBoarding(viewer: Viewer): void {
 		viewer.clock.onTick.addEventListener((clock) => {
 			const currentTime = clock.currentTime;
+			if (!this.lastTime) this.lastTime = currentTime;
 
-			if (viewer.clock.multiplier >= 0) {
-				this.forwardTimeBoarding(viewer, currentTime);
-			} else {
+			if (viewer.clock.multiplier < 0 || Cesium.JulianDate.greaterThan(this.lastTime, currentTime)) {
 				this.reversedTimeBoarding(viewer, currentTime);
+				this.lastTime = currentTime;
+			} else {
+				this.forwardTimeBoarding(viewer, currentTime);
+				this.lastTime = currentTime;
 			}
 		});
 	}

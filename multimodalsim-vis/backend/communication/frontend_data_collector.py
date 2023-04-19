@@ -276,7 +276,7 @@ class FrontendDataCollector(DataCollector):
                     "priority": self.__event_priority,
                     "index": self.__event_index}
         self.__data_container.add_observation("events", obs_dict, "index")
-
+        self.connection.send(ConnectionCredentials.EVENTS_OBSERVATION_QUEUE, body=json.dumps(obs_dict, default= lambda x: str(x)))
     def __collect_environment_data(self, env):
 
         trips_by_mode = {None: 0}

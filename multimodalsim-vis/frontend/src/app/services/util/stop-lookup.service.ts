@@ -6,6 +6,7 @@ import { CesiumClass } from 'src/app/shared/cesium-class';
 	providedIn: 'root',
 })
 export class StopLookupService {
+	private currentStopsize = 0;
 	coordinatesIdMapping: Map<number, Cartesian3> = new Map<number, Cartesian3>();
 
 	// Traduit un id de stop en coordonnées GPS.
@@ -17,5 +18,13 @@ export class StopLookupService {
 		} else {
 			return CesiumClass.cartesianDegrees(0, 0);
 		}
+	}
+
+	setCurrentStopSize(size: number): void {
+		this.currentStopsize = size;
+	}
+
+	getCurrentStopSize(): number {
+		return this.currentStopsize;
 	}
 }

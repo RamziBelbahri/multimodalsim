@@ -29,7 +29,7 @@
       >
       <stop
           id="stop2166"
-          stop-color="#0cf058"
+          stop-color="#ffe300"
           offset="0"
       />
       <stop
@@ -74,7 +74,7 @@
         fill-rule="evenodd"
         stroke="#000"
         stroke-width="1.7266px"
-        fill="#0cf058"
+        fill="#ffe300"
     />
     <path
         id="path2184"
@@ -84,7 +84,7 @@
     <path
         id="path1360"
         d="m386.57 185.83l27.33-17.57s124.93-19.52 134.69-19.52 128.85 27.33 128.85 27.33 25.37 19.52 27.33 25.38c1.95 5.86-152.27 35.14-152.27 35.14l-165.93-50.76z"
-        fill="#0cf058"
+        fill="#ffe300"
         fill-rule="evenodd"
     />
     <path
@@ -125,14 +125,14 @@
     <path
         id="path2136"
         d="m336.93 527.01a9.0451 15.829 0 1 1 -18.09 0 9.0451 15.829 0 1 1 18.09 0z"
-        fill="#0cf058"
+        fill="#ffe300"
         transform="matrix(1.7266 0 .24666 1.7266 -481.33 -509.37)"
         fill-rule="evenodd"
     />
     <path
         id="path2138"
         d="m336.93 527.01a9.0451 15.829 0 1 1 -18.09 0 9.0451 15.829 0 1 1 18.09 0z"
-        fill="#0cf058"
+        fill="#ffe300"
         transform="matrix(2.2499 0 .32142 2.0349 -318.49 -530.32)"
         fill-rule="evenodd"
     />

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CompatClient } from '@stomp/stompjs';
 import { MessageQueueStompService } from 'src/app/services/messaging/message-queue-stomp.service';
-import { EntityDataHandlerService } from 'src/app/services/entity-data-handler/entity-data-handler.service';
 @Component({
 	selector: 'app-debug-receiver-component',
 	templateUrl: './debug-receiver-component.component.html',
@@ -11,10 +10,7 @@ export class DebugReceiverComponentComponent {
 	private static client: CompatClient;
 	dragging = false;
 
-	constructor(
-		private entityDataHandlerService: EntityDataHandlerService,
-		private messageQueueService:MessageQueueStompService
-	) {
+	constructor(private messageQueueService: MessageQueueStompService) {
 		DebugReceiverComponentComponent.client = this.messageQueueService.getClient();
 	}
 
@@ -31,7 +27,7 @@ export class DebugReceiverComponentComponent {
 		} else if (button && button.innerText == '+') {
 			const holder = document.getElementById('received-text-holder');
 			if (holder) {
-				holder.style.width = '400px';
+				holder.style.width = '800px';
 				holder.style.height = '400px';
 				holder.style.right = '0%';
 				holder.style.top = '10%';

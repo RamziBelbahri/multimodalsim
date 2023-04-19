@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, OnInit } from '@angular/core';
 import { Stat } from 'src/app/classes/data-classes/stat';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Subscription, catchError, throwError } from 'rxjs';
@@ -12,7 +13,7 @@ import { MenuNotifierService } from 'src/app/services/util/menu-notifier.service
 	templateUrl: './stats-modal.component.html',
 	styleUrls: ['./stats-modal.component.css'],
 })
-export class StatsModalComponent {
+export class StatsModalComponent implements OnInit {
 	private readonly APIURL = 'http://localhost:8000/api/';
 	private notifSubscription: Subscription = new Subscription();
 
@@ -22,6 +23,7 @@ export class StatsModalComponent {
 	tripsStats: Stat[];
 	customStats: Map<string, string>;
 	filterState: Map<string, boolean>;
+	statsIntervalId: any;
 
 	constructor(
 		private http: HttpClient,
@@ -35,6 +37,8 @@ export class StatsModalComponent {
 		this.tripsStats = new Array<Stat>();
 		this.customStats = new Map<string, string>();
 		this.filterState = new Map<string, boolean>();
+		this.filterState.set('Stats de véhicules', true);
+		this.filterState.set('Stats de voyages', true);
 	}
 
 	ngOnInit() {
@@ -42,6 +46,9 @@ export class StatsModalComponent {
 			if (name == 'stats-container') {
 				this.loadEntityNumber();
 				this.requestStats();
+				this.statsIntervalId = setInterval(() => {
+					this.requestStats();
+				}, 5000);
 			}
 		});
 	}
@@ -55,14 +62,13 @@ export class StatsModalComponent {
 	}
 
 	requestStats(): void {
-		this.vehicleStats.length = 0;
-
 		this.http
 			.get(this.APIURL + 'get-stats')
 			.pipe(catchError(this.handleError))
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			.subscribe((res: any) => {
 				const statDictionnary = res['values'] as object;
+				console.log(res);
+
 				for (const key in statDictionnary) {
 					if (statDictionnary.hasOwnProperty.call(statDictionnary, key)) {
 						this.customStats.set(key, res['values'][key]);
@@ -70,19 +76,31 @@ export class StatsModalComponent {
 				}
 
 				this.customStats.forEach((value: string, field: string) => {
-					//TODO: vérifier si c'est une bonne séparation quand le simulateur sera mieux accessible.
 					if (field.includes('trip')) {
-						this.tripsStats.push(new Stat(field, value));
+						const index = this.tripsStats.findIndex((stat) => {
+							return field == stat.field;
+						});
+
+						if (index > -1) {
+							this.tripsStats[index].value = value;
+						} else {
+							this.tripsStats.push(new Stat(field, value));
+						}
 					} else {
-						this.vehicleStats.push(new Stat(field, value));
+						const index = this.vehicleStats.findIndex((stat) => {
+							return field == stat.field;
+						});
+
+						if (index > -1) {
+							this.vehicleStats[index].value = value;
+						} else {
+							this.vehicleStats.push(new Stat(field, value));
+						}
 					}
 				});
 
 				this.saveStats();
 			});
-
-		this.filterState.set('Stats de véhicules', true);
-		this.filterState.set('Stats de voyages', true);
 	}
 
 	private saveStats(): void {
@@ -98,6 +116,7 @@ export class StatsModalComponent {
 	}
 
 	closeModal(): void {
+		clearInterval(this.statsIntervalId);
 		(document.getElementById('stats-container') as HTMLElement).style.visibility = 'hidden';
 	}
 

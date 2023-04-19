@@ -1,4 +1,0 @@
-enum entityType{
-    vehicle,
-    passenger
-}

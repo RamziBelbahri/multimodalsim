@@ -24,7 +24,7 @@ export class PassengerEvent implements EntityEvent {
 		current_leg: number[][],
 		next_legs: number[][],
 		duration: string,
-		isRealtime:boolean = false
+		isRealtime = false
 	) {
 		this.id = id;
 		this.time = time;

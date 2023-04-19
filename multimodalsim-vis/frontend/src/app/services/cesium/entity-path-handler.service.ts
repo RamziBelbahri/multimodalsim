@@ -20,12 +20,11 @@ export class EntityPathHandlerService {
 	private progressPath: [Array<Cartesian3>, Array<Cartesian3>];
 	private timeList: Array<JulianDate>;
 	private lastTime: JulianDate;
-	private polylines = new Cesium.PolylineCollection();
-	isRealtime = false;
-	lastEntityType = '';
-
 	private pickedIndex = -1;
 	private pickedEntityID = '';
+
+	isRealtime = false;
+	lastEntityType = '';
 
 	constructor(private http: HttpClient, private vehicleHandler: VehiclePositionHandlerService, private entityDataHandlerService: EntityDataHandlerService) {
 		this.lastEntities = new Array<any>();
@@ -124,6 +123,7 @@ export class EntityPathHandlerService {
 							const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
 							const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 							done.push(todo[0]);
+
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
@@ -133,6 +133,7 @@ export class EntityPathHandlerService {
 									},
 								})
 							);
+
 							this.lastEntities.push(
 								viewer.entities.add({
 									polyline: {
@@ -155,6 +156,7 @@ export class EntityPathHandlerService {
 					const done = realtimePolyline.positionsInOrder.slice(0, index + 3);
 					const todo = realtimePolyline.positionsInOrder.slice(index + 3);
 					done.push(todo[0]);
+
 					this.pickedIndex = index;
 					this.lastEntities[0].polyline.positions = done;
 					this.lastEntities[1].polyline.positions = todo;
@@ -166,7 +168,6 @@ export class EntityPathHandlerService {
 
 	// Compile les sections des positions de la polyline en deux array différents (complété et non complété).
 	private compileSections(positions: Array<Array<Cartesian3>>, times: Array<Array<JulianDate>>, currentTime: JulianDate): [Array<Cartesian3>, Array<Cartesian3>] {
-		// check this part
 		let completedPath = new Array<Cartesian3>();
 		let uncompletedPath = new Array<Cartesian3>();
 		let busReached = false;
@@ -203,6 +204,7 @@ export class EntityPathHandlerService {
 	private updateProgress(currentTime: JulianDate, viewer: Viewer): void {
 		const originalCompletedLength = this.progressPath[0].length;
 		const originalUnCompletedLength = this.progressPath[1].length;
+
 		if (viewer.clock.multiplier > 0 && Cesium.JulianDate.greaterThan(viewer.clock.currentTime, this.lastTime)) {
 			for (let i = 0; i < originalUnCompletedLength; i++) {
 				if (Cesium.JulianDate.greaterThan(this.timeList[i + originalCompletedLength - 1], currentTime)) {
@@ -244,7 +246,7 @@ export class EntityPathHandlerService {
 			});
 	}
 
-	// Vider la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
+	// Vide la liste des dernières entités afin d'enlever les polylines et nettoyer les valeurs.
 	clearLists(viewer: Viewer): void {
 		this.lastEntities.forEach((element: any) => {
 			viewer.entities.remove(element);

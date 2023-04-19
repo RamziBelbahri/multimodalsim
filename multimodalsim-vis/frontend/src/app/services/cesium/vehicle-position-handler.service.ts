@@ -20,6 +20,8 @@ export class VehiclePositionHandlerService {
 	vehicleTypeListObservable = this.vehicleTypeListSource.asObservable();
 	vehicleTypeList;
 
+	readonly defaultBusCapacity = 16;
+
 	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private polylineDecoder: PolylineDecoderService) {
 		this.vehicleIdMapping = new Map<string, Vehicle>();
 		this.pathIdMapping = new Map<string, TimedPolyline>();
@@ -130,6 +132,7 @@ export class VehiclePositionHandlerService {
 		const vehicle = this.vehicleIdMapping.get(event.id.toString()) as Vehicle;
 		const segments = realtimePolylines.stopsPolylineLookup.get(event.previous_stops[event.previous_stops.length - 1]);
 		let fraction = 0;
+
 		if (segments) {
 			const positions = segments[0];
 			const timeFractions = segments[1];
@@ -181,12 +184,19 @@ export class VehiclePositionHandlerService {
 
 	updateIcon(viewer: Viewer, busId: string): void {
 		const entity = viewer.entities.getById(busId);
-		if (entity && entity.ellipse) {
-			entity.ellipse.material =
-				this.getPassengerAmount(busId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/filled_bus.png', transparent: true });
-		}
+		if (entity && entity.ellipse) entity.ellipse.material = new Cesium.ImageMaterialProperty({ image: this.getBusIcon(busId), transparent: true });
+	}
+
+	getBusIcon(busId: string): string {
+		const passengerAmount = this.getPassengerAmount(busId);
+		if (passengerAmount == 0) return '../../../assets/empty_bus.svg';
+		else if (passengerAmount > 0 && passengerAmount <= this.defaultBusCapacity / 3) return '../../../assets/almost_empty_bus.svg';
+		else if (passengerAmount > this.defaultBusCapacity / 3 && passengerAmount <= (2 * this.defaultBusCapacity) / 3) return '../../../assets/semi_filled_bus.svg';
+		else return '../../../assets/filled_bus.svg';
+	}
+
+	getCurrentVehicleSize(): number {
+		return this.stopLookup.getCurrentStopSize() * 2;
 	}
 
 	// Ajoute une entité sur la carte avec le chemin spécifié
@@ -194,10 +204,10 @@ export class VehiclePositionHandlerService {
 		viewer.entities.add({
 			position: positionProperty,
 			ellipse: {
-				semiMinorAxis: 80,
-				semiMajorAxis: 80,
-				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/empty_bus.png', transparent: true }),
+				semiMinorAxis: this.getCurrentVehicleSize(),
+				semiMajorAxis: this.getCurrentVehicleSize(),
+				material: new Cesium.ImageMaterialProperty({ image: this.getBusIcon(id), transparent: true }),
+				zIndex: 2,
 			},
 			label: {
 				font: '20px sans-serif',

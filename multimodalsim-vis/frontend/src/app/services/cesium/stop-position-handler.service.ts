@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Cartesian3, Property, Viewer } from 'cesium';
+import { Cartesian3, Viewer } from 'cesium';
 import { BoardingEvent } from 'src/app/classes/data-classes/boardingEvent';
 import { PassengerEvent } from 'src/app/classes/data-classes/passenger-event/passenger-event';
 import { PassengersStatus } from 'src/app/classes/data-classes/passenger-event/passengers-status';
 import { Stop } from 'src/app/classes/data-classes/stop';
 import { DateParserService } from '../util/date-parser.service';
 import { StopLookupService } from '../util/stop-lookup.service';
-import { CameraHandlerService } from './camera-handler.service';
 
 @Injectable({
 	providedIn: 'root',
@@ -16,23 +15,23 @@ export class StopPositionHandlerService {
 	private boardingEventQueue;
 	private globalPassengerList;
 
-	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService, private cameraHandler: CameraHandlerService) {
+	constructor(private stopLookup: StopLookupService, private dateParser: DateParserService) {
 		this.stopIdMapping = new Map<string, Stop>();
 		this.boardingEventQueue = new Array<BoardingEvent>();
 		this.globalPassengerList = new Array<string>();
 	}
 
-	// Initialise tous les stops de la liste de stop fournie
+	// Initialise tous les stops de la liste de stops fournie
 	initStops(): void {
 		this.stopLookup.coordinatesIdMapping.forEach((coords: Cartesian3, id: number) => {
-			if (id != 0) {
+			if (id != 0 && !this.isStopMapped(id.toString())) {
 				const newStop = new Stop(this.stopLookup.coordinatesFromStopId(id), id.toString());
 				this.stopIdMapping.set(id.toString(), newStop);
 			}
 		});
 	}
 
-	// Ajoute les moments ou les passagers sont présents à un arrêt
+	// Ajoute les moments où les passagers sont présents à un arrêt
 	compileEvent(passengerEvent: PassengerEvent): void {
 		const stopId = passengerEvent.current_location.toString();
 		const stop = this.stopIdMapping.get(stopId);
@@ -56,6 +55,10 @@ export class StopPositionHandlerService {
 				break;
 			}
 		}
+	}
+
+	isStopMapped(stopId: string): boolean {
+		return this.stopIdMapping.has(stopId);
 	}
 
 	// Charge tous les arrêts qui contiennent des passagers
@@ -110,28 +113,33 @@ export class StopPositionHandlerService {
 		if (entity && entity.ellipse) {
 			entity.ellipse.material =
 				this.getPassengerAmount(stopId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.png', transparent: true });
+					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true });
 		}
 	}
 
 	// Ajoute l'entité d'un arrêt tant qu'il est encore utile
 	private spawnEntity(id: string, stop: Stop, viewer: Viewer): void {
-		viewer.entities.add({
-			position: stop.position,
-			ellipse: {
-				semiMinorAxis: this.cameraHandler.getCurrentStopSize(),
-				semiMajorAxis: this.cameraHandler.getCurrentStopSize(),
-				height: 0,
-				material: new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.png', transparent: true }),
-			},
-			label: {
-				font: '20px sans-serif',
-				showBackground: true,
-				horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-			},
-			id: id,
-			name: 'stop',
-		});
+		if (!viewer.entities.getById(id)) {
+			viewer.entities.add({
+				position: stop.position,
+				ellipse: {
+					semiMinorAxis: this.stopLookup.getCurrentStopSize(),
+					semiMajorAxis: this.stopLookup.getCurrentStopSize(),
+					material:
+						this.getPassengerAmount(id) <= 0
+							? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+							: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
+					zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
+				},
+				label: {
+					font: '20px sans-serif',
+					showBackground: true,
+					horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+				},
+				id: id,
+				name: 'stop',
+			});
+		}
 	}
 }

@@ -1,6 +1,6 @@
 .entity-infos-sidebar {
 	height: 50%;
-	width: 0em;
+	width: 0;
 	position: fixed;
 	z-index: 1;
 	bottom: 2em;
@@ -8,7 +8,7 @@
 	background-color: white;
 	border-top-style: solid;
 	border-top-width: 30px;
-	border-top-color: lightskyblue;
+	border-top-color: rgb(90, 90, 213);
 	color: black;
 	overflow-x: visible;
 	padding-bottom: 60px;
@@ -18,23 +18,19 @@
 #entity-infos {
 	display: block;
 	width: 90%;
-	margin-left: 5%;
-	margin-bottom: 5px;
-	padding: 8px 8px 8px 8px;
-	color: #5c5c5c;
+	height: fit-content;
+	margin: auto;
+	margin-top: 5%;
+	margin-bottom: 5%;
+	color: black;
 	background-color: whitesmoke;
-	cursor: pointer;
 	font-size: 25px;
 	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 	transition: 0.3s;
 }
 
-.infos-container {
-	margin-top: 20px;
-}
-
 #close {
-	color: #5c5c5c;
+	color: black;
 	cursor: pointer;
 	position: absolute;
 	top: -25px;
@@ -53,19 +49,42 @@
 }
 
 #open {
-	width: 75px;
-	height: 75px;
+	height: 0px;
+	width: 0px;
 	position: absolute;
 	z-index: 1;
-	right: 16px;
-	top: 37vh;
+	right: 5vh;
+	top: 87vh;
 	opacity: 0.8;
 	color: blue;
 	cursor: pointer;
-	enable-background: 0%;
 }
 
 #open:hover {
-	opacity: 0.7;
-	enable-background: 0%;
+	opacity: 1;
+}
+
+.dropdown-submenu {
+	background-color: rgb(62, 130, 134);
+	list-style-type: none;
+	user-select: none;
+	box-sizing: border-box;
+	padding-top: 5px;
+}
+
+.dropdown-menu {
+	max-height: 210px;
+	background-color: rgb(129, 198, 175);
+	display: grid;
+	grid-template-areas: 'a a a';
+	gap: 25px;
+	column-gap: 0.25em;
+	grid-auto-columns: auto;
+	padding: 10px 10px 10px 10px;
+	list-style-type: none;
+	overflow-y: auto;
+}
+
+.dropdown-menu a {
+	text-decoration: none;
 }

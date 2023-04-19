@@ -10,7 +10,9 @@ import * as currentSimulation from 'src/app/helpers/session-storage';
 })
 export class CommunicationService {
 	private readonly APIURL = 'http://127.0.0.1:8000/api/';
+
 	constructor(private http: HttpClient) {}
+
 	getStatus() {
 		return this.http.get(this.APIURL + 'status').pipe(catchError(this.handleError));
 	}
@@ -21,9 +23,6 @@ export class CommunicationService {
 
 	uploadFilesAndLaunch(args: object) {
 		return this.http.post(this.APIURL + 'upload-file-and-launch', args).subscribe({
-			next: (_) => {
-				// (document.getElementById('server-response') as HTMLParagraphElement).innerText = 'Started server side simulation';
-			},
 			error: (err) => {
 				console.log(err);
 			},
@@ -60,6 +59,7 @@ export class CommunicationService {
 		} else {
 			console.error(`Backend returned code ${error.status}, body was: `, error.error);
 		}
+
 		return throwError(() => new Error('Something bad happened; please try again later.'));
 	}
 
@@ -67,6 +67,7 @@ export class CommunicationService {
 		const formData = new FormData();
 		formData.append('zipContent', zipData.zipContent);
 		formData.append('zipFileName', zipData.zipFileName);
+
 		return this.http.post(this.APIURL + 'save-simulation', formData).pipe(catchError(this.handleError));
 	}
 
@@ -87,13 +88,7 @@ export class CommunicationService {
 		const body = {
 			simName: simName,
 		};
-		return this.http.post(this.APIURL + 'restart-livesim', body);
-	}
 
-	getPreloadedFiles() {
-		const simName = currentSimulation.getCurrentSimulationName();
-		const params = new HttpParams();
-		params.append('simName', simName ? simName : '');
-		return this.http.get(this.APIURL + `get-preloaded-tmp-files/simName=${simName}`);
+		return this.http.post(this.APIURL + 'restart-livesim', body);
 	}
 }

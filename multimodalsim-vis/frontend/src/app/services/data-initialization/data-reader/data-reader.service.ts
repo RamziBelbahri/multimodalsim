@@ -7,39 +7,31 @@ import { Viewer } from 'cesium';
 import { StopLookupService } from '../../util/stop-lookup.service';
 import { CesiumClass } from 'src/app/shared/cesium-class';
 import { BehaviorSubject } from 'rxjs';
-import * as SESSION_STORAGE_KEYS from 'src/app/helpers/local-storage-keys';
-import { CommunicationService } from '../../communication/communication.service';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class DataReaderService {
+	private readonly COMBINED = 'combined-trips-vehicle';
+
 	private zipper: JSZip;
 	private csvData: Set<string>;
 	private errors: string[];
 	private ignored: string[];
 	private directories: string[];
-	private readonly COMBINED = 'combined-trips-vehicle';
 	private zipInput: HTMLInputElement | undefined;
-	private csvInput: Blob;
+
 	isSavedSimulationFromServer: BehaviorSubject<boolean>;
 	zipfileNameFromServer = '';
 
-	// CHANGE THIS LATER THE CODE IS GETTING WAY TOO MESSY
 	private formData = new FormData();
 
-	constructor(
-		private simulationParserService: SimulationParserService,
-		private entityDataHandlerService: EntityDataHandlerService,
-		private stopLookup: StopLookupService,
-		private commService: CommunicationService
-	) {
+	constructor(private simulationParserService: SimulationParserService, private entityDataHandlerService: EntityDataHandlerService, private stopLookup: StopLookupService) {
 		this.zipper = JSZip();
 		this.csvData = new Set<string>();
 		this.errors = [];
 		this.directories = [];
 		this.ignored = [];
-		this.csvInput = new Blob();
 		this.isSavedSimulationFromServer = new BehaviorSubject(false);
 	}
 
@@ -50,11 +42,6 @@ export class DataReaderService {
 	selectZip(event: Event): void {
 		this.clear();
 		this.zipInput = event.target as HTMLInputElement;
-	}
-
-	selectFile(event: Event): void {
-		const target = event.target as HTMLInputElement;
-		this.csvInput = (target.files as FileList)[0];
 	}
 
 	async readZipContent(): Promise<void> {
@@ -110,20 +97,22 @@ export class DataReaderService {
 			const csvArray = this.simulationParserService.parseFile(txt).data;
 			const encodedFilePath = encodeURIComponent(filePath);
 			this.formData.append(encodedFilePath, txt);
-			console.log(encodedFilePath, txt.length);
-			console.log(this.formData.has(encodedFilePath));
+
 			if (filePath.toString().endsWith('stops.txt')) {
 				this.parseStopsFile(csvArray);
 				this.setStops(csvArray);
 			}
+
 			if (!csvArray.at(-1).id && !csvArray.at(-1).stops_id) {
 				csvArray.pop();
 			}
+
 			this.csvData.add(filePath.split('/').at(-1) as string);
 			const hasVehicles: boolean = this.csvData.has(FileType.VEHICLES_OBSERVATIONS_FILE_NAME);
 			const hasPassengers: boolean = this.csvData.has(FileType.TRIPS_OBSERVATIONS_FILE_NAME);
 
 			this.setFileData(filePath, csvArray);
+
 			if (hasVehicles && hasPassengers && !this.csvData.has(this.COMBINED)) {
 				this.entityDataHandlerService.combinePassengerAndVehicleEvents();
 				this.csvData.add(this.COMBINED);
@@ -161,7 +150,7 @@ export class DataReaderService {
 		this.entityDataHandlerService.setEventObservations(data);
 	}
 
-	private setStops(data: any): void {
+	setStops(data: any): void {
 		this.entityDataHandlerService.setStops(data);
 	}
 

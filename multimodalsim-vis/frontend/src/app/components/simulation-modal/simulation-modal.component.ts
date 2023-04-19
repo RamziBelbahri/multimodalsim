@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { Component } from '@angular/core';
 import { DataReaderService } from 'src/app/services/data-initialization/data-reader/data-reader.service';
 import { Viewer } from 'cesium';
@@ -51,10 +50,6 @@ export class SimulationModalComponent {
 	endProgressSpinner(): void {
 		this.mode = 'determinate';
 		this.value = 100;
-	}
-
-	selectFile(event: Event): void {
-		this.dataReader.selectFile(event);
 	}
 
 	selectZip(event: Event): void {

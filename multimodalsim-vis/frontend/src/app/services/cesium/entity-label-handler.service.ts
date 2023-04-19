@@ -12,15 +12,12 @@ import { VehiclePositionHandlerService } from './vehicle-position-handler.servic
 })
 export class EntityLabelHandlerService {
 	private currentMousePosition: Cartesian2 | undefined;
-	private lastEntities = new Array<any>();
 	private displayedEntityInfosSource = new ReplaySubject<EntityInfos>();
 
 	displayedEntityInfos: EntityInfos | undefined;
 	currentEntityInfos = this.displayedEntityInfosSource.asObservable();
 
-	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {
-		this.lastEntities = new Array<any>();
-	}
+	constructor(private stopHandler: StopPositionHandlerService, private vehicleHandler: VehiclePositionHandlerService) {}
 
 	initHandler(viewer: Viewer) {
 		viewer.scene.preRender.addEventListener(() => {
