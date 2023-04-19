@@ -1,6 +1,6 @@
-#Documentation pour les developpeurs du client:
+# Documentation pour les developpeurs du client:
 
-##Components et services
+## Components et services
 
 ```shell
 |__multimodalsim-vis
@@ -27,7 +27,7 @@
 |    |  |   |   |   |                       #C'est elle qui contient tous les boutons servant à lancer et manipuler une simulation.
 |    |  |   |   |   |                 
 |    |  |   |   |   |  
-|    |  |   |   |   |   |__entity-infos     #Représente toute la petite barre de navigation en bas et à droite de l'application.
+|    |  |   |   |   |__|__entity-infos     #Représente toute la petite barre de navigation en bas et à droite de l'application.
 |    |  |   |   |   |                       #Elle permet essentiellement d'afficher à temps les informations des entités.
 |    |  |   |   |   |                 
 |    |  |   |   |   |  
