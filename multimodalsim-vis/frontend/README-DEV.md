@@ -113,4 +113,6 @@
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |__app.component.ts         #Component de base de toute l'application
+|    |  |   |   |__assets
+|    |  |   |   |   |   |__viewer-config.json #les tailles des entités
 ```
