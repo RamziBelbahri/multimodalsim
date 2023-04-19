@@ -22,9 +22,11 @@ export class CesiumContainerComponent implements OnInit, AfterViewInit, OnDestro
 	private viewer: Viewer = CesiumClass.viewer(this.element.nativeElement);
 	private viewerSubscription: Subscription = new Subscription();
 	@HostListener('window:beforeunload', ['$event']) onPageReload() {
-		this.communicationService.endSimulation().subscribe((res) => {
-			console.log(res);
-		});
+		if (!currentSimulation.isRestart()) {
+			this.communicationService.endSimulation().subscribe((res) => {
+				console.log(res);
+			});
+		}
 	}
 
 	constructor(
