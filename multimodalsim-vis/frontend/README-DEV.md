@@ -1,6 +1,7 @@
 # Documentation pour les developpeurs du client:
 
 # Components et services
+```
 |_multimodalsim-vis
 |    |_frontend
 |    |  |_src
@@ -49,3 +50,4 @@
 |    |  |   |   |   |_###viewer-sharing
 |    |  |   |   |   |   |_###viewer-sharing.service.ts
 |    |  |   |   |_##app.component.ts
+```
