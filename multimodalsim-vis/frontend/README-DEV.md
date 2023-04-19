@@ -1,11 +1,11 @@
- Documentation pour les developpeurs du client:
+#Documentation pour les developpeurs du client:
 
- Components et services
+##Components et services
 
 ```shell
 
 |__multimodalsim-vis
-|    |__frontend
+|    |_frontend
 |    |  |__src
 |    |  |   |__app
 |    |  |   |   |__components 
