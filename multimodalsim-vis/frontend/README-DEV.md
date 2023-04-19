@@ -2,7 +2,7 @@
 
  Components et services
 
-```bash
+```shell
 
 |__multimodalsim-vis
 |    |__frontend
