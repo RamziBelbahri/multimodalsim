@@ -3,57 +3,74 @@
  Components et services
 
 ```bash
-|_multimodalsim-vis
-|    |_frontend
-|    |  |_src
-|    |  |   |_app
-|    |  |   |   |_components 
-|    |  |   |   |   |_debug-receiver  #Correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton 
-|    |  |   |   |   |                 #l'application. Cette fenêtre affiche les logs issus de la simulation temps réel
+
+|__multimodalsim-vis
+|    |__frontend
+|    |  |__src
+|    |  |   |__app
+|    |  |   |   |__components 
+|    |  |   |   |   |__debug-receiver       #Correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton 
+|    |  |   |   |   |                       #l'application. Cette fenêtre affiche les logs issus de la simulation temps réel
 |    |  |   |   |   |                 
 |    |  |   |   |   |                 
-|    |  |   |   |   |_launch-modal    #Modale ouverte en cliquant sur le bouton "charger une simulation"
-|    |  |   |   |   |                 #contient tous les boutons nécessaires pour lancer charger un zip de son
-|    |  |   |   |   |                 #ordinateur et lancer une simulation à partir de ce dernier.
+|    |  |   |   |   |__launch-modal         #Modale ouverte en cliquant sur le bouton "charger simulation"
+|    |  |   |   |   |                       #contient tous les boutons nécessaires pour lancer charger un zip de son
+|    |  |   |   |   |                       #ordinateur et lancer une simulation à partir de ce dernier.
 |    |  |   |   |   |                
 |    |  |   |   |   |                 
-|    |  |   |   |   |_map
-|    |  |   |   |   |   |_cesium-container #
-|    |  |   |   |   |_save-modal
-|    |  |   |   |   |_sideBar
-|    |  |   |   |   |   |_entity-infos
-|    |  |   |   |   |_simulation-modal
-|    |  |   |   |   |_Stats-modal
-|    |  |   |   |   |_Stops-file-modal
-|    |  |   |   |_services
-|    |  |   |   |   |_cesium
-|    |  |   |   |   |   |_boarding-handler.service.ts
-|    |  |   |   |   |   |_camera-handler.service.ts
-|    |  |   |   |   |   |_entity-label-handler.service.ts
-|    |  |   |   |   |   |_entity-path-handler.service.ts
-|    |  |   |   |   |   |_stop-position-handler.service.ts
-|    |  |   |   |   |   |_timeline-handler.service.ts
-|    |  |   |   |   |   |_vehicle-position-handler.service.ts
-|    |  |   |   |   |_communication
-|    |  |   |   |   |   |_communication.service.ts
-|    |  |   |   |   |_data-initialization
-|    |  |   |   |   |   |_data-reader
-|    |  |   |   |   |   |   |_data-reader.service.ts
-|    |  |   |   |   |   |_data-saver
-|    |  |   |   |   |   |   |_data-saver.service.ts
-|    |  |   |   |   |   |_simulation-parser
-|    |  |   |   |   |   |   |_simulation-parser.service.ts
-|    |  |   |   |   |_entity-data-handler
-|    |  |   |   |   |   |_entity-data-handler.ts
-|    |  |   |   |   |_messaging
-|    |  |   |   |   |   |_message-queue-stomp.service.ts
-|    |  |   |   |   |_util
-|    |  |   |   |   |   |_date-parser.service.ts
-|    |  |   |   |   |   |_menu-notifier.service.ts
-|    |  |   |   |   |   |_polyline-decoder.service.ts
-|    |  |   |   |   |   |_stop-lookup.service.ts
-|    |  |   |   |   |   |_message-queue-stomp.service.ts
-|    |  |   |   |   |_viewer-sharing
-|    |  |   |   |   |   |_viewer-sharing.service.ts
-|    |  |   |   |_app.component.ts
+|    |  |   |   |   |__map
+|    |  |   |   |   |   |__cesium-container
+|    |  |   |   |   |__save-modal           #Modale pour la sauvegarde des simulations
+|    |  |   |   |   |                       #Elle s'ouvre en cliquant sur le bouton "sauvegarder simulation" 
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |   |__sideBar              #Représente toute la barre de navigation à gauche de l'application. 
+|    |  |   |   |   |                       #C'est elle qui contient tous les boutons servant à lancer et manipuler une simulation.
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |   |   |__entity-infos     #Représente toute la petite barre de navigation en bas et à droite de l'application.
+|    |  |   |   |   |                       #Elle permet essentiellement d'afficher à temps les informations des entités.
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |   |__simulation-modal     #
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |   |__Stats-modal          #Modale qui contient toutes les statistiques de la simulation en cours.
+|    |  |   |   |   |                       #Elle s'ouvre en cliquant sur le bouton "statistiques"
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |   |__Stops-file-modal
+|    |  |   |   |   |                 
+|    |  |   |   |   |  
+|    |  |   |   |__services
+|    |  |   |   |   |__cesium
+|    |  |   |   |   |   |__boarding-handler.service.ts
+|    |  |   |   |   |   |__camera-handler.service.ts
+|    |  |   |   |   |   |__entity-label-handler.service.ts
+|    |  |   |   |   |   |__entity-path-handler.service.ts
+|    |  |   |   |   |   |__stop-position-handler.service.ts
+|    |  |   |   |   |   |__timeline-handler.service.ts
+|    |  |   |   |   |   |__vehicle-position-handler.service.ts
+|    |  |   |   |   |__communication
+|    |  |   |   |   |   |__communication.service.ts
+|    |  |   |   |   |__data-initialization
+|    |  |   |   |   |   |__data-reader
+|    |  |   |   |   |   |   |__data-reader.service.ts
+|    |  |   |   |   |   |__data-saver
+|    |  |   |   |   |   |   |__data-saver.service.ts
+|    |  |   |   |   |   |__simulation-parser
+|    |  |   |   |   |   |   |__simulation-parser.service.ts
+|    |  |   |   |   |__entity-data-handler
+|    |  |   |   |   |   |__entity-data-handler.ts
+|    |  |   |   |   |__messaging
+|    |  |   |   |   |   |__message-queue-stomp.service.ts
+|    |  |   |   |   |__util
+|    |  |   |   |   |   |__date-parser.service.ts
+|    |  |   |   |   |   |__menu-notifier.service.ts
+|    |  |   |   |   |   |__polyline-decoder.service.ts
+|    |  |   |   |   |   |__stop-lookup.service.ts
+|    |  |   |   |   |   |__message-queue-stomp.service.ts
+|    |  |   |   |   |__viewer-sharing
+|    |  |   |   |   |   |__viewer-sharing.service.ts
+|    |  |   |   |__app.component.ts
 ```
