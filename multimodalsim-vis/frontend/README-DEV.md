@@ -1,54 +1,59 @@
-# Documentation pour les developpeurs du client:
+ Documentation pour les developpeurs du client:
 
-# Components et services
+ Components et services
 
 ```bash
 |_multimodalsim-vis
 |    |_frontend
 |    |  |_src
 |    |  |   |_app
-|    |  |   |   |_##components 
-|    |  |   |   |   |_###debug-receiver  <span style="color:green"> correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton 
-|    |  |   |   |   |                       de l'application.
-|    |  |   |   |   |                       cette fenêtre affiche les logs issus de la simulation temps réel</span>
-|    |  |   |   |   |_###launch-modal
-|    |  |   |   |   |_###map
-|    |  |   |   |   |   |_###cesium-container
-|    |  |   |   |   |_###save-modal
-|    |  |   |   |   |_###sideBar
-|    |  |   |   |   |   |_###entity-infos
-|    |  |   |   |   |_###simulation-modal
-|    |  |   |   |   |_###Stats-modal
-|    |  |   |   |   |_###Stops-file-modal
-|    |  |   |   |_##services
-|    |  |   |   |   |_###cesium
-|    |  |   |   |   |   |_###boarding-handler.service.ts
-|    |  |   |   |   |   |_###camera-handler.service.ts
-|    |  |   |   |   |   |_###entity-label-handler.service.ts
-|    |  |   |   |   |   |_###entity-path-handler.service.ts
-|    |  |   |   |   |   |_###stop-position-handler.service.ts
-|    |  |   |   |   |   |_###timeline-handler.service.ts
-|    |  |   |   |   |   |_###vehicle-position-handler.service.ts
-|    |  |   |   |   |_###communication
-|    |  |   |   |   |   |_###communication.service.ts
-|    |  |   |   |   |_###data-initialization
-|    |  |   |   |   |   |_###data-reader
-|    |  |   |   |   |   |   |_###data-reader.service.ts
-|    |  |   |   |   |   |_###data-saver
-|    |  |   |   |   |   |   |_###data-saver.service.ts
-|    |  |   |   |   |   |_###simulation-parser
-|    |  |   |   |   |   |   |_###simulation-parser.service.ts
-|    |  |   |   |   |_###entity-data-handler
-|    |  |   |   |   |   |_###entity-data-handler.ts
-|    |  |   |   |   |_###messaging
-|    |  |   |   |   |   |_###message-queue-stomp.service.ts
-|    |  |   |   |   |_###util
-|    |  |   |   |   |   |_###date-parser.service.ts
-|    |  |   |   |   |   |_###menu-notifier.service.ts
-|    |  |   |   |   |   |_###polyline-decoder.service.ts
-|    |  |   |   |   |   |_###stop-lookup.service.ts
-|    |  |   |   |   |   |_###message-queue-stomp.service.ts
-|    |  |   |   |   |_###viewer-sharing
-|    |  |   |   |   |   |_###viewer-sharing.service.ts
-|    |  |   |   |_##app.component.ts
+|    |  |   |   |_components 
+|    |  |   |   |   |_debug-receiver  #Correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton 
+|    |  |   |   |   |                 #l'application. Cette fenêtre affiche les logs issus de la simulation temps réel
+|    |  |   |   |   |                 
+|    |  |   |   |   |                 
+|    |  |   |   |   |_launch-modal    #Modale ouverte en cliquant sur le bouton "charger une simulation"
+|    |  |   |   |   |                 #contient tous les boutons nécessaires pour lancer charger un zip de son
+|    |  |   |   |   |                 #ordinateur et lancer une simulation à partir de ce dernier.
+|    |  |   |   |   |                
+|    |  |   |   |   |                 
+|    |  |   |   |   |_map
+|    |  |   |   |   |   |_cesium-container #
+|    |  |   |   |   |_save-modal
+|    |  |   |   |   |_sideBar
+|    |  |   |   |   |   |_entity-infos
+|    |  |   |   |   |_simulation-modal
+|    |  |   |   |   |_Stats-modal
+|    |  |   |   |   |_Stops-file-modal
+|    |  |   |   |_services
+|    |  |   |   |   |_cesium
+|    |  |   |   |   |   |_boarding-handler.service.ts
+|    |  |   |   |   |   |_camera-handler.service.ts
+|    |  |   |   |   |   |_entity-label-handler.service.ts
+|    |  |   |   |   |   |_entity-path-handler.service.ts
+|    |  |   |   |   |   |_stop-position-handler.service.ts
+|    |  |   |   |   |   |_timeline-handler.service.ts
+|    |  |   |   |   |   |_vehicle-position-handler.service.ts
+|    |  |   |   |   |_communication
+|    |  |   |   |   |   |_communication.service.ts
+|    |  |   |   |   |_data-initialization
+|    |  |   |   |   |   |_data-reader
+|    |  |   |   |   |   |   |_data-reader.service.ts
+|    |  |   |   |   |   |_data-saver
+|    |  |   |   |   |   |   |_data-saver.service.ts
+|    |  |   |   |   |   |_simulation-parser
+|    |  |   |   |   |   |   |_simulation-parser.service.ts
+|    |  |   |   |   |_entity-data-handler
+|    |  |   |   |   |   |_entity-data-handler.ts
+|    |  |   |   |   |_messaging
+|    |  |   |   |   |   |_message-queue-stomp.service.ts
+|    |  |   |   |   |_util
+|    |  |   |   |   |   |_date-parser.service.ts
+|    |  |   |   |   |   |_menu-notifier.service.ts
+|    |  |   |   |   |   |_polyline-decoder.service.ts
+|    |  |   |   |   |   |_stop-lookup.service.ts
+|    |  |   |   |   |   |_message-queue-stomp.service.ts
+|    |  |   |   |   |_viewer-sharing
+|    |  |   |   |   |   |_viewer-sharing.service.ts
+|    |  |   |   |_app.component.ts
 ```
