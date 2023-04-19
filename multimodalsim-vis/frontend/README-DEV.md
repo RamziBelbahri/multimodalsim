@@ -3,7 +3,6 @@
 ##Components et services
 
 ```shell
-
 |__multimodalsim-vis
 |    |_frontend
 |    |  |__src
