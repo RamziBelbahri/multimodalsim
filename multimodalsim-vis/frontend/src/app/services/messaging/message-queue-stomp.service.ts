@@ -225,12 +225,12 @@ export class MessageQueueStompService {
 					this.currentTimeStampEventLookup.delete(key);
 				}
 			} else if (!this.nextTimeStampEventLookup.has(key) && currentEvent) {
-				if (currentEvent && MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status)) {
+				if (currentEvent && MessageQueueStompService.ALWAYS_ZERO_DURATION.has(currentEvent.status.replaceAll(FlowControl.FRONTEND_EVENT, ''))) {
 					currentEvent.duration = '0';
 					toSend.push(currentEvent);
-				} else if (MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status)) {
+				} else if (MessageQueueStompService.USE_CURRENT_STOP.has(currentEvent.status.replaceAll(FlowControl.FRONTEND_EVENT, ''))) {
 					const createdEvent = currentEvent.eventType == 'PASSENGER' ? ({ ...currentEvent } as PassengerEvent) : { ...(currentEvent as VehicleEvent) };
-					createdEvent.status = createdEvent.status + FlowControl.FRONTEND_EVENT;
+					createdEvent.status = currentEvent.status.replaceAll(FlowControl.FRONTEND_EVENT, '') + FlowControl.FRONTEND_EVENT;
 
 					if (this.nextTimeStamp) {
 						createdEvent.time = this.nextTimeStamp;
