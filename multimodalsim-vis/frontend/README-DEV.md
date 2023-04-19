@@ -1,7 +1,8 @@
 # Documentation pour les developpeurs du client:
 
 # Components et services
-```
+
+```bash
 |_multimodalsim-vis
 |    |_frontend
 |    |  |_src
