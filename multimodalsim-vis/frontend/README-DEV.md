@@ -7,16 +7,16 @@
 |    |_frontend
 |    |  |__src
 |    |  |   |__app
-|    |  |   |   |__components 
-|    |  |   |   |   |__debug-receiver       #Correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton 
-|    |  |   |   |   |                       #l'application. Cette fenêtre affiche les logs issus de la simulation temps réel
-|    |  |   |   |   |                 
-|    |  |   |   |   |                 
-|    |  |   |   |   |__launch-modal         #Modale ouverte en cliquant sur le bouton "charger simulation"
-|    |  |   |   |   |                       #contient tous les boutons nécessaires pour lancer charger un zip de son
-|    |  |   |   |   |                       #ordinateur et lancer une simulation à partir de ce dernier.
-|    |  |   |   |   |                
-|    |  |   |   |   |                 
+|    |  |   |   |__components
+|    |  |   |   |   |__debug-receiver       # Correspond à la fenêtre qui s'ouvre lorsqu'on clique sur le bouton
+|    |  |   |   |   |                       # l'application. Cette fenêtre affiche les logs issus de la simulation temps réel
+|    |  |   |   |   |
+|    |  |   |   |   |
+|    |  |   |   |   |__launch-modal         # Menu ouvert en cliquant sur le bouton "charger simulation"
+|    |  |   |   |   |                       # Contient tous les boutons nécessaires pour lancer une simulation à partir d'un zip
+|    |  |   |   |   |                       # Le zip doit provenir de l'appareil.
+|    |  |   |   |   |
+|    |  |   |   |   |
 |    |  |   |   |   |__map
 |    |  |   |   |   |   |__cesium-container
 |    |  |   |   |   |__save-modal           #Modale pour la sauvegarde des simulations
@@ -31,7 +31,8 @@
 |    |  |   |   |   |                       #Elle permet essentiellement d'afficher à temps les informations des entités.
 |    |  |   |   |   |                 
 |    |  |   |   |   |  
-|    |  |   |   |   |__simulation-modal     #
+|    |  |   |   |   |__simulation-modal     # Menu qui permet de charger une simulation en temps réel
+|    |  |   |   |   |                       # Demande les paramètres de la simulation
 |    |  |   |   |   |                 
 |    |  |   |   |   |  
 |    |  |   |   |   |__Stats-modal          #Modale qui contient toutes les statistiques de la simulation en cours.
@@ -48,21 +49,21 @@
 |    |  |   |   |   |   |                              #différents niveaux de zoom
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
-|    |  |   |   |   |   |__entity-label-handler.service.ts
+|    |  |   |   |   |   |__entity-label-handler.service.ts  # Transmet les informations d'une entité lors d'un click
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
-|    |  |   |   |   |   |__entity-path-handler.service.ts   #Service utilisé pour l'affichage des polylines
+|    |  |   |   |   |   |__entity-path-handler.service.ts   #Service utilisé pour l'affichage du trajet d'une entité
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |   |__stop-position-handler.service.ts #Service utilisé pour la création des icones des stops et passagers et 
-|    |  |   |   |   |   |                                   #pour la mise à jour de  leurs images
+|    |  |   |   |   |   |                                   #pour la mise à jour de  leurs images à la bonne position
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |   |__timeline-handler.service.ts
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |      
 |    |  |   |   |   |   |__vehicle-position-handler.service.ts  #Service utilisé pour la création des icones des véhicules et pour la 
-|    |  |   |   |   |   |                                   #mise à jour de  leurs images
+|    |  |   |   |   |   |                                   #mise à jour de  leurs images à la bonne position
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |__communication
@@ -71,34 +72,40 @@
 |    |  |   |   |   |   |
 |    |  |   |   |   |__data-initialization              #Tous les services utilisés pour manipuler les fichiers d'une simulation
 |    |  |   |   |   |   |__data-reader
-|    |  |   |   |   |   |   |__data-reader.service.ts   #Service qui fournit toutes fonctions pour la lecture des fichiers 
+|    |  |   |   |   |   |   |__data-reader.service.ts   #Service qui fournit toutes fonctions pour la lecture des données  
 |    |  |   |   |   |   |                               #d'une simulation
 |    |  |   |   |   |   |__data-saver
-|    |  |   |   |   |   |   |__data-saver.service.ts    #Service qui fournit toutes fonctions pour l'enregistrement des fichiers d'une 
+|    |  |   |   |   |   |   |__data-saver.service.ts    #Service qui fournit toutes fonctions pour la sauvegarde d'une 
 |    |  |   |   |   |   |                               #simulation
 |    |  |   |   |   |   |__simulation-parser
-|    |  |   |   |   |   |   |__simulation-parser.service.ts 
+|    |  |   |   |   |   |   |__simulation-parser.service.ts #Service pour transformer les données en évènements utilisables par le 
+|    |  |   |   |   |   |                                   #client
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |__entity-data-handler
-|    |  |   |   |   |   |__entity-data-handler.ts       #Service qui fournit toutes fonction pour manipuler les icones des entités
+|    |  |   |   |   |   |__entity-data-handler.ts       #Service qui utilise les évènements pour afficher une simulation
+|    |  |   |   |   |   |              
+|    |  |   |   |   |   |
 |    |  |   |   |   |__messaging
-|    |  |   |   |   |   |__message-queue-stomp.service.ts
+|    |  |   |   |   |   |__message-queue-stomp.service.ts       # Queue d'évènement entre le serveur et le client
+|    |  |   |   |   |   |              
+|    |  |   |   |   |   |
 |    |  |   |   |   |__util
-|    |  |   |   |   |   |__date-parser.service.ts
+|    |  |   |   |   |   |__date-parser.service.ts       # Intèprète des valeurs de dates
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
-|    |  |   |   |   |   |__menu-notifier.service.ts
+|    |  |   |   |   |   |__menu-notifier.service.ts     # Envoi une notification à un menu pour lui dire de faire une action
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
-|    |  |   |   |   |   |__polyline-decoder.service.ts  #Service utilisé pour décoder les polylines
+|    |  |   |   |   |   |__polyline-decoder.service.ts  #Service utilisé pour Interpréter une polyline encodée en chemin utilisable 
+|    |  |   |   |   |   |                               #par l'application
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |   |__stop-lookup.service.ts       #Service utilisé pour fournir les infos des icones de stops 
 |    |  |   |   |   |   |                               #(ajout de mapping id-coordonnées, taille de l'icone)
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
-|    |  |   |   |   |   |__message-queue-stomp.service.ts
+|    |  |   |   |   |   |__message-queue-stomp.service.ts   # Queue d'évènement entre le serveur et le client
 |    |  |   |   |   |   |              
 |    |  |   |   |   |   |
 |    |  |   |   |   |__viewer-sharing
