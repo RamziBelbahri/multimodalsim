@@ -130,4 +130,3 @@ dmypy.json
 
 # Server node modules
 node_modules
-*.zip
