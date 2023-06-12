@@ -22,4 +22,5 @@ WORKDIR /backend/communication/server
 RUN npm run build
 ENV PORT 8000
 EXPOSE 8000
-CMD [ "npm", "run", "docker" ]
+CMD [ "npm", "run", "start" ]
+# CMD while true; do sleep 1000; done
