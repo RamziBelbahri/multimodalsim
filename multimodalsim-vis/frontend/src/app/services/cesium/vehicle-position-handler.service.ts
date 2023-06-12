@@ -9,6 +9,7 @@ import { ReplaySubject } from 'rxjs';
 import { DateParserService } from '../util/date-parser.service';
 import { PolylineDecoderService } from '../util/polyline-decoder.service';
 import { StopLookupService } from '../util/stop-lookup.service';
+import { VehicleColor } from 'src/app/classes/data-classes/vehicle-color';
 
 @Injectable({
 	providedIn: 'root',
@@ -184,15 +185,31 @@ export class VehiclePositionHandlerService {
 
 	updateIcon(viewer: Viewer, busId: string): void {
 		const entity = viewer.entities.getById(busId);
-		if (entity && entity.ellipse) entity.ellipse.material = new Cesium.ImageMaterialProperty({ image: this.getBusIcon(busId), transparent: true });
-	}
+		const vehicle = this.vehicleIdMapping.get(busId);
+		const color = this.getBusColor(busId);
 
+		
+		if (entity && entity.ellipse && vehicle?.currentColor != color) {
+			entity.ellipse.material = new Cesium.ImageMaterialProperty({ image: this.getBusIcon(busId), transparent: true });
+		};
+		if(vehicle?.currentColor) {
+			vehicle.currentColor = color;
+		}
+
+	}
+	getBusColor(busId: string): VehicleColor {
+		const passengerAmount = this.getPassengerAmount(busId);
+		if (passengerAmount == 0) return VehicleColor.GREEN;
+		else if (passengerAmount > 0 && passengerAmount <= this.defaultBusCapacity / 3) return VehicleColor.YELLOW;
+		else if (passengerAmount > this.defaultBusCapacity / 3 && passengerAmount <= (2 * this.defaultBusCapacity) / 3) return VehicleColor.ORANGE;
+		else return VehicleColor.RED;
+	}
 	getBusIcon(busId: string): string {
 		const passengerAmount = this.getPassengerAmount(busId);
-		if (passengerAmount == 0) return '../../../assets/empty_bus.svg';
-		else if (passengerAmount > 0 && passengerAmount <= this.defaultBusCapacity / 3) return '../../../assets/almost_empty_bus.svg';
-		else if (passengerAmount > this.defaultBusCapacity / 3 && passengerAmount <= (2 * this.defaultBusCapacity) / 3) return '../../../assets/semi_filled_bus.svg';
-		else return '../../../assets/filled_bus.svg';
+		if (passengerAmount == 0) return '../../../assets/empty_bus.png';
+		else if (passengerAmount > 0 && passengerAmount <= this.defaultBusCapacity / 3) return '../../../assets/almost_empty_bus.png';
+		else if (passengerAmount > this.defaultBusCapacity / 3 && passengerAmount <= (2 * this.defaultBusCapacity) / 3) return '../../../assets/semi_filled_bus.png';
+		else return '../../../assets/filled_bus.png';
 	}
 
 	getCurrentVehicleSize(): number {

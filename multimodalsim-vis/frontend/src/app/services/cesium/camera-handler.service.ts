@@ -94,7 +94,7 @@ export class CameraHandlerService {
 	}
 
 	private changeAllIconsSize(viewer: Viewer, newSize: number): void {
-		this.changeStopSize(viewer, newSize);
+		// this.changeStopSize(viewer, newSize);
 		this.changeBusSize(viewer, newSize * 2);
 	}
 }

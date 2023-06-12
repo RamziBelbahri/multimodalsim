@@ -110,11 +110,11 @@ export class StopPositionHandlerService {
 
 	updateIcon(viewer: Viewer, stopId: string): void {
 		const entity = viewer.entities.getById(stopId);
-		if (entity && entity.ellipse) {
-			entity.ellipse.material =
-				this.getPassengerAmount(stopId) <= 0
-					? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
-					: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true });
+		if (entity && entity.point) {
+			entity.point.color =
+			this.getPassengerAmount(stopId) <= 0
+				? Cesium.Color.GRAY
+				: Cesium.Color.CHARTREUSE
 		}
 	}
 
@@ -123,15 +123,24 @@ export class StopPositionHandlerService {
 		if (!viewer.entities.getById(id)) {
 			viewer.entities.add({
 				position: stop.position,
-				ellipse: {
-					semiMinorAxis: this.stopLookup.getCurrentStopSize(),
-					semiMajorAxis: this.stopLookup.getCurrentStopSize(),
-					material:
-						this.getPassengerAmount(id) <= 0
-							? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
-							: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
-					zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
+				
+				// ellipse: {
+				// 	semiMinorAxis: this.stopLookup.getCurrentStopSize(),
+				// 	semiMajorAxis: this.stopLookup.getCurrentStopSize(),
+				// 	material:
+				// 		this.getPassengerAmount(id) <= 0
+				// 			? new Cesium.ImageMaterialProperty({ image: '../../../assets/stop.svg', transparent: true })
+				// 			: new Cesium.ImageMaterialProperty({ image: '../../../assets/occupied_stop.svg', transparent: true }),
+				// 	zIndex: stop.getPassengers().length <= 0 ? 1 : 2,
+				// },
+				point : {
+					color : this.getPassengerAmount(id) <= 0
+						? Cesium.Color.GRAY
+						: Cesium.Color.CHARTREUSE,
+					pixelSize : 6
+					// zIndex: stop.getPassengers().length <= 0 ? 1 : 2
 				},
+				
 				label: {
 					font: '20px sans-serif',
 					showBackground: true,

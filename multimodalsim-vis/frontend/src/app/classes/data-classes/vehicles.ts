@@ -1,11 +1,12 @@
 import { SampledPositionProperty } from 'cesium';
-
+import { VehicleColor } from './vehicle-color';
 export class Vehicle {
 	private onBoardPassengers = new Array<string>();
 
 	path: SampledPositionProperty;
 	id: string;
 	type: string;
+	currentColor:VehicleColor = VehicleColor.GREEN;
 
 	constructor(id: string, type: string) {
 		this.id = id;
