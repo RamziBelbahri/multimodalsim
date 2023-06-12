@@ -19,7 +19,10 @@ RUN python -m setup install
 RUN pip install stomp.py
 RUN pip install networkx==2.8.8
 WORKDIR /backend/communication/server
+RUN npm i @types/node
 RUN npm run build
 ENV PORT 8000
 EXPOSE 8000
-CMD [ "npm", "run", "docker" ]
+CMD [ "npm", "run", "start" ]
+# CMD while true; do sleep 1000; done
+

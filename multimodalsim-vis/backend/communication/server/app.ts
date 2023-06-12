@@ -95,7 +95,7 @@ function saveFile(filePath:string, req:Request, file:any) {
 	const directories = filePath.split('/');
 	let directory = '../data/' + req.body['simulationName'] + '/';
 	if(!fs.existsSync(directory)) {
-		fs.mkdirSync(directory);
+		fs.mkdirSync(directory, {recursive:true});
 	}
 	for(let i = 0; i < directories.length - 1; i ++) {
 		directory += (directories[i] + '/');
