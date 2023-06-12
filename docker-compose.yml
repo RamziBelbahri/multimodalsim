@@ -6,7 +6,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # - ./multimodalsim-vis/backend:/backend
+      # - ./multimodalsim-vis/backend/multimodal-simulator:/backend/multimodal-simulator
       # - /backend/communication/server/node_modules
       # - /backend/venv
       - /var/run/docker.sock:/var/run/docker.sock
