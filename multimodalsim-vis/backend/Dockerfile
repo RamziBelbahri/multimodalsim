@@ -9,15 +9,16 @@ RUN apt-get update || : && apt-get install python3 -y
 RUN apt install python3-pip -y
 RUN apt install python-is-python3
 RUN apt-get install docker.io -y
-RUN pip install virtualenv
+RUN pip install virtualenv --break-system-packages
+# RUN pip install virtualenv
 RUN su
 RUN virtualenv venv
 RUN chmod +x venv/bin/activate
 RUN venv/bin/activate
 WORKDIR /backend/multimodal-simulator/python
 RUN python -m setup install
-RUN pip install stomp.py
-RUN pip install networkx==2.8.8
+RUN pip install stomp.py --break-system-packages
+RUN pip install networkx==2.8.8 --break-system-packages
 WORKDIR /backend/communication/server
 RUN npm i @types/node
 RUN npm run build
